@@ -24,8 +24,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mudler/edgevpn/pkg/hub"
-	"github.com/mudler/edgevpn/pkg/utils"
+	"github.com/purpose168/edgevpn/pkg/hub"
+	"github.com/purpose168/edgevpn/pkg/utils"
 
 	"github.com/pkg/errors"
 )

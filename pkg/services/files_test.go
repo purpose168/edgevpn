@@ -24,10 +24,10 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/logger"
-	node "github.com/mudler/edgevpn/pkg/node"
-	. "github.com/mudler/edgevpn/pkg/services"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/logger"
+	node "github.com/purpose168/edgevpn/pkg/node"
+	. "github.com/purpose168/edgevpn/pkg/services"
 )
 
 var _ = Describe("File services", func() {

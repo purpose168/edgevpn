@@ -69,7 +69,7 @@ weight = 1
 [[menu.main]]
     name = "贡献指南"
     weight = 50
-    url = "https://github.com/mudler/edgevpn/contribute"
+    url = "https://github.com/purpose168/edgevpn/contribute"
     pre = "<i class='fab fa-github'></i>"
     post = "" 
 [markup]
@@ -98,9 +98,9 @@ enable = false
 version_menu = "版本"
 
 # 仓库配置（用于页面内链接以打开问题和建议更改的 URL）
-github_repo = "https://github.com/mudler/edgevpn"
+github_repo = "https://github.com/purpose168/edgevpn"
 # 可选的相关项目仓库链接。例如，产品代码所在的同级仓库。
-github_project_repo = "https://github.com/mudler/edgevpn"
+github_project_repo = "https://github.com/purpose168/edgevpn"
 
 # 如果内容目录不在仓库根目录中，请在此处指定值
 github_subdir = "docs"
@@ -134,8 +134,8 @@ footer_about_disable = false
 [params.ui.feedback]
 enable = true
 # 用户点击"是"（页面有帮助）或"否"（页面没有帮助）后看到的响应。
-yes = '很高兴听到这个！请<a href="https://github.com/mudler/edgevpn/issues/new">告诉我们如何改进</a>。'
-no = '很抱歉听到这个。请<a href="https://github.com/mudler/edgevpn/issues/new">告诉我们如何改进</a>。'
+yes = '很高兴听到这个！请<a href="https://github.com/purpose168/edgevpn/issues/new">告诉我们如何改进</a>。'
+no = '很抱歉听到这个。请<a href="https://github.com/purpose168/edgevpn/issues/new">告诉我们如何改进</a>。'
 
 [params.links]
 # 最终用户相关链接。这些将显示在页脚左侧，如果您有社区页面也会显示在那里。
@@ -157,12 +157,12 @@ no = '很抱歉听到这个。请<a href="https://github.com/mudler/edgevpn/issu
 # 开发者相关链接。这些将显示在页脚右侧，如果您有社区页面也会显示在那里。
 [[params.links.developer]]
 	name = "GitHub"
-	url = "https://github.com/mudler/edgevpn"
+	url = "https://github.com/purpose168/edgevpn"
 	icon = "fab fa-github"
         desc = "开发在这里进行！"
 [[params.links.user]]
 	name = "GitHub 讨论区"
-	url = "https://github.com/mudler/edgevpn/discussions"
+	url = "https://github.com/purpose168/edgevpn/discussions"
 	icon = "fab fa-github"
         desc = "与您的用户同伴讨论和获取帮助"
 [[params.links.user]]

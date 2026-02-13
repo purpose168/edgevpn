@@ -1,6 +1,6 @@
 services:
   edgevpn:
-    image: quay.io/mudler/edgevpn:latest
+    image: quay.io/purpose168/edgevpn:latest
     pull_policy: always
     container_name: edgevpn
     restart: unless-stopped

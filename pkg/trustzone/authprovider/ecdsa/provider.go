@@ -19,14 +19,14 @@ import (
 	"strings"
 
 	"github.com/ipfs/go-log/v2"
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/hub"
-	"github.com/mudler/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/hub"
+	"github.com/purpose168/edgevpn/pkg/node"
 )
 
 // ECDSA521 ECDSA521认证提供者结构体
 type ECDSA521 struct {
-	privkey string            // 私钥
+	privkey string             // 私钥
 	logger  log.StandardLogger // 日志记录器
 }
 

@@ -21,11 +21,11 @@ import (
 	"github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	discovery "github.com/mudler/edgevpn/pkg/discovery"
-	"github.com/mudler/edgevpn/pkg/protocol"
-	"github.com/mudler/edgevpn/pkg/utils"
 	"github.com/pkg/errors"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	discovery "github.com/purpose168/edgevpn/pkg/discovery"
+	"github.com/purpose168/edgevpn/pkg/protocol"
+	"github.com/purpose168/edgevpn/pkg/utils"
 	"gopkg.in/yaml.v2"
 )
 
@@ -280,9 +280,9 @@ type OTP struct {
 type YAMLConnectionConfig struct {
 	OTP OTP `yaml:"otp"`
 
-	RoomName       string `yaml:"room"`           // 房间名称
-	Rendezvous     string `yaml:"rendezvous"`     // 会合点
-	MDNS           string `yaml:"mdns"`           // mDNS
+	RoomName       string `yaml:"room"`             // 房间名称
+	Rendezvous     string `yaml:"rendezvous"`       // 会合点
+	MDNS           string `yaml:"mdns"`             // mDNS
 	MaxMessageSize int    `yaml:"max_message_size"` // 最大消息大小
 }
 

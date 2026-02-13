@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mudler/edgevpn/pkg/crypto"
+	"github.com/purpose168/edgevpn/pkg/crypto"
 
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 	"github.com/libp2p/go-libp2p/core/host"
@@ -34,7 +34,7 @@ import (
 type MessageHub struct {
 	sync.Mutex
 
-	blockchain, public *room        // 区块链房间和公共房间
+	blockchain, public *room          // 区块链房间和公共房间
 	ps                 *pubsub.PubSub // 发布订阅服务
 	otpKey             string         // OTP密钥
 	maxsize            int            // 最大消息大小

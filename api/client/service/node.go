@@ -30,28 +30,28 @@ import (
 	"github.com/ipfs/go-log"
 	"gopkg.in/yaml.v2"
 
-	edgeVPNClient "github.com/mudler/edgevpn/api/client"
-	edgevpn "github.com/mudler/edgevpn/pkg/node"
+	edgeVPNClient "github.com/purpose168/edgevpn/api/client"
+	edgevpn "github.com/purpose168/edgevpn/pkg/node"
 )
 
 // Node 是服务节点。
 // 它有一组定义的可用角色，网络中的节点可以承担这些角色。
 // 它接受网络令牌或生成一个
 type Node struct {
-	stateDir                                 string  // 状态目录
-	tokenFile                                string  // 令牌文件
-	uuid                                     string  // 节点 UUID
-	networkToken                             string  // 网络令牌
-	apiAddress                               string  // API 地址
-	defaultRoles, persistentRoles, stopRoles string  // 默认角色、持久角色、停止角色
-	minNode                                  int     // 最小节点数
+	stateDir                                 string // 状态目录
+	tokenFile                                string // 令牌文件
+	uuid                                     string // 节点 UUID
+	networkToken                             string // 网络令牌
+	apiAddress                               string // API 地址
+	defaultRoles, persistentRoles, stopRoles string // 默认角色、持久角色、停止角色
+	minNode                                  int    // 最小节点数
 
-	assets []string      // 资产列表
-	fs     embed.FS      // 嵌入的文件系统
-	client *Client       // 客户端
-	roles  map[Role]func(c *RoleConfig) error  // 角色映射
+	assets []string                           // 资产列表
+	fs     embed.FS                           // 嵌入的文件系统
+	client *Client                            // 客户端
+	roles  map[Role]func(c *RoleConfig) error // 角色映射
 
-	logger log.StandardLogger  // 日志记录器
+	logger log.StandardLogger // 日志记录器
 }
 
 // WithRoles 定义一组角色键

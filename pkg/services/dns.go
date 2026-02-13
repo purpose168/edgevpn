@@ -24,11 +24,11 @@ import (
 	lru "github.com/hashicorp/golang-lru"
 	"github.com/ipfs/go-log"
 	"github.com/miekg/dns"
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/node"
-	"github.com/mudler/edgevpn/pkg/protocol"
-	"github.com/mudler/edgevpn/pkg/types"
 	"github.com/pkg/errors"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/protocol"
+	"github.com/purpose168/edgevpn/pkg/types"
 )
 
 // DNSNetworkService DNS网络服务

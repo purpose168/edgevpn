@@ -16,7 +16,7 @@
 package node
 
 import (
-	hub "github.com/mudler/edgevpn/pkg/hub"
+	hub "github.com/purpose168/edgevpn/pkg/hub"
 )
 
 // messageWriter 是由节点返回的结构体，满足io.Writer接口

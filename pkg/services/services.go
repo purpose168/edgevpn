@@ -24,12 +24,12 @@ import (
 	"github.com/ipfs/go-log"
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/node"
-	protocol "github.com/mudler/edgevpn/pkg/protocol"
 	"github.com/pkg/errors"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/node"
+	protocol "github.com/purpose168/edgevpn/pkg/protocol"
 
-	"github.com/mudler/edgevpn/pkg/types"
+	"github.com/purpose168/edgevpn/pkg/types"
 )
 
 // ExposeNetworkService 暴露服务的网络服务

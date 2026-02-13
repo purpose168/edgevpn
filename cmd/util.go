@@ -29,13 +29,13 @@ import (
 	"github.com/libp2p/go-libp2p/core/crypto"
 	"github.com/libp2p/go-libp2p/core/peer"
 	rcmgr "github.com/libp2p/go-libp2p/p2p/host/resource-manager"
-	"github.com/mudler/edgevpn/internal"
-	"github.com/mudler/edgevpn/pkg/config"
 	"github.com/multiformats/go-multiaddr"
+	"github.com/purpose168/edgevpn/internal"
+	"github.com/purpose168/edgevpn/pkg/config"
 
-	"github.com/mudler/edgevpn/pkg/logger"
-	node "github.com/mudler/edgevpn/pkg/node"
-	"github.com/mudler/edgevpn/pkg/vpn"
+	"github.com/purpose168/edgevpn/pkg/logger"
+	node "github.com/purpose168/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/vpn"
 	"github.com/urfave/cli/v2"
 )
 

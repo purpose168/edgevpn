@@ -18,15 +18,15 @@ import (
 	"time"
 
 	"github.com/ipfs/go-log"
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/hub"
-	"github.com/mudler/edgevpn/pkg/node"
-	"github.com/mudler/edgevpn/pkg/protocol"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/hub"
+	"github.com/purpose168/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/protocol"
 )
 
 // PeerGuardian 为区块链数据中的对等节点提供认证功能
 type PeerGuardian struct {
-	authProviders []AuthProvider   // 认证提供者列表
+	authProviders []AuthProvider     // 认证提供者列表
 	logger        log.StandardLogger // 日志记录器
 }
 
@@ -41,9 +41,9 @@ func NewPeerGuardian(logger log.StandardLogger, authProviders ...AuthProvider) *
 
 // ReceiveMessage 是公共通道的通用处理器，用于提供认证功能。
 // 我们在这里接收消息，并根据两个标准进行选择：
-// - 用于生成认证机制挑战的消息。
-//   认证机制应从专门用于手动添加哈希值的TZ区域获取用户认证数据
-// - 对此类挑战的回答消息，意味着应该将sender.ID添加到信任区域
+//   - 用于生成认证机制挑战的消息。
+//     认证机制应从专门用于手动添加哈希值的TZ区域获取用户认证数据
+//   - 对此类挑战的回答消息，意味着应该将sender.ID添加到信任区域
 func (pg *PeerGuardian) ReceiveMessage(l *blockchain.Ledger, m *hub.Message, c chan *hub.Message) error {
 	pg.logger.Debug("对等节点守护者收到来自", m.SenderID, "的消息")
 

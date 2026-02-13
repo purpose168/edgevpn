@@ -27,7 +27,7 @@ jobs:
       - name: 准备
         id: prep
         run: |
-          DOCKER_IMAGE=quay.io/mudler/edgevpn
+          DOCKER_IMAGE=quay.io/purpose168/edgevpn
           VERSION=latest
           SHORTREF=${GITHUB_SHA::8}  # 获取 commit SHA 的前8位
 

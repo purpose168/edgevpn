@@ -12,12 +12,12 @@ Copyright © 2021-2022 Ettore Di Giacinto <mudler@mocaccino.org>
 
 package types
 
-import "github.com/mudler/edgevpn/pkg/types"
+import "github.com/purpose168/edgevpn/pkg/types"
 
 // Machine 表示一个机器实例，扩展了基础机器类型
 type Machine struct {
-	types.Machine       // 基础机器类型
-	Connected    bool   // 是否已连接
-	OnChain      bool   // 是否在链上
-	Online       bool   // 是否在线
+	types.Machine      // 基础机器类型
+	Connected     bool // 是否已连接
+	OnChain       bool // 是否在链上
+	Online        bool // 是否在线
 }

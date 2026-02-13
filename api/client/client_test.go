@@ -19,7 +19,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	. "github.com/mudler/edgevpn/api/client"
+	. "github.com/purpose168/edgevpn/api/client"
 )
 
 // letterBytes 用于生成随机字符串的字母表

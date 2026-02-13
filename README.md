@@ -13,9 +13,9 @@
     <img src="https://img.shields.io/badge/licence-GPL3-brightgreen"
          alt="license">
   </a>
-  <a href="https://github.com/mudler/edgevpn/issues"><img src="https://img.shields.io/github/issues/mudler/edgevpn"></a>
+  <a href="https://github.com/purpose168/edgevpn/issues"><img src="https://img.shields.io/github/issues/purpose168/edgevpn"></a>
   <img src="https://img.shields.io/badge/made%20with-Go-blue">
-  <img src="https://goreportcard.com/badge/github.com/mudler/edgevpn" alt="go report card" />
+  <img src="https://goreportcard.com/badge/github.com/purpose168/edgevpn" alt="go report card" />
 </p>
 
 <p align="center">
@@ -60,7 +60,7 @@ DNS            |  机器索引
 
 # :new: 图形界面
 
-Linux 的桌面 GUI 应用程序（alpha 版本）可在[这里](https://github.com/mudler/edgevpn-gui)获取
+Linux 的桌面 GUI 应用程序（alpha 版本）可在[这里](https://github.com/purpose168/edgevpn-gui)获取
 
 仪表板            |  连接索引
 :-------------------------:|:-------------------------:
@@ -73,7 +73,7 @@ Linux 的桌面 GUI 应用程序（alpha 版本）可在[这里](https://github.
 
 # :running: 安装
 
-在[发布页面](https://github.com/mudler/edgevpn/releases)下载预编译的静态版本。您可以将其安装到系统中或直接运行。
+在[发布页面](https://github.com/purpose168/edgevpn/releases)下载预编译的静态版本。您可以将其安装到系统中或直接运行。
 
 # :computer: 使用方法
 
@@ -180,7 +180,7 @@ EdgeVPN 可以作为库使用。它非常便携并提供功能接口。
 ```golang
 
 import (
-    node "github.com/mudler/edgevpn/pkg/node"
+    node "github.com/purpose168/edgevpn/pkg/node"
 )
 
 e := node.New(
@@ -200,8 +200,8 @@ e.Start(ctx)
 ```golang
 
 import (
-    vpn "github.com/mudler/edgevpn/pkg/vpn"
-    node "github.com/mudler/edgevpn/pkg/node"
+    vpn "github.com/purpose168/edgevpn/pkg/vpn"
+    node "github.com/purpose168/edgevpn/pkg/node"
 )
 
 opts, err := vpn.Register(vpnOpts...)

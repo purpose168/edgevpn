@@ -19,8 +19,8 @@ import (
 	"strings"
 	"time"
 
-	edgeVPNClient "github.com/mudler/edgevpn/api/client"
-	"github.com/mudler/edgevpn/pkg/protocol"
+	edgeVPNClient "github.com/purpose168/edgevpn/api/client"
+	"github.com/purpose168/edgevpn/pkg/protocol"
 )
 
 // Client 是 edgeVPN 客户端的封装

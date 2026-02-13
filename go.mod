@@ -1,4 +1,4 @@
-module github.com/mudler/edgevpn
+module github.com/purpose168/edgevpn
 
 go 1.24.6
 

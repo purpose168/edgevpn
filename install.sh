@@ -5,7 +5,7 @@ set -o noglob
 github_version() {
     set +e
     # 获取最新版本号，如果失败则返回默认版本 v30.2
-    curl -s https://api.github.com/repos/mudler/edgevpn/releases/latest | \
+    curl -s https://api.github.com/repos/purpose168/edgevpn/releases/latest | \
     grep tag_name | \
     awk '{ print $2 }' | \
     sed -e 's/"//g' -e 's/,//g' || echo "v30.2"
@@ -189,7 +189,7 @@ install() {
     TMP_DIR=$(mktemp -d -t edgevpn-install.XXXXXXXXXX)
 
     # 下载预编译二进制文件
-    download $TMP_DIR/out.tar.gz https://github.com/mudler/edgevpn/releases/download/$VERSION/edgevpn-$VERSION-$OS-$ARCH.tar.gz
+    download $TMP_DIR/out.tar.gz https://github.com/purpose168/edgevpn/releases/download/$VERSION/edgevpn-$VERSION-$OS-$ARCH.tar.gz
 
     # 解压文件
     tar xvf $TMP_DIR/out.tar.gz -C $TMP_DIR

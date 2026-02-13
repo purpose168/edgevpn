@@ -29,40 +29,40 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/host/autorelay"
 	rcmgr "github.com/libp2p/go-libp2p/p2p/host/resource-manager"
 	connmanager "github.com/libp2p/go-libp2p/p2p/net/connmgr"
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/crypto"
-	"github.com/mudler/edgevpn/pkg/discovery"
-	"github.com/mudler/edgevpn/pkg/logger"
-	"github.com/mudler/edgevpn/pkg/node"
-	"github.com/mudler/edgevpn/pkg/trustzone"
-	"github.com/mudler/edgevpn/pkg/trustzone/authprovider/ecdsa"
-	"github.com/mudler/edgevpn/pkg/vpn"
 	"github.com/mudler/water"
 	"github.com/multiformats/go-multiaddr"
 	"github.com/peterbourgon/diskv"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/crypto"
+	"github.com/purpose168/edgevpn/pkg/discovery"
+	"github.com/purpose168/edgevpn/pkg/logger"
+	"github.com/purpose168/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/trustzone"
+	"github.com/purpose168/edgevpn/pkg/trustzone/authprovider/ecdsa"
+	"github.com/purpose168/edgevpn/pkg/vpn"
 )
 
 // Config 是节点和默认EdgeVPN服务的配置结构体
 // 用于在启动前为节点和服务生成选项
 type Config struct {
-	NetworkConfig, NetworkToken                string   // 网络配置和网络令牌
-	Address                                    string   // IP地址
-	ListenMaddrs                               []string // 监听多地址
+	NetworkConfig, NetworkToken                string                // 网络配置和网络令牌
+	Address                                    string                // IP地址
+	ListenMaddrs                               []string              // 监听多地址
 	DHTAnnounceMaddrs                          []multiaddr.Multiaddr // DHT公告多地址
-	Router                                     string   // 路由器地址
-	Interface                                  string   // 接口名称
-	Libp2pLogLevel, LogLevel                   string   // libp2p日志级别和日志级别
-	LowProfile, BootstrapIface                 bool     // 低配置模式和引导接口
-	Blacklist                                  []string // 黑名单
-	Concurrency                                int      // 并发数
-	FrameTimeout                               string   // 帧超时
-	ChannelBufferSize, InterfaceMTU, PacketMTU int      // 通道缓冲区大小、接口MTU、数据包MTU
-	NAT                                        NAT      // NAT配置
-	Connection                                 Connection // 连接配置
-	Discovery                                  Discovery // 发现配置
-	Ledger                                     Ledger    // 账本配置
-	Limit                                      ResourceLimit // 资源限制
-	Privkey                                    []byte   // 私钥
+	Router                                     string                // 路由器地址
+	Interface                                  string                // 接口名称
+	Libp2pLogLevel, LogLevel                   string                // libp2p日志级别和日志级别
+	LowProfile, BootstrapIface                 bool                  // 低配置模式和引导接口
+	Blacklist                                  []string              // 黑名单
+	Concurrency                                int                   // 并发数
+	FrameTimeout                               string                // 帧超时
+	ChannelBufferSize, InterfaceMTU, PacketMTU int                   // 通道缓冲区大小、接口MTU、数据包MTU
+	NAT                                        NAT                   // NAT配置
+	Connection                                 Connection            // 连接配置
+	Discovery                                  Discovery             // 发现配置
+	Ledger                                     Ledger                // 账本配置
+	Limit                                      ResourceLimit         // 资源限制
+	Privkey                                    []byte                // 私钥
 	// PeerGuard (实验性)
 	// 启用peerguardian并添加特定的认证选项
 	PeerGuard PeerGuard
@@ -72,26 +72,26 @@ type Config struct {
 
 // PeerGuard 对等节点保护配置
 type PeerGuard struct {
-	Enable      bool   // 是否启用
-	Relaxed     bool   // 宽松模式
-	Autocleanup bool   // 自动清理
-	PeerGate    bool   // 对等节点门控
+	Enable      bool // 是否启用
+	Relaxed     bool // 宽松模式
+	Autocleanup bool // 自动清理
+	PeerGate    bool // 对等节点门控
 	// AuthProviders 以自由映射形式提供认证提供者：
 	// ecdsa:
 	//   private_key: "foo_bar"
 	AuthProviders map[string]map[string]interface{} // 认证提供者配置
-	SyncInterval  time.Duration                      // 同步间隔
+	SyncInterval  time.Duration                     // 同步间隔
 }
 
 // ResourceLimit 资源限制配置
 type ResourceLimit struct {
-	FileLimit   string                   // 限制文件路径
+	FileLimit   string                    // 限制文件路径
 	LimitConfig *rcmgr.PartialLimitConfig // 限制配置
-	Scope       string                   // 作用域
-	MaxConns    int                      // 最大连接数
-	StaticMin   int64                    // 静态最小值
-	StaticMax   int64                    // 静态最大值
-	Enable      bool                     // 是否启用
+	Scope       string                    // 作用域
+	MaxConns    int                       // 最大连接数
+	StaticMin   int64                     // 静态最小值
+	StaticMax   int64                     // 静态最大值
+	Enable      bool                      // 是否启用
 }
 
 // Ledger 是账本配置结构
@@ -102,8 +102,8 @@ type Ledger struct {
 
 // Discovery 允许启用/禁用发现并设置引导节点
 type Discovery struct {
-	DHT, MDNS      bool     // 是否启用DHT和mDNS发现
-	BootstrapPeers []string // 引导节点列表
+	DHT, MDNS      bool          // 是否启用DHT和mDNS发现
+	BootstrapPeers []string      // 引导节点列表
 	Interval       time.Duration // 发现间隔
 }
 

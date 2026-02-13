@@ -84,6 +84,6 @@ $ EDGEVPNTOKEN=$(edgevpn -g | tee config.yaml | base64 -w0)
 注意：非常实验性的功能！高度不稳定！
 
 仅使用静态地址提供对 IPv6 的初步支持。目前每个接口仅支持一个地址，不支持双栈。
-有关更多信息，请查看 [issue #15](https://github.com/mudler/edgevpn/issues/15)
+有关更多信息，请查看 [issue #15](https://github.com/purpose168/edgevpn/issues/15)
 
 可以使用 `--address fd:ed4e::<IP>/64` 和 `--mtu >1280` 启用 IPv6。

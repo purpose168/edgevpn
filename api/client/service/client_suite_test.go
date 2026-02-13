@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/mudler/edgevpn/api/client"
+	. "github.com/purpose168/edgevpn/api/client"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

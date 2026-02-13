@@ -29,13 +29,13 @@ import (
 
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
-	"github.com/mudler/edgevpn/internal"
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/logger"
-	"github.com/mudler/edgevpn/pkg/node"
-	"github.com/mudler/edgevpn/pkg/protocol"
-	"github.com/mudler/edgevpn/pkg/stream"
-	"github.com/mudler/edgevpn/pkg/types"
+	"github.com/purpose168/edgevpn/internal"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/logger"
+	"github.com/purpose168/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/protocol"
+	"github.com/purpose168/edgevpn/pkg/stream"
+	"github.com/purpose168/edgevpn/pkg/types"
 
 	"github.com/mudler/water"
 	"github.com/pkg/errors"
@@ -56,11 +56,11 @@ func VPNNetworkService(p ...Option) node.NetworkService {
 	return func(ctx context.Context, nc node.Config, n *node.Node, b *blockchain.Ledger) error {
 		// 初始化默认配置
 		c := &Config{
-			Concurrency:        1,                              // 并发数
-			LedgerAnnounceTime: 5 * time.Second,                // 账本公告时间
-			Timeout:            15 * time.Second,               // 超时时间
-			Logger:             logger.New(log.LevelDebug),     // 日志记录器
-			MaxStreams:         30,                             // 最大流数量
+			Concurrency:        1,                          // 并发数
+			LedgerAnnounceTime: 5 * time.Second,            // 账本公告时间
+			Timeout:            15 * time.Second,           // 超时时间
+			Logger:             logger.New(log.LevelDebug), // 日志记录器
+			MaxStreams:         30,                         // 最大流数量
 		}
 		// 应用配置选项
 		if err := c.Apply(p...); err != nil {
@@ -181,11 +181,11 @@ func newBlockChainData(n *node.Node, address string) types.Machine {
 
 	return types.Machine{
 		PeerID:   n.Host().ID().String(), // 对等节点ID
-		Hostname: hostname,                // 主机名
-		OS:       runtime.GOOS,            // 操作系统
-		Arch:     runtime.GOARCH,          // 架构
-		Version:  internal.Version,        // 版本
-		Address:  address,                 // IP地址
+		Hostname: hostname,               // 主机名
+		OS:       runtime.GOOS,           // 操作系统
+		Arch:     runtime.GOARCH,         // 架构
+		Version:  internal.Version,       // 版本
+		Address:  address,                // IP地址
 	}
 }
 

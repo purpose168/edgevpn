@@ -19,9 +19,9 @@ import (
 
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p/core/metrics"
-	"github.com/mudler/edgevpn/api"
-	"github.com/mudler/edgevpn/pkg/node"
-	"github.com/mudler/edgevpn/pkg/services"
+	"github.com/purpose168/edgevpn/api"
+	"github.com/purpose168/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/services"
 	"github.com/urfave/cli/v2"
 )
 

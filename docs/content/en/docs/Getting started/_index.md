@@ -12,7 +12,7 @@ description: >
 
 ### 从发布版本获取
 
-只需从 [GitHub 发布页面](https://github.com/mudler/edgevpn/releases)获取发布版本。二进制文件是静态编译的。
+只需从 [GitHub 发布页面](https://github.com/purpose168/edgevpn/releases)获取发布版本。二进制文件是静态编译的。
 
 ### 通过 Homebrew 在 MacOS 上安装
 
@@ -31,7 +31,7 @@ brew install edgevpn
 - make
 
 ```bash
-$> git clone https://github.com/mudler/edgevpn
+$> git clone https://github.com/purpose168/edgevpn
 $> cd edgevpn
 $> go build
 ```
@@ -39,10 +39,10 @@ $> go build
 ### 使用 Docker Compose
 
 使用 docker 仍然是实验性的，因为设置可能会有很大差异。
-为了方便起见，提供了一个示例 [docker-compose.yml](https://github.com/mudler/edgevpn/blob/master/docker-compose.yml) 文件，但你可能需要编辑它。
+为了方便起见，提供了一个示例 [docker-compose.yml](https://github.com/purpose168/edgevpn/blob/master/docker-compose.yml) 文件，但你可能需要编辑它。
 
 ```bash
-$> git clone https://github.com/mudler/edgevpn
+$> git clone https://github.com/purpose168/edgevpn
 $> cd edgevpn
 $> sudo docker compose up --detach
 ```

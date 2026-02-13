@@ -19,11 +19,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/mudler/edgevpn/pkg/node"
-	"github.com/mudler/edgevpn/pkg/protocol"
-	"github.com/mudler/edgevpn/pkg/utils"
+	"github.com/purpose168/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/protocol"
+	"github.com/purpose168/edgevpn/pkg/utils"
 
-	"github.com/mudler/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
 )
 
 // AliveNetworkService 存活检测网络服务

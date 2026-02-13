@@ -17,8 +17,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/mudler/edgevpn/pkg/node"
-	"github.com/mudler/edgevpn/pkg/services"
+	"github.com/purpose168/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/services"
 	"github.com/urfave/cli/v2"
 )
 

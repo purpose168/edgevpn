@@ -23,10 +23,10 @@ import (
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/core/peer"
 
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	discovery "github.com/mudler/edgevpn/pkg/discovery"
-	hub "github.com/mudler/edgevpn/pkg/hub"
-	protocol "github.com/mudler/edgevpn/pkg/protocol"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	discovery "github.com/purpose168/edgevpn/pkg/discovery"
+	hub "github.com/purpose168/edgevpn/pkg/hub"
+	protocol "github.com/purpose168/edgevpn/pkg/protocol"
 )
 
 // Config 节点配置结构体
@@ -63,7 +63,7 @@ type Config struct {
 	StreamHandlers             map[protocol.Protocol]StreamHandler // 流处理器映射
 	AdditionalOptions, Options []libp2p.Option                     // libp2p选项
 
-	DiscoveryInterval, LedgerSyncronizationTime, LedgerAnnounceTime time.Duration // 各种时间间隔
+	DiscoveryInterval, LedgerSyncronizationTime, LedgerAnnounceTime time.Duration      // 各种时间间隔
 	DiscoveryBootstrapPeers                                         discovery.AddrList // 发现引导节点
 
 	Whitelist, Blacklist []string // 白名单和黑名单
@@ -71,7 +71,7 @@ type Config struct {
 	// GenericHub 启用通用中心
 	GenericHub bool
 
-	PrivateKey []byte            // 私钥
+	PrivateKey []byte             // 私钥
 	PeerTable  map[string]peer.ID // 对等节点表
 
 	Sealer    Sealer // 密封器
@@ -81,9 +81,9 @@ type Config struct {
 // Gater 对等节点门控器接口
 type Gater interface {
 	Gate(*Node, peer.ID) bool // 门控检查
-	Enable()                   // 启用
-	Disable()                  // 禁用
-	Enabled() bool             // 是否启用
+	Enable()                  // 启用
+	Disable()                 // 禁用
+	Enabled() bool            // 是否启用
 }
 
 // Sealer 密封器接口
@@ -103,8 +103,8 @@ type Handler func(*blockchain.Ledger, *hub.Message, chan *hub.Message) error
 
 // ServiceDiscovery 服务发现接口
 type ServiceDiscovery interface {
-	Run(log.StandardLogger, context.Context, host.Host) error        // 运行服务发现
-	Option(context.Context) func(c *libp2p.Config) error             // 返回libp2p选项
+	Run(log.StandardLogger, context.Context, host.Host) error // 运行服务发现
+	Option(context.Context) func(c *libp2p.Config) error      // 返回libp2p选项
 }
 
 // Option 配置选项函数类型

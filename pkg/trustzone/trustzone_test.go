@@ -24,13 +24,13 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/logger"
-	node "github.com/mudler/edgevpn/pkg/node"
-	"github.com/mudler/edgevpn/pkg/protocol"
-	"github.com/mudler/edgevpn/pkg/trustzone"
-	. "github.com/mudler/edgevpn/pkg/trustzone"
-	. "github.com/mudler/edgevpn/pkg/trustzone/authprovider/ecdsa"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/logger"
+	node "github.com/purpose168/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/protocol"
+	"github.com/purpose168/edgevpn/pkg/trustzone"
+	. "github.com/purpose168/edgevpn/pkg/trustzone"
+	. "github.com/purpose168/edgevpn/pkg/trustzone/authprovider/ecdsa"
 )
 
 var _ = Describe("信任区域", func() {

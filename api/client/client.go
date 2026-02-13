@@ -23,16 +23,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mudler/edgevpn/api"
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/types"
+	"github.com/purpose168/edgevpn/api"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/types"
 )
 
 type (
 	// Client 结构体表示 API 客户端
 	Client struct {
-		host       string        // 主机地址
-		httpClient *http.Client  // HTTP 客户端
+		host       string       // 主机地址
+		httpClient *http.Client // HTTP 客户端
 	}
 )
 

@@ -23,11 +23,11 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/logger"
-	node "github.com/mudler/edgevpn/pkg/node"
-	. "github.com/mudler/edgevpn/pkg/services"
-	"github.com/mudler/edgevpn/pkg/types"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/logger"
+	node "github.com/purpose168/edgevpn/pkg/node"
+	. "github.com/purpose168/edgevpn/pkg/services"
+	"github.com/purpose168/edgevpn/pkg/types"
 )
 
 var _ = Describe("DNS service", func() {
@@ -38,7 +38,7 @@ var _ = Describe("DNS service", func() {
 
 	e2, _ := node.New(
 		append(Alive(15*time.Second, 90*time.Minute, 15*time.Minute),
-			node.FromBase64(true, true, token,nil, nil), node.WithStore(&blockchain.MemoryStore{}), l)...)
+			node.FromBase64(true, true, token, nil, nil), node.WithStore(&blockchain.MemoryStore{}), l)...)
 
 	Context("DNS service", func() {
 		It("Set DNS records and can resolve IPs", func() {
@@ -46,7 +46,7 @@ var _ = Describe("DNS service", func() {
 			defer cancel()
 
 			opts := DNS(logg, "127.0.0.1:19192", true, []string{"8.8.8.8:53"}, 10)
-			opts = append(opts, node.FromBase64(true, true, token,nil, nil), node.WithStore(&blockchain.MemoryStore{}), l)
+			opts = append(opts, node.FromBase64(true, true, token, nil, nil), node.WithStore(&blockchain.MemoryStore{}), l)
 			e, _ := node.New(opts...)
 
 			e.Start(ctx)

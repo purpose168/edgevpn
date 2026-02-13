@@ -6,7 +6,7 @@ description: >
   GUI 应用程序
 ---
 
-Linux 的桌面 GUI 应用程序（alpha 版本）可在[此处](https://github.com/mudler/edgevpn-gui)获取。
+Linux 的桌面 GUI 应用程序（alpha 版本）可在[此处](https://github.com/purpose168/edgevpn-gui)获取。
 
 请注意，GUI 不需要安装 CLI。它会自动提示下载最新的可用版本，并提供版本管理选项。
 

@@ -9,13 +9,13 @@ description: >
 
 ## 为 EdgeVPN 做贡献
 
-EdgeVPN 项目的贡献指南位于 [GitHub 仓库](https://github.com/mudler/edgevpn/blob/master/CONTRIBUTING.md)。这里是为文档网站贡献的一些提示。
+EdgeVPN 项目的贡献指南位于 [GitHub 仓库](https://github.com/purpose168/edgevpn/blob/master/CONTRIBUTING.md)。这里是为文档网站贡献的一些提示。
 
 ## 为文档网站做贡献
 
 ### 我们使用 GitHub 进行开发
 
-我们使用 [GitHub 托管代码](https://github.com/mudler/edgevpn)、跟踪问题和功能请求，以及接受 Pull Request。
+我们使用 [GitHub 托管代码](https://github.com/purpose168/edgevpn)、跟踪问题和功能请求，以及接受 Pull Request。
 
 我们使用 [Hugo](https://gohugo.io/) 来格式化和生成网站，使用 [Docsy](https://github.com/google/docsy) 主题进行样式设计和网站结构，使用 GitHub Actions 管理网站部署。Hugo 是一个开源的静态网站生成器，为我们提供模板、标准目录结构中的内容组织以及网站生成引擎。你可以用 Markdown（或者 HTML，如果你愿意）编写页面，Hugo 会将它们打包成一个网站。
 
@@ -37,7 +37,7 @@ EdgeVPN 项目的贡献指南位于 [GitHub 仓库](https://github.com/mudler/ed
 
 这是使用 git 本地检出更新文档的快速指南。它假设你熟悉 GitHub 工作流程，并且愿意使用文档更新的自动预览：
 
-1. 在 GitHub 上 Fork [仓库](https://github.com/mudler/edgevpn)。
+1. 在 GitHub 上 Fork [仓库](https://github.com/purpose168/edgevpn)。
 2. 进行更改，如果与文档相关，要查看预览，请在 `docs` 目录中运行 `make serve`，然后浏览到 [localhost:1313](http://localhost:1313)
 3. 如果你还没有准备好进行审查，请在 PR 名称中添加 "WIP" 以表示这是一个正在进行的工作。
 4. 继续更新文档并推送更改，直到你对内容满意为止。

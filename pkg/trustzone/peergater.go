@@ -19,16 +19,16 @@ import (
 	"time"
 
 	"github.com/libp2p/go-libp2p/core/peer"
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	"github.com/mudler/edgevpn/pkg/node"
-	"github.com/mudler/edgevpn/pkg/protocol"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	"github.com/purpose168/edgevpn/pkg/node"
+	"github.com/purpose168/edgevpn/pkg/protocol"
 )
 
 // PeerGater 对等节点门控器，用于控制对等节点的访问权限
 type PeerGater struct {
 	sync.Mutex
-	trustDB          []peer.ID  // 信任数据库，存储已认证的对等节点ID
-	enabled, relaxed bool       // enabled表示是否启用，relaxed表示是否宽松模式
+	trustDB          []peer.ID // 信任数据库，存储已认证的对等节点ID
+	enabled, relaxed bool      // enabled表示是否启用，relaxed表示是否宽松模式
 }
 
 // NewPeerGater 返回新的对等节点门控器

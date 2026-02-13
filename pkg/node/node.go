@@ -25,27 +25,27 @@ import (
 	"github.com/libp2p/go-libp2p/core/network"
 	"github.com/libp2p/go-libp2p/p2p/net/conngater"
 
-	"github.com/mudler/edgevpn/pkg/crypto"
-	protocol "github.com/mudler/edgevpn/pkg/protocol"
+	"github.com/purpose168/edgevpn/pkg/crypto"
+	protocol "github.com/purpose168/edgevpn/pkg/protocol"
 
-	"github.com/mudler/edgevpn/pkg/blockchain"
-	hub "github.com/mudler/edgevpn/pkg/hub"
-	"github.com/mudler/edgevpn/pkg/logger"
+	"github.com/purpose168/edgevpn/pkg/blockchain"
+	hub "github.com/purpose168/edgevpn/pkg/hub"
+	"github.com/purpose168/edgevpn/pkg/logger"
 )
 
 // Node 节点结构体，表示EdgeVPN网络中的一个节点
 type Node struct {
-	config     Config            // 节点配置
-	MessageHub *hub.MessageHub   // 消息中心
+	config     Config          // 节点配置
+	MessageHub *hub.MessageHub // 消息中心
 
 	//HubRoom *hub.Room
 	inputCh      chan *hub.Message // 输入消息通道
 	genericHubCh chan *hub.Message // 通用中心通道
 
-	seed   int64                 // 随机种子
-	host   host.Host             // libp2p主机
+	seed   int64                           // 随机种子
+	host   host.Host                       // libp2p主机
 	cg     *conngater.BasicConnectionGater // 连接门控器
-	ledger *blockchain.Ledger    // 区块链账本
+	ledger *blockchain.Ledger              // 区块链账本
 	sync.Mutex
 }
 
@@ -62,15 +62,15 @@ var defaultLibp2pOptions = []libp2p.Option{
 // 参数 p 为可选的配置选项
 func New(p ...Option) (*Node, error) {
 	c := &Config{
-		DiscoveryInterval:        5 * time.Minute,          // 发现间隔时间
+		DiscoveryInterval:        5 * time.Minute,                           // 发现间隔时间
 		StreamHandlers:           make(map[protocol.Protocol]StreamHandler), // 流处理器映射
-		LedgerAnnounceTime:       5 * time.Second,          // 账本公告时间
-		LedgerSyncronizationTime: 5 * time.Second,          // 账本同步时间
-		SealKeyLength:            defaultKeyLength,         // 密钥长度
-		Options:                  defaultLibp2pOptions,     // libp2p选项
-		Logger:                   logger.New(log.LevelDebug), // 日志记录器
-		Sealer:                   &crypto.AESSealer{},      // 密封器
-		Store:                    &blockchain.MemoryStore{}, // 存储器
+		LedgerAnnounceTime:       5 * time.Second,                           // 账本公告时间
+		LedgerSyncronizationTime: 5 * time.Second,                           // 账本同步时间
+		SealKeyLength:            defaultKeyLength,                          // 密钥长度
+		Options:                  defaultLibp2pOptions,                      // libp2p选项
+		Logger:                   logger.New(log.LevelDebug),                // 日志记录器
+		Sealer:                   &crypto.AESSealer{},                       // 密封器
+		Store:                    &blockchain.MemoryStore{},                 // 存储器
 	}
 
 	if err := c.Apply(p...); err != nil {
