@@ -14,6 +14,6 @@ package types
 
 // Peer 表示一个对等节点
 type Peer struct {
-	ID     string  // 对等节点 ID
-	Online bool    // 是否在线
+	ID     string // 对等节点 ID
+	Online bool   // 是否在线
 }

@@ -87,9 +87,9 @@ type DecayerCfg struct {
 // WithDefaults 在此DecayerConfig实例上写入默认值，
 // 并返回自身以支持链式调用。
 //
-//  cfg := (&DecayerCfg{}).WithDefaults()
-//  cfg.Resolution = 30 * time.Second
-//  t := NewDecayer(cfg, cm)
+//	cfg := (&DecayerCfg{}).WithDefaults()
+//	cfg.Resolution = 30 * time.Second
+//	t := NewDecayer(cfg, cm)
 func (cfg *DecayerCfg) WithDefaults() *DecayerCfg {
 	cfg.Resolution = DefaultResolution
 	return cfg

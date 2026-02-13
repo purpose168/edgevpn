@@ -17,8 +17,8 @@ import "encoding/json"
 
 // Message 消息结构体，在pubsub消息体中进行JSON转换
 type Message struct {
-	Message  string                 // 消息内容
-	SenderID string                 // 发送者ID
+	Message  string // 消息内容
+	SenderID string // 发送者ID
 
 	Annotations map[string]interface{} // 注解信息
 }

@@ -235,7 +235,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 			}
 		}
 
-		for id, _ := range p {
+		for id := range p {
 			list = append(list, apiTypes.Peer{ID: id, Online: true})
 		}
 

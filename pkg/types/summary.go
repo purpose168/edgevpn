@@ -16,12 +16,12 @@ package types
 // Summary 网络摘要信息结构体
 // 用于表示整个VPN网络的统计摘要
 type Summary struct {
-	Files         int    // 文件数量
-	Machines      int    // 机器数量
-	Users         int    // 用户数量
-	Services      int    // 服务数量
-	BlockChain    int    // 区块链区块数量
-	OnChainNodes  int    // 链上节点数量
-	Peers         int    // 对等节点数量
-	NodeID        string // 当前节点ID
+	Files        int    // 文件数量
+	Machines     int    // 机器数量
+	Users        int    // 用户数量
+	Services     int    // 服务数量
+	BlockChain   int    // 区块链区块数量
+	OnChainNodes int    // 链上节点数量
+	Peers        int    // 对等节点数量
+	NodeID       string // 当前节点ID
 }

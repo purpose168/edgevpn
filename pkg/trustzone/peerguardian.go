@@ -82,7 +82,7 @@ func (pg *PeerGuardian) Challenger(duration time.Duration, autocleanup bool) nod
 				}
 				tz := b.CurrentData()[protocol.TrustZoneKey]
 
-				for k, _ := range tz {
+				for k := range tz {
 				PEER:
 					for _, p := range peers {
 						if p.String() == k {

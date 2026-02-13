@@ -99,7 +99,7 @@ func (pg *PeerGater) UpdaterService(duration time.Duration) node.NetworkService 
 			tz, found := b.CurrentData()[protocol.TrustZoneKey]
 			if found {
 				// 将信任区域中的对等节点ID添加到数据库
-				for k, _ := range tz {
+				for k := range tz {
 					db = append(db, peer.ID(k))
 				}
 			}

@@ -26,7 +26,7 @@ var _ log.StandardLogger = &Logger{}
 
 // Logger 日志记录器结构体
 type Logger struct {
-	level log.LogLevel      // 日志级别
+	level log.LogLevel       // 日志级别
 	zap   *zap.SugaredLogger // Zap日志记录器
 }
 
@@ -35,18 +35,18 @@ type Logger struct {
 func New(lvl log.LogLevel) *Logger {
 	cfg := zap.Config{
 
-		Encoding:         "json",                          // 编码格式
-		OutputPaths:      []string{"stdout"},              // 输出路径
-		ErrorOutputPaths: []string{"stderr"},              // 错误输出路径
+		Encoding:         "json",                                   // 编码格式
+		OutputPaths:      []string{"stdout"},                       // 输出路径
+		ErrorOutputPaths: []string{"stderr"},                       // 错误输出路径
 		Level:            zap.NewAtomicLevelAt(zapcore.Level(lvl)), // 日志级别
 		EncoderConfig: zapcore.EncoderConfig{
-			MessageKey:   "message",                       // 消息键
-			LevelKey:     "level",                         // 级别键
-			EncodeLevel:  zapcore.CapitalLevelEncoder,     // 级别编码器
-			TimeKey:      "time",                          // 时间键
-			EncodeTime:   zapcore.ISO8601TimeEncoder,      // 时间编码器
-			CallerKey:    "caller",                        // 调用者键
-			EncodeCaller: zapcore.ShortCallerEncoder,      // 调用者编码器
+			MessageKey:   "message",                   // 消息键
+			LevelKey:     "level",                     // 级别键
+			EncodeLevel:  zapcore.CapitalLevelEncoder, // 级别编码器
+			TimeKey:      "time",                      // 时间键
+			EncodeTime:   zapcore.ISO8601TimeEncoder,  // 时间编码器
+			CallerKey:    "caller",                    // 调用者键
+			EncodeCaller: zapcore.ShortCallerEncoder,  // 调用者编码器
 		},
 	}
 	logger, err := cfg.Build(zap.AddCallerSkip(1))

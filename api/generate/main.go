@@ -11,9 +11,9 @@ import (
 )
 
 func main() {
-	templateFile := os.Args[1]  // 模板文件路径
-	src := os.Args[2]           // 源文件路径
-	output := os.Args[3]        // 输出文件路径
+	templateFile := os.Args[1] // 模板文件路径
+	src := os.Args[2]          // 源文件路径
+	output := os.Args[3]       // 输出文件路径
 
 	// 读取模板文件
 	b, err := ioutil.ReadFile(templateFile)

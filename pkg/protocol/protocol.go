@@ -19,7 +19,7 @@ import (
 
 // 协议ID常量定义
 const (
-	EdgeVPN         Protocol = "/edgevpn/0.1"       // EdgeVPN主协议
+	EdgeVPN         Protocol = "/edgevpn/0.1"         // EdgeVPN主协议
 	ServiceProtocol Protocol = "/edgevpn/service/0.1" // 服务协议
 	FileProtocol    Protocol = "/edgevpn/file/0.1"    // 文件协议
 	EgressProtocol  Protocol = "/edgevpn/egress/0.1"  // 出口协议
@@ -27,14 +27,14 @@ const (
 
 // 账本键常量定义
 const (
-	FilesLedgerKey    = "files"        // 文件账本键
-	MachinesLedgerKey = "machines"     // 机器账本键
-	ServicesLedgerKey = "services"     // 服务账本键
-	UsersLedgerKey    = "users"        // 用户账本键
-	HealthCheckKey    = "healthcheck"  // 健康检查键
-	DNSKey            = "dns"          // DNS键
-	EgressService     = "egress"       // 出口服务键
-	TrustZoneKey      = "trustzone"    // 信任区域键
+	FilesLedgerKey    = "files"         // 文件账本键
+	MachinesLedgerKey = "machines"      // 机器账本键
+	ServicesLedgerKey = "services"      // 服务账本键
+	UsersLedgerKey    = "users"         // 用户账本键
+	HealthCheckKey    = "healthcheck"   // 健康检查键
+	DNSKey            = "dns"           // DNS键
+	EgressService     = "egress"        // 出口服务键
+	TrustZoneKey      = "trustzone"     // 信任区域键
 	TrustZoneAuthKey  = "trustzoneAuth" // 信任区域认证键
 )
 

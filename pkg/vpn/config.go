@@ -22,26 +22,26 @@ import (
 
 // Config VPN配置结构体，包含VPN接口和运行时参数
 type Config struct {
-	Interface        *water.Interface   // 网络接口实例
-	InterfaceName    string             // 接口名称
-	InterfaceAddress string             // 接口IP地址（CIDR格式）
-	RouterAddress    string             // 路由器地址
-	InterfaceMTU     int                // 接口MTU值
-	MTU              int                // 数据包MTU值
-	DeviceType       water.DeviceType   // 设备类型（TUN/TAP）
+	Interface        *water.Interface // 网络接口实例
+	InterfaceName    string           // 接口名称
+	InterfaceAddress string           // 接口IP地址（CIDR格式）
+	RouterAddress    string           // 路由器地址
+	InterfaceMTU     int              // 接口MTU值
+	MTU              int              // 数据包MTU值
+	DeviceType       water.DeviceType // 设备类型（TUN/TAP）
 
-	LedgerAnnounceTime time.Duration    // 账本公告时间间隔
+	LedgerAnnounceTime time.Duration      // 账本公告时间间隔
 	Logger             log.StandardLogger // 日志记录器
 
-	NetLinkBootstrap bool               // 是否使用NetLink引导
+	NetLinkBootstrap bool // 是否使用NetLink引导
 
 	// Frame timeout 帧超时时间
 	Timeout time.Duration
 
-	Concurrency       int               // 并发处理数
-	ChannelBufferSize int               // 通道缓冲区大小
-	MaxStreams        int               // 最大流数量
-	lowProfile        bool              // 低配置模式
+	Concurrency       int  // 并发处理数
+	ChannelBufferSize int  // 通道缓冲区大小
+	MaxStreams        int  // 最大流数量
+	lowProfile        bool // 低配置模式
 }
 
 // Option 配置选项函数类型

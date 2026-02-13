@@ -54,12 +54,12 @@ func BackoffMaxElapsedTime(i time.Duration) expBackoffOpt {
 // 返回配置好的退避策略实例
 func newExpBackoff(o ...expBackoffOpt) backoff.BackOff {
 	b := &backoff.ExponentialBackOff{
-		InitialInterval:     5 * time.Second,   // 初始间隔时间
-		RandomizationFactor: 0.5,               // 随机化因子
-		Multiplier:          2,                 // 乘数
-		MaxInterval:         2 * time.Minute,   // 最大间隔时间
-		MaxElapsedTime:      0,                 // 最大已用时间（0表示无限制）
-		Stop:                backoff.Stop,      // 停止标志
+		InitialInterval:     5 * time.Second,     // 初始间隔时间
+		RandomizationFactor: 0.5,                 // 随机化因子
+		Multiplier:          2,                   // 乘数
+		MaxInterval:         2 * time.Minute,     // 最大间隔时间
+		MaxElapsedTime:      0,                   // 最大已用时间（0表示无限制）
+		Stop:                backoff.Stop,        // 停止标志
 		Clock:               backoff.SystemClock, // 系统时钟
 	}
 	// 应用所有选项
