@@ -1,7 +1,7 @@
 ---
-title: "Concepts"
-linkTitle: "Concepts"
+title: "概念"
+linkTitle: "概念"
 weight: 20
 description: >
-  Expore EdgeVPN functionalities by looking at practical use-cases
+  通过实际用例探索 EdgeVPN 功能
 ---

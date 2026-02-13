@@ -8,6 +8,8 @@
 // Package signature provides simple methods to create and verify signatures
 // in PEM format.
 // Extracted https://github.com/syncthing/syncthing/blob/main/lib/signature/signature.go and adapted to encode directly into base64
+// signature包提供了创建和验证PEM格式签名的简单方法。
+// 提取自 https://github.com/syncthing/syncthing/blob/main/lib/signature/signature.go 并适配为直接编码为base64
 
 package ecdsa
 
@@ -26,73 +28,73 @@ import (
 	"math/big"
 )
 
-// GenerateKeys returns a new key pair, with the private and public key
-// encoded in PEM format.
+// GenerateKeys 返回新的密钥对，私钥和公钥都以PEM格式编码。
 func GenerateKeys() (privKey []byte, pubKey []byte, err error) {
-	// Generate a new key pair
+	// 生成新的密钥对
 	key, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Marshal the private key
+	// 序列化私钥
 	bs, err := x509.MarshalECPrivateKey(key)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Encode it in PEM format
+	// 以PEM格式编码
 	privKey = pem.EncodeToMemory(&pem.Block{
 		Type:  "EC PRIVATE KEY",
 		Bytes: bs,
 	})
 
-	// Marshal the public key
+	// 序列化公钥
 	bs, err = x509.MarshalPKIXPublicKey(key.Public())
 	if err != nil {
 		return nil, nil, err
 	}
 
-	// Encode it in PEM format
+	// 以PEM格式编码
 	pubKey = pem.EncodeToMemory(&pem.Block{
 		Type:  "EC PUBLIC KEY",
 		Bytes: bs,
 	})
 
+	// 编码为base64
 	privKey = []byte(base64.URLEncoding.EncodeToString(privKey))
 	pubKey = []byte(base64.URLEncoding.EncodeToString(pubKey))
 
 	return
 }
 
-// Sign computes the hash of data and signs it with the private key, returning
-// a signature in PEM format.
+// sign 计算数据的哈希值并使用私钥签名，返回PEM格式的签名。
+// 参数 privKeyPEM 为PEM格式的私钥，data 为要签名的数据
 func sign(privKeyPEM []byte, data io.Reader) ([]byte, error) {
-	// Parse the private key
+	// 解析私钥
 	key, err := loadPrivateKey(privKeyPEM)
 	if err != nil {
 		return nil, err
 	}
 
-	// Hash the reader data
+	// 计算读取器数据的哈希值
 	hash, err := hashReader(data)
 	if err != nil {
 		return nil, err
 	}
 
-	// Sign the hash
+	// 对哈希值签名
 	r, s, err := ecdsa.Sign(rand.Reader, key, hash)
 	if err != nil {
 		return nil, err
 	}
 
-	// Marshal the signature using ASN.1
+	// 使用ASN.1序列化签名
 	sig, err := marshalSignature(r, s)
 	if err != nil {
 		return nil, err
 	}
 
-	// Encode it in a PEM block
+	// 编码为PEM块
 	bs := pem.EncodeToMemory(&pem.Block{
 		Type:  "SIGNATURE",
 		Bytes: sig,
@@ -101,41 +103,43 @@ func sign(privKeyPEM []byte, data io.Reader) ([]byte, error) {
 	return []byte(base64.URLEncoding.EncodeToString(bs)), nil
 }
 
-// Verify computes the hash of data and compares it to the signature using the
-// given public key. Returns nil if the signature is correct.
+// verify 计算数据的哈希值并使用给定的公钥与签名进行比较。
+// 如果签名正确则返回nil。
+// 参数 pubKeyPEM 为PEM格式的公钥，signature 为签名，data 为原始数据
 func verify(pubKeyPEM []byte, signature []byte, data io.Reader) error {
-	// Parse the public key
+	// 解析公钥
 	key, err := loadPublicKey(pubKeyPEM)
 	if err != nil {
 		return err
 	}
 
+	// 解码base64签名
 	bsDec, err := base64.URLEncoding.DecodeString(string(signature))
 	if err != nil {
 		return err
 	}
-	// Parse the signature
+	// 解析签名
 	block, _ := pem.Decode(bsDec)
 	r, s, err := unmarshalSignature(block.Bytes)
 	if err != nil {
 		return err
 	}
 
-	// Compute the hash of the data
+	// 计算数据的哈希值
 	hash, err := hashReader(data)
 	if err != nil {
 		return err
 	}
 
-	// Verify the signature
+	// 验证签名
 	if !ecdsa.Verify(key, hash, r, s) {
-		return errors.New("incorrect signature")
+		return errors.New("签名不正确")
 	}
 
 	return nil
 }
 
-// hashReader returns the SHA256 hash of the reader
+// hashReader 返回读取器内容的SHA256哈希值
 func hashReader(r io.Reader) ([]byte, error) {
 	h := sha256.New()
 	if _, err := io.Copy(h, r); err != nil {
@@ -145,8 +149,7 @@ func hashReader(r io.Reader) ([]byte, error) {
 	return hash, nil
 }
 
-// loadPrivateKey returns the ECDSA private key structure for the given PEM
-// data.
+// loadPrivateKey 从给定的PEM数据返回ECDSA私钥结构。
 func loadPrivateKey(bs []byte) (*ecdsa.PrivateKey, error) {
 	bDecoded, err := base64.URLEncoding.DecodeString(string(bs))
 	if err != nil {
@@ -156,8 +159,7 @@ func loadPrivateKey(bs []byte) (*ecdsa.PrivateKey, error) {
 	return x509.ParseECPrivateKey(block.Bytes)
 }
 
-// loadPublicKey returns the ECDSA public key structure for the given PEM
-// data.
+// loadPublicKey 从给定的PEM数据返回ECDSA公钥结构。
 func loadPublicKey(bs []byte) (*ecdsa.PublicKey, error) {
 	bDecoded := []byte{}
 	bDecoded, err := base64.URLEncoding.DecodeString(string(bs))
@@ -165,30 +167,28 @@ func loadPublicKey(bs []byte) (*ecdsa.PublicKey, error) {
 		return nil, err
 	}
 
-	// Decode and parse the public key PEM block
+	// 解码并解析公钥PEM块
 	block, _ := pem.Decode(bDecoded)
 	intf, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
 		return nil, err
 	}
 
-	// It should be an ECDSA public key
+	// 应该是ECDSA公钥
 	pk, ok := intf.(*ecdsa.PublicKey)
 	if !ok {
-		return nil, errors.New("unsupported public key format")
+		return nil, errors.New("不支持的公钥格式")
 	}
 
 	return pk, nil
 }
 
-// A wrapper around the signature integers so that we can marshal and
-// unmarshal them.
+// signature 签名整数包装器，用于序列化和反序列化
 type signature struct {
 	R, S *big.Int
 }
 
-// marshalSignature returns ASN.1 encoded bytes for the given integers,
-// suitable for PEM encoding.
+// marshalSignature 返回给定整数的ASN.1编码字节，适合PEM编码。
 func marshalSignature(r, s *big.Int) ([]byte, error) {
 	sig := signature{
 		R: r,
@@ -203,8 +203,7 @@ func marshalSignature(r, s *big.Int) ([]byte, error) {
 	return bs, nil
 }
 
-// unmarshalSignature returns the R and S integers from the given ASN.1
-// encoded signature.
+// unmarshalSignature 从给定的ASN.1编码签名返回R和S整数。
 func unmarshalSignature(sig []byte) (r *big.Int, s *big.Int, err error) {
 	var ts signature
 	_, err = asn1.Unmarshal(sig, &ts)

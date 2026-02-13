@@ -20,7 +20,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+// TestServices 服务测试入口函数
 func TestServices(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Services Suite")
+	RunSpecs(t, "服务测试套件")
 }

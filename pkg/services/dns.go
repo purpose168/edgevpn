@@ -31,6 +31,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+// DNSNetworkService DNS网络服务
+// 参数 ll 为日志记录器，listenAddr 为监听地址，forwarder 为是否启用转发，forward 为转发服务器列表，cacheSize 为缓存大小
 func DNSNetworkService(ll log.StandardLogger, listenAddr string, forwarder bool, forward []string, cacheSize int) node.NetworkService {
 	return func(ctx context.Context, c node.Config, n *node.Node, b *blockchain.Ledger) error {
 		server := &dns.Server{Addr: listenAddr, Net: "udp"}
@@ -52,27 +54,31 @@ func DNSNetworkService(ll log.StandardLogger, listenAddr string, forwarder bool,
 	}
 }
 
-// DNS returns a network service binding a dns blockchain resolver on listenAddr.
-// Takes an associated name for the addresses in the blockchain
+// DNS 返回在listenAddr上绑定DNS区块链解析器的网络服务。
+// 接受区块链中地址的关联名称
+// 参数 ll 为日志记录器，listenAddr 为监听地址，forwarder 为是否启用转发，forward 为转发服务器列表，cacheSize 为缓存大小
 func DNS(ll log.StandardLogger, listenAddr string, forwarder bool, forward []string, cacheSize int) []node.Option {
 	return []node.Option{
 		node.WithNetworkService(DNSNetworkService(ll, listenAddr, forwarder, forward, cacheSize)),
 	}
 }
 
-// PersistDNSRecord is syntatic sugar around the ledger
-// It persists a DNS record to the blockchain until it sees it reconciled.
-// It automatically stop announcing and it is not *guaranteed* to persist data.
+// PersistDNSRecord 是账本的语法糖
+// 它将DNS记录持久化到区块链，直到看到它被协调。
+// 它会自动停止公告，并且不*保证*持久化数据。
+// 参数 ctx 为上下文，b 为区块链账本，announcetime 为公告时间，timeout 为超时时间，regex 为正则表达式，record 为DNS记录
 func PersistDNSRecord(ctx context.Context, b *blockchain.Ledger, announcetime, timeout time.Duration, regex string, record types.DNS) {
 	b.Persist(ctx, announcetime, timeout, protocol.DNSKey, regex, record)
 }
 
-// AnnounceDNSRecord is syntatic sugar around the ledger
-// Announces a DNS record binding to the blockchain, and keeps announcing for the ctx lifecycle
+// AnnounceDNSRecord 是账本的语法糖
+// 将DNS记录绑定公告到区块链，并在ctx生命周期内持续公告
+// 参数 ctx 为上下文，b 为区块链账本，announcetime 为公告时间，regex 为正则表达式，record 为DNS记录
 func AnnounceDNSRecord(ctx context.Context, b *blockchain.Ledger, announcetime time.Duration, regex string, record types.DNS) {
 	b.AnnounceUpdate(ctx, announcetime, protocol.DNSKey, regex, record)
 }
 
+// dnsHandler DNS处理器结构体
 type dnsHandler struct {
 	ctx       context.Context
 	b         *blockchain.Ledger
@@ -82,12 +88,14 @@ type dnsHandler struct {
 	ll        log.StandardLogger
 }
 
+// parseQuery 解析DNS查询
+// 参数 m 为DNS消息，forward 为是否转发
 func (d dnsHandler) parseQuery(m *dns.Msg, forward bool) *dns.Msg {
 	response := m.Copy()
-	d.ll.Debug("Received DNS request", m)
+	d.ll.Debug("收到DNS请求", m)
 	if len(m.Question) > 0 {
 		q := m.Question[0]
-		// Resolve the entry to an IP from the blockchain data
+		// 从区块链数据解析条目到IP
 		for k, v := range d.b.CurrentData()[protocol.DNSKey] {
 			r, err := regexp.Compile(k)
 			if err == nil && r.MatchString(q.Name) {
@@ -97,24 +105,25 @@ func (d dnsHandler) parseQuery(m *dns.Msg, forward bool) *dns.Msg {
 					rr, err := dns.NewRR(fmt.Sprintf("%s %s %s", q.Name, dns.TypeToString[q.Qtype], val))
 					if err == nil {
 						response.Answer = append(m.Answer, rr)
-						d.ll.Debug("Response from blockchain", response)
+						d.ll.Debug("来自区块链的响应", response)
 						return response
 					}
 				}
 			}
 		}
 		if forward {
-			d.ll.Debug("Forwarding DNS request", m)
+			d.ll.Debug("转发DNS请求", m)
 			r, err := d.forwardQuery(m)
 			if err == nil {
 				response.Answer = r.Answer
 			}
-			d.ll.Debug("Response from fw server", r)
+			d.ll.Debug("来自转发服务器的响应", r)
 		}
 	}
 	return response
 }
 
+// handleDNSRequest 处理DNS请求
 func (d dnsHandler) handleDNSRequest() func(w dns.ResponseWriter, r *dns.Msg) {
 	return func(w dns.ResponseWriter, r *dns.Msg) {
 		var resp *dns.Msg
@@ -128,6 +137,8 @@ func (d dnsHandler) handleDNSRequest() func(w dns.ResponseWriter, r *dns.Msg) {
 	}
 }
 
+// forwardQuery 转发DNS查询
+// 参数 dnsMessage 为DNS消息
 func (d dnsHandler) forwardQuery(dnsMessage *dns.Msg) (*dns.Msg, error) {
 	reqCopy := dnsMessage.Copy()
 	if len(reqCopy.Question) > 0 {
@@ -155,11 +166,12 @@ func (d dnsHandler) forwardQuery(dnsMessage *dns.Msg) (*dns.Msg, error) {
 			return r, err
 		}
 	}
-	return nil, errors.New("not available")
+	return nil, errors.New("不可用")
 }
 
-// QueryDNS queries a dns server with a dns message and return the answer
-// it is blocking.
+// QueryDNS 使用DNS消息查询DNS服务器并返回答案
+// 这是阻塞操作
+// 参数 ctx 为上下文，msg 为DNS消息，dnsServer 为DNS服务器地址
 func QueryDNS(ctx context.Context, msg *dns.Msg, dnsServer string) (*dns.Msg, error) {
 	client := &dns.Client{
 		Net:            "udp",

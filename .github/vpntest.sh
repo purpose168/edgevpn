@@ -1,37 +1,85 @@
 #!/bin/bash
 
-# echo "Creating big file to send over"
+# ============================================================================
+# VPN连接测试脚本
+# 用途：测试VPN连接是否正常工作
+# 使用方法：vpntest.sh <目标主机IP或域名>
+# 作者：purpose168@outlook.com
+# ============================================================================
+
+# 以下是被注释掉的创建大文件测试功能
+# 用途：创建大文件用于VPN传输测试
+# echo "创建大文件用于传输测试"
 # dd if=/dev/urandom of=big_file bs=1G count=2 iflag=fullblock
 # sha256sum big_file > big_file.sha256
 
+# ============================================================================
+# Ping连接测试部分
+# ============================================================================
+
+# 设置ping测试的最大重试次数为100次
+# 使用双括号(( ))进行算术运算，这是bash的最佳实践
 ((count = 100))                        
+
+# while循环：持续ping测试直到成功或达到最大重试次数
+# [[ ]] 是bash的条件测试语法，比[ ]更强大和安全
 while [[ $count -ne 0 ]] ; do
+    # 执行ping命令测试目标主机
+    # -c 1：只发送1个ICMP包
+    # $1：脚本的第一个参数，即目标主机IP或域名
     ping -c 1 $1                   
+    
+    # $?：保存上一个命令的退出状态码
+    # 0表示成功，非0表示失败
     rc=$?
+    
+    # 如果ping成功（返回码为0）
     if [[ $rc -eq 0 ]] ; then
+        # 将count设置为1，这样循环会在下次迭代时退出
+        # 因为((count = count - 1))会将count变为0
         ((count = 1))
     fi
+    
+    # 计数器减1
     ((count = count - 1))
 done
 
+# ============================================================================
+# 测试结果判断
+# ============================================================================
+
+# 根据最终的ping测试结果输出相应信息
 if [[ $rc -eq 0 ]] ; then
-    echo "Alright"
+    # ping测试成功
+    echo "测试成功：VPN连接正常"
 else
-    echo "Test failed"
+    # ping测试失败，输出错误信息并退出
+    echo "测试失败：无法连接到目标主机"
+    # exit 1：以错误状态退出脚本
     exit 1
 fi
+
+# ============================================================================
+# 以下是被注释掉的高级测试功能（文件下载和校验测试）
+# ============================================================================
 
 # host=$1
 
 # if [ "$3" == "download" ]; then
+#     # set -e：脚本遇到错误立即退出
 #     set -e
-#     echo "Downloading big file"
+#     echo "下载大文件测试"
+#     # curl -v：显示详细信息
+#     # -L：跟随重定向
+#     # -O：使用远程文件名保存
 #     curl -v -L $host/big_file -O big_file
 #     curl -v -L $host/big_file.sha256 -O big_file.sha256
 
-#     echo "Verifying checksum"
+#     echo "校验文件完整性"
+#     # sha256sum -c：校验SHA256哈希值
 #     sha256sum -c "big_file.sha256"
 
+#     # 通过API记录测试结果
 #     curl -X PUT http://localhost:8080/api/ledger/tests/vpn$2
 #     sleep 30
 #     curl -X PUT http://localhost:8080/api/ledger/tests/vpn$2
@@ -40,10 +88,13 @@ fi
 
 # else
 
+#     # set +e：脚本遇到错误不退出，继续执行
 #     set +e
+#     # 设置最大重试次数为640次
 #     ((count = 640))                        
 #     while [[ $count -ne 0 ]] ; do
 #         sleep 5
+#         # 检查API返回结果中是否包含"24"（可能是测试成功的标志）
 #         curl http://localhost:8080/api/ledger/tests/vpn$1 | grep "24"
 #         rc=$?
 #         if [[ $rc -eq 0 ]] ; then

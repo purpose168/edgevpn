@@ -20,9 +20,9 @@ import (
 	. "github.com/mudler/edgevpn/pkg/utils"
 )
 
-var _ = Describe("String utilities", func() {
+var _ = Describe("字符串工具", func() {
 	Context("RandStringRunes", func() {
-		It("returns a string with the correct length", func() {
+		It("返回正确长度的字符串", func() {
 			Expect(len(RandStringRunes(10))).To(Equal(10))
 		})
 	})

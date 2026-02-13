@@ -15,4 +15,6 @@ package types
 
 import "github.com/miekg/dns"
 
+// DNS DNS记录映射类型
+// 将DNS类型映射到对应的记录值
 type DNS map[dns.Type]string

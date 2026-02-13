@@ -4,14 +4,17 @@ set -o noglob
 
 github_version() {
     set +e
+    # 获取最新版本号，如果失败则返回默认版本 v30.2
     curl -s https://api.github.com/repos/mudler/edgevpn/releases/latest | \
     grep tag_name | \
     awk '{ print $2 }' | \
-    sed -e 's/\"//g' -e 's/,//g' || echo "v30.2"
+    sed -e 's/"//g' -e 's/,//g' || echo "v30.2"
     set -e
 }
 
+# 下载工具，默认使用 curl
 DOWNLOADER=${DOWNLOADER:-curl}
+# 版本号，默认从 GitHub API 获取
 VERSION=${VERSION:-$(github_version)}
 
 info()
@@ -31,6 +34,7 @@ fatal()
 }
 
 
+# 检测系统架构
 detect_arch() {
     if [ -z "$ARCH" ]; then
         ARCH=$(uname -m)
@@ -49,10 +53,11 @@ detect_arch() {
             ARCH=armv6
             ;;
         *)
-            fatal "Unsupported architecture $ARCH"
+            fatal "不支持的架构 $ARCH"
     esac
 }
 
+# 检测操作系统平台
 detect_platform() {
     if [ -z "$OS" ]; then
         OS=$(uname -o)
@@ -62,31 +67,37 @@ detect_platform() {
             OS=Linux
             ;;
         *)
-            fatal "Unsupported platform $OS"
-    esac
+            fatal "不支持的平台 $OS"
+    fi
 }
 
+# 验证环境并设置变量
 verify_env() {
 
     detect_arch
     detect_platform
 
+    # 检测是否有 openrc 服务管理器
     if [ -x /sbin/openrc-run ]; then
         HAS_OPENRC=true
     fi
+    # 检测是否有 systemd 服务管理器
     if [ -x /bin/systemctl ] || type systemctl > /dev/null 2>&1; then
         HAS_SYSTEMD=true
     fi
 
+    # 设置 sudo 命令，如果已经是 root 则不需要
     SUDO=sudo
     if [ $(id -u) -eq 0 ]; then
         SUDO=
     fi
 
+    # 设置二进制文件安装目录
     if [ -n "${INSTALL_BIN_DIR}" ]; then
         BIN_DIR=${INSTALL_BIN_DIR}
     else
         BIN_DIR=/usr/local/bin
+        # 测试目录是否可写
         if ! $SUDO sh -c "touch ${BIN_DIR}/ro-test && rm -rf ${BIN_DIR}/ro-test"; then
             if [ -d /opt/bin ]; then
                 BIN_DIR=/opt/bin
@@ -96,18 +107,21 @@ verify_env() {
 
 }
 
+# 设置系统服务
 setup_service() {
+    # 设置 systemd 服务目录
     if [ -n "${INSTALL_SYSTEMD_DIR}" ]; then
         SYSTEMD_DIR="${INSTALL_SYSTEMD_DIR}"
     else
         SYSTEMD_DIR=/etc/systemd/system
     fi
 
+    # 如果有 systemd
     if [ "${HAS_SYSTEMD}" = true ]; then
         FILE_SERVICE=${SYSTEMD_DIR}/edgevpn@.service
         $SUDO tee $FILE_SERVICE >/dev/null << EOF
 [Unit]
-Description=EdgeVPN Daemon
+Description=EdgeVPN 守护进程
 After=network.target
 
 [Service]
@@ -120,6 +134,7 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
+    # 如果有 openrc
     elif [ "${HAS_OPENRC}" = true ]; then
         $SUDO tee /etc/init.d/edgevpn >/dev/null << EOF
 #!/sbin/openrc-run
@@ -146,8 +161,9 @@ EOF
 
 }
 
+# 下载文件
 download() {
-    [ $# -eq 2 ] || fatal 'download needs exactly 2 arguments'
+    [ $# -eq 2 ] || fatal 'download 需要恰好 2 个参数'
 
     case $DOWNLOADER in
         curl)
@@ -157,32 +173,37 @@ download() {
             wget -qO $1 $2
             ;;
         *)
-            fatal "Incorrect executable '$DOWNLOADER'"
+            fatal "不正确的可执行文件 '$DOWNLOADER'"
             ;;
     esac
 
-    # Abort if download command failed
-    [ $? -eq 0 ] || fatal 'Download failed'
+    # 如果下载失败则退出
+    [ $? -eq 0 ] || fatal '下载失败'
 }
 
+# 安装主函数
 install() {
-    info "Arch: $ARCH. OS: $OS Version: $VERSION (\$VERSION)"
+    info "架构: $ARCH. 操作系统: $OS 版本: $VERSION (\\$VERSION)"
 
+    # 创建临时目录
     TMP_DIR=$(mktemp -d -t edgevpn-install.XXXXXXXXXX)
 
+    # 下载预编译二进制文件
     download $TMP_DIR/out.tar.gz https://github.com/mudler/edgevpn/releases/download/$VERSION/edgevpn-$VERSION-$OS-$ARCH.tar.gz
 
-    # TODO verify w/ checksum
+    # 解压文件
     tar xvf $TMP_DIR/out.tar.gz -C $TMP_DIR
 
+    # 复制二进制文件到安装目录
     $SUDO cp -rf $TMP_DIR/edgevpn $BIN_DIR/
 
-    # TODO trap
+    # 清理临时目录
     rm -rf $TMP_DIR
 
-    # TODO setup env files for a network connection
+    # TODO: 设置网络连接的环境文件
 }
 
+# 执行验证、设置服务和安装
 verify_env
 setup_service
 install

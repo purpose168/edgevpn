@@ -32,18 +32,20 @@ import (
 	"github.com/pkg/errors"
 )
 
+// SharefileNetworkService 共享文件网络服务
+// 参数 announcetime 为公告时间间隔，fileID 为文件ID
 func SharefileNetworkService(announcetime time.Duration, fileID string) node.NetworkService {
 	return func(ctx context.Context, c node.Config, n *node.Node, b *blockchain.Ledger) error {
-		// By announcing periodically our service to the blockchain
+		// 通过定期向区块链公告我们的服务
 		b.Announce(
 			ctx,
 			announcetime,
 			func() {
-				// Retrieve current ID for ip in the blockchain
+				// 从区块链中检索当前IP对应的ID
 				existingValue, found := b.GetKey(protocol.FilesLedgerKey, fileID)
 				service := &types.Service{}
 				existingValue.Unmarshal(service)
-				// If mismatch, update the blockchain
+				// 如果不匹配，则更新区块链
 				if !found || service.PeerID != n.Host().ID().String() {
 					updatedMap := map[string]interface{}{}
 					updatedMap[fileID] = types.File{PeerID: n.Host().ID().String(), Name: fileID}
@@ -55,15 +57,16 @@ func SharefileNetworkService(announcetime time.Duration, fileID string) node.Net
 	}
 }
 
-// ShareFile shares a file to the p2p network.
-// meant to be called before a node is started with Start()
+// ShareFile 将文件共享到P2P网络。
+// 应在节点使用Start()启动之前调用
+// 参数 ll 为日志记录器，announcetime 为公告时间间隔，fileID 为文件ID，filepath 为文件路径
 func ShareFile(ll log.StandardLogger, announcetime time.Duration, fileID, filepath string) ([]node.Option, error) {
 	_, err := os.Stat(filepath)
 	if err != nil {
 		return nil, err
 	}
 
-	ll.Infof("Serving '%s' as '%s'", filepath, fileID)
+	ll.Infof("正在提供 '%s' 作为 '%s'", filepath, fileID)
 	return []node.Option{
 		node.WithNetworkService(
 			SharefileNetworkService(announcetime, fileID),
@@ -72,13 +75,13 @@ func ShareFile(ll log.StandardLogger, announcetime time.Duration, fileID, filepa
 			func(n *node.Node, l *blockchain.Ledger) func(stream network.Stream) {
 				return func(stream network.Stream) {
 					go func() {
-						ll.Infof("(file %s) Received connection from %s", fileID, stream.Conn().RemotePeer().String())
+						ll.Infof("(文件 %s) 收到来自 %s 的连接", fileID, stream.Conn().RemotePeer().String())
 
-						// Retrieve current ID for ip in the blockchain
+						// 从区块链中检索当前IP对应的ID
 						_, found := l.GetKey(protocol.UsersLedgerKey, stream.Conn().RemotePeer().String())
-						// If mismatch, update the blockchain
+						// 如果不匹配，则更新区块链
 						if !found {
-							ll.Info("Reset", stream.Conn().RemotePeer().String(), "Not found in the ledger")
+							ll.Info("重置", stream.Conn().RemotePeer().String(), "在账本中未找到")
 							stream.Reset()
 							return
 						}
@@ -90,23 +93,25 @@ func ShareFile(ll log.StandardLogger, announcetime time.Duration, fileID, filepa
 						f.Close()
 						stream.Close()
 
-						ll.Infof("(file %s) Done handling %s", fileID, stream.Conn().RemotePeer().String())
+						ll.Infof("(文件 %s) 完成处理 %s", fileID, stream.Conn().RemotePeer().String())
 					}()
 				}
 			})}, nil
 
 }
 
+// ReceiveFile 接收文件
+// 参数 ctx 为上下文，ledger 为区块链账本，n 为节点实例，l 为日志记录器，announcetime 为公告时间间隔，fileID 为文件ID，path 为保存路径
 func ReceiveFile(ctx context.Context, ledger *blockchain.Ledger, n *node.Node, l log.StandardLogger, announcetime time.Duration, fileID string, path string) error {
-	// Announce ourselves so nodes accepts our connection
+	// 公告我们自己，以便节点接受我们的连接
 	ledger.Announce(
 		ctx,
 		announcetime,
 		func() {
-			// Retrieve current ID for ip in the blockchain
+			// 从区块链中检索当前IP对应的ID
 			_, found := ledger.GetKey(protocol.UsersLedgerKey, n.Host().ID().String())
 
-			// If mismatch, update the blockchain
+			// 如果不匹配，则更新区块链
 			if !found {
 				updatedMap := map[string]interface{}{}
 				updatedMap[n.Host().ID().String()] = &types.User{
@@ -121,46 +126,46 @@ func ReceiveFile(ctx context.Context, ledger *blockchain.Ledger, n *node.Node, l
 	for {
 		select {
 		case <-ctx.Done():
-			return errors.New("context canceled")
+			return errors.New("上下文已取消")
 		default:
 			time.Sleep(5 * time.Second)
 
-			l.Debug("Attempting to find file in the blockchain")
+			l.Debug("尝试在区块链中查找文件")
 
 			existingValue, found := ledger.GetKey(protocol.FilesLedgerKey, fileID)
 			fi := &types.File{}
 			existingValue.Unmarshal(fi)
-			// If mismatch, update the blockchain
+			// 如果不匹配，则更新区块链
 			if !found {
-				l.Debug("file not found on blockchain, retrying in 5 seconds")
+				l.Debug("文件在区块链中未找到，5秒后重试")
 				continue
 			} else {
-				// Retrieve current ID for ip in the blockchain
+				// 从区块链中检索当前IP对应的ID
 				existingValue, found := ledger.GetKey(protocol.FilesLedgerKey, fileID)
 				fi := &types.File{}
 				existingValue.Unmarshal(fi)
 
-				// If mismatch, update the blockchain
+				// 如果不匹配，则更新区块链
 				if !found {
-					return errors.New("file not found")
+					return errors.New("文件未找到")
 				}
 
-				// Decode the Peer
+				// 解码对等节点
 				d, err := peer.Decode(fi.PeerID)
 				if err != nil {
 					return err
 				}
 
-				l.Debug("file found on blockchain, opening stream to", d)
+				l.Debug("文件在区块链中找到，正在打开流到", d)
 
-				// Open a stream
+				// 打开流
 				stream, err := n.Host().NewStream(ctx, d, protocol.FileProtocol.ID())
 				if err != nil {
-					l.Debugf("failed to dial %s, retrying in 5 seconds", d)
+					l.Debugf("连接 %s 失败，5秒后重试", d)
 					continue
 				}
 
-				l.Infof("Saving file %s to %s", fileID, path)
+				l.Infof("正在保存文件 %s 到 %s", fileID, path)
 
 				f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0755)
 				if err != nil {
@@ -170,7 +175,7 @@ func ReceiveFile(ctx context.Context, ledger *blockchain.Ledger, n *node.Node, l
 				io.Copy(f, stream)
 				f.Close()
 
-				l.Infof("Received file %s to %s", fileID, path)
+				l.Infof("已接收文件 %s 到 %s", fileID, path)
 				return nil
 			}
 		}

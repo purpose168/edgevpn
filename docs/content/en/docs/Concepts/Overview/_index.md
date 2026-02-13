@@ -1,16 +1,16 @@
 ---
-title: "Overview"
-linkTitle: "Overview"
+title: "概述"
+linkTitle: "概述"
 weight: 1
 description: >
-  EdgeVPN overview
+  EdgeVPN 概述
 ---
 
-EdgeVPN have a simplified model of a blockchain embedded. The model is actually simplified on purpose as the blockchain is used to store merely network and services metadata and not transaction, or content addressable network. 
+EdgeVPN 内置了一个简化的区块链模型。该模型实际上是有意简化的，因为区块链仅用于存储网络和服务元数据，而不是交易或内容寻址网络。
 
-The only data stored in the blockchain is:
+区块链中存储的唯一数据是：
 
-- Network Peer IDs, Service IDs, File IDs
-- Healthchecks, DNS records and IP allocation
+- 网络节点 ID、服务 ID、文件 ID
+- 健康检查、DNS 记录和 IP 分配
 
-However, the ledger is freely accessible via API, allowing for external coordination to use the blockchain mechanism as a shared memory access (which can be optionally persisted on disk).
+然而，账本可以通过 API 自由访问，允许外部协调使用区块链机制作为共享内存访问（可以选择持久化到磁盘）。

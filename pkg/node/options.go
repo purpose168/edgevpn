@@ -29,7 +29,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// WithLibp2pOptions Overrides defaults options
+// WithLibp2pOptions 覆盖默认选项
 func WithLibp2pOptions(i ...libp2p.Option) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.Options = i
@@ -37,6 +37,7 @@ func WithLibp2pOptions(i ...libp2p.Option) func(cfg *Config) error {
 	}
 }
 
+// WithSealer 设置密封器
 func WithSealer(i Sealer) Option {
 	return func(cfg *Config) error {
 		cfg.Sealer = i
@@ -44,6 +45,7 @@ func WithSealer(i Sealer) Option {
 	}
 }
 
+// WithLibp2pAdditionalOptions 添加额外的libp2p选项
 func WithLibp2pAdditionalOptions(i ...libp2p.Option) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.AdditionalOptions = append(cfg.AdditionalOptions, i...)
@@ -51,6 +53,7 @@ func WithLibp2pAdditionalOptions(i ...libp2p.Option) func(cfg *Config) error {
 	}
 }
 
+// WithNetworkService 添加网络服务
 func WithNetworkService(ns ...NetworkService) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.NetworkServices = append(cfg.NetworkServices, ns...)
@@ -58,6 +61,7 @@ func WithNetworkService(ns ...NetworkService) func(cfg *Config) error {
 	}
 }
 
+// WithInterfaceAddress 设置接口地址
 func WithInterfaceAddress(i string) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.InterfaceAddress = i
@@ -65,6 +69,7 @@ func WithInterfaceAddress(i string) func(cfg *Config) error {
 	}
 }
 
+// WithBlacklist 设置黑名单
 func WithBlacklist(i ...string) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.Blacklist = i
@@ -72,12 +77,15 @@ func WithBlacklist(i ...string) func(cfg *Config) error {
 	}
 }
 
+// Logger 设置日志记录器
 func Logger(l log.StandardLogger) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.Logger = l
 		return nil
 	}
 }
+
+// WithStore 设置存储器
 func WithStore(s blockchain.Store) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.Store = s
@@ -85,7 +93,7 @@ func WithStore(s blockchain.Store) func(cfg *Config) error {
 	}
 }
 
-// Handlers adds a handler to the list that is called on each received message
+// Handlers 添加处理器到列表，每个接收的消息都会调用
 func Handlers(h ...Handler) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.Handlers = append(cfg.Handlers, h...)
@@ -93,7 +101,7 @@ func Handlers(h ...Handler) func(cfg *Config) error {
 	}
 }
 
-// GenericChannelHandlers adds a handler to the list that is called on each received message in the generic channel (not the one allocated for the blockchain)
+// GenericChannelHandlers 添加处理器到列表，在通用通道中每个接收的消息都会调用（不是为区块链分配的通道）
 func GenericChannelHandlers(h ...Handler) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.GenericChannelHandler = append(cfg.GenericChannelHandler, h...)
@@ -101,7 +109,7 @@ func GenericChannelHandlers(h ...Handler) func(cfg *Config) error {
 	}
 }
 
-// WithStreamHandler adds a handler to the list that is called on each received message
+// WithStreamHandler 添加流处理器到列表，每个接收的消息都会调用
 func WithStreamHandler(id protocol.Protocol, h StreamHandler) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.StreamHandlers[id] = h
@@ -109,7 +117,7 @@ func WithStreamHandler(id protocol.Protocol, h StreamHandler) func(cfg *Config) 
 	}
 }
 
-// DiscoveryService Adds the service given as argument to the discovery services
+// DiscoveryService 将给定的服务添加到发现服务
 func DiscoveryService(s ...ServiceDiscovery) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.ServiceDiscovery = append(cfg.ServiceDiscovery, s...)
@@ -117,15 +125,15 @@ func DiscoveryService(s ...ServiceDiscovery) func(cfg *Config) error {
 	}
 }
 
-// EnableGenericHub enables an additional generic hub between peers.
-// This can be used to exchange messages between peers that are not related to any
-// blockchain event. For instance, messages could be used for authentication, or for other sort
-// of application.
+// EnableGenericHub 启用对等节点之间的额外通用中心
+// 这可用于在对等节点之间交换与任何区块链事件无关的消息
+// 例如，消息可用于认证或其他类型的应用程序
 var EnableGenericHub = func(cfg *Config) error {
 	cfg.GenericHub = true
 	return nil
 }
 
+// ListenAddresses 设置监听地址
 func ListenAddresses(ss ...string) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		for _, s := range ss {
@@ -140,6 +148,7 @@ func ListenAddresses(ss ...string) func(cfg *Config) error {
 	}
 }
 
+// Insecure 设置是否禁用安全传输
 func Insecure(b bool) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.Insecure = b
@@ -147,6 +156,7 @@ func Insecure(b bool) func(cfg *Config) error {
 	}
 }
 
+// ExchangeKeys 设置交换密钥
 func ExchangeKeys(s string) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.ExchangeKey = s
@@ -154,6 +164,7 @@ func ExchangeKeys(s string) func(cfg *Config) error {
 	}
 }
 
+// RoomName 设置房间名称
 func RoomName(s string) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.RoomName = s
@@ -161,6 +172,7 @@ func RoomName(s string) func(cfg *Config) error {
 	}
 }
 
+// SealKeyInterval 设置密封密钥间隔
 func SealKeyInterval(i int) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.SealKeyInterval = i
@@ -168,6 +180,7 @@ func SealKeyInterval(i int) func(cfg *Config) error {
 	}
 }
 
+// SealKeyLength 设置密封密钥长度
 func SealKeyLength(i int) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.SealKeyLength = i
@@ -175,6 +188,7 @@ func SealKeyLength(i int) func(cfg *Config) error {
 	}
 }
 
+// LibP2PLogLevel 设置libp2p日志级别
 func LibP2PLogLevel(l log.LogLevel) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		log.SetAllLoggers(l)
@@ -182,6 +196,7 @@ func LibP2PLogLevel(l log.LogLevel) func(cfg *Config) error {
 	}
 }
 
+// MaxMessageSize 设置最大消息大小
 func MaxMessageSize(i int) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.MaxMessageSize = i
@@ -189,6 +204,7 @@ func MaxMessageSize(i int) func(cfg *Config) error {
 	}
 }
 
+// WithPeerGater 设置对等节点门控器
 func WithPeerGater(d Gater) Option {
 	return func(cfg *Config) error {
 		cfg.PeerGater = d
@@ -196,6 +212,7 @@ func WithPeerGater(d Gater) Option {
 	}
 }
 
+// WithLedgerAnnounceTime 设置账本公告时间
 func WithLedgerAnnounceTime(t time.Duration) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.LedgerAnnounceTime = t
@@ -203,6 +220,7 @@ func WithLedgerAnnounceTime(t time.Duration) func(cfg *Config) error {
 	}
 }
 
+// WithLedgerInterval 设置账本同步间隔
 func WithLedgerInterval(t time.Duration) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.LedgerSyncronizationTime = t
@@ -210,6 +228,7 @@ func WithLedgerInterval(t time.Duration) func(cfg *Config) error {
 	}
 }
 
+// WithDiscoveryInterval 设置发现间隔
 func WithDiscoveryInterval(t time.Duration) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.DiscoveryInterval = t
@@ -217,6 +236,7 @@ func WithDiscoveryInterval(t time.Duration) func(cfg *Config) error {
 	}
 }
 
+// WithDiscoveryBootstrapPeers 设置发现引导节点
 func WithDiscoveryBootstrapPeers(a discovery.AddrList) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.DiscoveryBootstrapPeers = a
@@ -224,6 +244,7 @@ func WithDiscoveryBootstrapPeers(a discovery.AddrList) func(cfg *Config) error {
 	}
 }
 
+// WithPrivKey 设置私钥
 func WithPrivKey(b []byte) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		cfg.PrivateKey = b
@@ -231,6 +252,7 @@ func WithPrivKey(b []byte) func(cfg *Config) error {
 	}
 }
 
+// WithStaticPeer 设置静态对等节点
 func WithStaticPeer(ip string, p peer.ID) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		if cfg.PeerTable == nil {
@@ -241,38 +263,42 @@ func WithStaticPeer(ip string, p peer.ID) func(cfg *Config) error {
 	}
 }
 
+// OTPConfig OTP配置结构体
 type OTPConfig struct {
-	Interval int    `yaml:"interval"`
-	Key      string `yaml:"key"`
-	Length   int    `yaml:"length"`
+	Interval int    `yaml:"interval"` // 间隔
+	Key      string `yaml:"key"`      // 密钥
+	Length   int    `yaml:"length"`   // 长度
 }
 
+// OTP OTP配置
 type OTP struct {
-	DHT    OTPConfig `yaml:"dht"`
-	Crypto OTPConfig `yaml:"crypto"`
+	DHT    OTPConfig `yaml:"dht"`    // DHT配置
+	Crypto OTPConfig `yaml:"crypto"` // 加密配置
 }
 
+// YAMLConnectionConfig YAML连接配置结构体
 type YAMLConnectionConfig struct {
 	OTP OTP `yaml:"otp"`
 
-	RoomName       string `yaml:"room"`
-	Rendezvous     string `yaml:"rendezvous"`
-	MDNS           string `yaml:"mdns"`
-	MaxMessageSize int    `yaml:"max_message_size"`
+	RoomName       string `yaml:"room"`           // 房间名称
+	Rendezvous     string `yaml:"rendezvous"`     // 会合点
+	MDNS           string `yaml:"mdns"`           // mDNS
+	MaxMessageSize int    `yaml:"max_message_size"` // 最大消息大小
 }
 
-// Base64 returns the base64 string representation of the connection
+// Base64 返回连接配置的base64字符串表示
 func (y YAMLConnectionConfig) Base64() string {
 	bytesData, _ := yaml.Marshal(y)
 	return base64.StdEncoding.EncodeToString(bytesData)
 }
 
-// YAML returns the connection config as yaml string
+// YAML 返回连接配置的YAML字符串
 func (y YAMLConnectionConfig) YAML() string {
 	bytesData, _ := yaml.Marshal(y)
 	return string(bytesData)
 }
 
+// copy 复制配置到目标配置
 func (y YAMLConnectionConfig) copy(mdns, dht bool, cfg *Config, d *discovery.DHT, m *discovery.MDNS) {
 	if d == nil {
 		d = discovery.NewDHT()
@@ -303,8 +329,11 @@ func (y YAMLConnectionConfig) copy(mdns, dht bool, cfg *Config, d *discovery.DHT
 	cfg.MaxMessageSize = y.MaxMessageSize
 }
 
+// defaultKeyLength 默认密钥长度
 const defaultKeyLength = 43
 
+// GenerateNewConnectionData 生成新的连接数据
+// 参数 i 为可选参数：间隔时间、最大消息大小、密钥长度
 func GenerateNewConnectionData(i ...int) *YAMLConnectionConfig {
 	defaultInterval := 9000
 	maxMessSize := 20 << 20 // 20MB
@@ -341,6 +370,8 @@ func GenerateNewConnectionData(i ...int) *YAMLConnectionConfig {
 	}
 }
 
+// FromYaml 从YAML文件加载配置
+// 参数 enablemDNS 为是否启用mDNS，enableDHT 为是否启用DHT，path 为文件路径，d 为DHT发现，m 为mDNS发现
 func FromYaml(enablemDNS, enableDHT bool, path string, d *discovery.DHT, m *discovery.MDNS) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		if len(path) == 0 {
@@ -350,11 +381,11 @@ func FromYaml(enablemDNS, enableDHT bool, path string, d *discovery.DHT, m *disc
 
 		data, err := ioutil.ReadFile(path)
 		if err != nil {
-			return errors.Wrap(err, "reading yaml file")
+			return errors.Wrap(err, "读取yaml文件")
 		}
 
 		if err := yaml.Unmarshal(data, &t); err != nil {
-			return errors.Wrap(err, "parsing yaml")
+			return errors.Wrap(err, "解析yaml")
 		}
 
 		t.copy(enablemDNS, enableDHT, cfg, d, m)
@@ -362,6 +393,8 @@ func FromYaml(enablemDNS, enableDHT bool, path string, d *discovery.DHT, m *disc
 	}
 }
 
+// FromBase64 从base64字符串加载配置
+// 参数 enablemDNS 为是否启用mDNS，enableDHT 为是否启用DHT，bb 为base64字符串，d 为DHT发现，m 为mDNS发现
 func FromBase64(enablemDNS, enableDHT bool, bb string, d *discovery.DHT, m *discovery.MDNS) func(cfg *Config) error {
 	return func(cfg *Config) error {
 		if len(bb) == 0 {
@@ -374,7 +407,7 @@ func FromBase64(enablemDNS, enableDHT bool, bb string, d *discovery.DHT, m *disc
 		t := YAMLConnectionConfig{}
 
 		if err := yaml.Unmarshal(configDec, &t); err != nil {
-			return errors.Wrap(err, "parsing yaml")
+			return errors.Wrap(err, "解析yaml")
 		}
 		t.copy(enablemDNS, enableDHT, cfg, d, m)
 		return nil

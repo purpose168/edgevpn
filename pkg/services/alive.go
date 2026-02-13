@@ -26,32 +26,34 @@ import (
 	"github.com/mudler/edgevpn/pkg/blockchain"
 )
 
+// AliveNetworkService 存活检测网络服务
+// 参数 announcetime 为公告时间间隔，scrubTime 为清理时间间隔，maxtime 为最大超时时间
 func AliveNetworkService(announcetime, scrubTime, maxtime time.Duration) node.NetworkService {
 	return func(ctx context.Context, c node.Config, n *node.Node, b *blockchain.Ledger) error {
 		t := time.Now()
-		// By announcing periodically our service to the blockchain
+		// 通过定期向区块链公告我们的服务
 		b.Announce(
 			ctx,
 			announcetime,
 			func() {
-				// Keep-alive
+				// 保持活跃
 				b.Add(protocol.HealthCheckKey, map[string]interface{}{
 					n.Host().ID().String(): time.Now().UTC().Format(time.RFC3339),
 				})
 
-				// Keep-alive scrub
+				// 保持活跃清理
 				nodes := AvailableNodes(b, maxtime)
 				if len(nodes) == 0 {
 					return
 				}
 				lead := utils.Leader(nodes)
 				if !t.Add(scrubTime).After(time.Now()) {
-					// Update timer so not-leader do not attempt to delete bucket afterwards
-					// prevent cycles
+					// 更新计时器，防止非领导者在之后尝试删除存储桶
+					// 防止循环
 					t = time.Now()
 
 					if lead == n.Host().ID().String() {
-						// Automatically scrub after some time passed
+						// 一段时间后自动清理
 						b.DeleteBucket(protocol.HealthCheckKey)
 					}
 				}
@@ -61,15 +63,17 @@ func AliveNetworkService(announcetime, scrubTime, maxtime time.Duration) node.Ne
 	}
 }
 
-// Alive announce the node every announce time, with a periodic scrub time for healthchecks
-// the maxtime is the time used to determine when a node is unreachable (after maxtime, its unreachable)
+// Alive 每隔公告时间公告节点，并定期清理健康检查
+// maxtime 用于确定节点何时不可达（超过maxtime后，节点被视为不可达）
+// 参数 announcetime 为公告时间间隔，scrubTime 为清理时间间隔，maxtime 为最大超时时间
 func Alive(announcetime, scrubTime, maxtime time.Duration) []node.Option {
 	return []node.Option{
 		node.WithNetworkService(AliveNetworkService(announcetime, scrubTime, maxtime)),
 	}
 }
 
-// AvailableNodes returns the available nodes which sent a healthcheck in the last maxTime
+// AvailableNodes 返回在最近maxTime时间内发送过健康检查的可用节点
+// 参数 b 为区块链账本，maxTime 为最大时间窗口
 func AvailableNodes(b *blockchain.Ledger, maxTime time.Duration) (active []string) {
 	for u, t := range b.LastBlock().Storage[protocol.HealthCheckKey] {
 		var s string

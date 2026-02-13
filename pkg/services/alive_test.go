@@ -27,7 +27,7 @@ import (
 	. "github.com/mudler/edgevpn/pkg/services"
 )
 
-var _ = Describe("Alive service", func() {
+var _ = Describe("存活服务", func() {
 	token := node.GenerateNewConnectionData().Base64()
 
 	logg := logger.New(log.LevelError)
@@ -39,8 +39,8 @@ var _ = Describe("Alive service", func() {
 		node.FromBase64(true, true, token, nil, nil),
 		l)
 
-	Context("Aliveness check", func() {
-		It("detect both nodes alive after a while", func() {
+	Context("存活检查", func() {
+		It("一段时间后检测到两个节点都存活", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 			e2, _ := node.New(append(opts, node.WithStore(&blockchain.MemoryStore{}))...)
@@ -69,7 +69,7 @@ var _ = Describe("Alive service", func() {
 		})
 	})
 
-	Context("Aliveness Scrub", func() {
+	Context("存活清理", func() {
 		BeforeEach(func() {
 			opts = append(
 				Alive(10*time.Second, 30*time.Second, 15*time.Minute),
@@ -78,7 +78,7 @@ var _ = Describe("Alive service", func() {
 				l)
 		})
 
-		It("cleans up after a while", func() {
+		It("一段时间后清理", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 			e2, _ := node.New(append(opts, node.WithStore(&blockchain.MemoryStore{}))...)

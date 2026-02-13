@@ -1,8 +1,8 @@
 ---
-title: Community
+title: 社区
 menu:
   main:
     weight: 40
 ---
 
-<!--add blocks of content here to add more sections to the community page -->
+<!--在此处添加内容块以为社区页面添加更多部分-->

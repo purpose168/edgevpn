@@ -1,4 +1,4 @@
-# Make sure to check the documentation at http://goreleaser.com
+# 确保查看 http://goreleaser.com 上的文档
 version: 2
 builds:
   - ldflags:
@@ -21,7 +21,7 @@ source:
   enabled: true
   name_template: '{{ .ProjectName }}-{{ .Tag }}-source'
 archives:
-  # Default template uses underscores instead of -
+  # 默认模板使用下划线而不是 -
   - name_template: >-
       {{ .ProjectName }}-{{ .Tag }}-
       {{- if eq .Os "freebsd" }}FreeBSD

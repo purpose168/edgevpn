@@ -20,21 +20,23 @@ import (
 	"time"
 )
 
+// DataString 数据字符串类型
 type DataString string
 
-// Block represents each 'item' in the blockchain
+// Block 表示区块链中的每个"项目"
 type Block struct {
-	Index     int
-	Timestamp string
-	Storage   map[string]map[string]Data
-	Hash      string
-	PrevHash  string
+	Index     int                        // 区块索引
+	Timestamp string                     // 时间戳
+	Storage   map[string]map[string]Data // 存储数据
+	Hash      string                     // 当前区块哈希
+	PrevHash  string                     // 前一区块哈希
 }
 
-// Blockchain is a series of validated Blocks
+// Blockchain 是一系列已验证的区块
 type Blockchain []Block
 
-// make sure block is valid by checking index, and comparing the hash of the previous block
+// IsValid 通过检查索引和比较前一区块的哈希来确保区块有效
+// 参数 oldBlock 为前一区块
 func (newBlock Block) IsValid(oldBlock Block) bool {
 	if oldBlock.Index+1 != newBlock.Index {
 		return false
@@ -51,7 +53,7 @@ func (newBlock Block) IsValid(oldBlock Block) bool {
 	return true
 }
 
-// Checksum does SHA256 hashing of the block
+// Checksum 对区块进行SHA256哈希计算
 func (b Block) Checksum() string {
 	record := fmt.Sprint(b.Index, b.Timestamp, b.Storage, b.PrevHash)
 	h := sha256.New()
@@ -60,7 +62,8 @@ func (b Block) Checksum() string {
 	return hex.EncodeToString(hashed)
 }
 
-// create a new block using previous block's hash
+// NewBlock 使用前一区块的哈希创建新区块
+// 参数 s 为存储数据
 func (oldBlock Block) NewBlock(s map[string]map[string]Data) Block {
 	var newBlock Block
 

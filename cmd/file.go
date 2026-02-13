@@ -27,11 +27,11 @@ func cliNamePath(c *cli.Context) (name, path string, err error) {
 	name = c.Args().Get(0)
 	path = c.Args().Get(1)
 	if name == "" && c.String("name") == "" {
-		err = errors.New("Either a file UUID as first argument or with --name needs to be provided")
+		err = errors.New("需要提供文件 UUID 作为第一个参数或使用 --name 选项")
 		return
 	}
 	if path == "" && c.String("path") == "" {
-		err = errors.New("Either a file UUID as first argument or with --name needs to be provided")
+		err = errors.New("需要提供文件 UUID 作为第一个参数或使用 --name 选项")
 		return
 	}
 	if c.String("name") != "" {
@@ -47,19 +47,19 @@ func FileSend() *cli.Command {
 	return &cli.Command{
 		Name:        "file-send",
 		Aliases:     []string{"fs"},
-		Usage:       "Serve a file to the network",
-		Description: `Serve a file to the network without connecting over VPN`,
+		Usage:       "向网络提供文件服务",
+		Description: `向网络提供文件服务，无需通过 VPN 连接`,
 		UsageText:   "edgevpn file-send unique-id /src/path",
 		Flags: append(CommonFlags,
 			&cli.StringFlag{
 				Name:     "name",
 				Required: true,
-				Usage: `Unique name of the file to be served over the network. 
-This is also the ID used to refer when receiving it.`,
+				Usage: `在网络上提供服务的文件的唯一名称。
+这也是接收文件时引用的 ID。`,
 			},
 			&cli.StringFlag{
 				Name:     "path",
-				Usage:    `File to serve`,
+				Usage:    `要提供的文件`,
 				Required: true,
 			},
 		),
@@ -70,7 +70,7 @@ This is also the ID used to refer when receiving it.`,
 			}
 			o, _, ll := cliToOpts(c)
 
-			// Needed to unblock connections with low activity
+			// 需要解除低活动连接的阻塞
 			o = append(o,
 				services.Alive(
 					time.Duration(c.Int("aliveness-healthcheck-interval"))*time.Second,
@@ -91,7 +91,7 @@ This is also the ID used to refer when receiving it.`,
 			displayStart(ll)
 			go handleStopSignals()
 
-			// Start the node to the network, using our ledger
+			// 启动节点到网络，使用我们的账本
 			if err := e.Start(context.Background()); err != nil {
 				return err
 			}
@@ -107,17 +107,17 @@ func FileReceive() *cli.Command {
 	return &cli.Command{
 		Name:        "file-receive",
 		Aliases:     []string{"fr"},
-		Usage:       "Receive a file which is served from the network",
-		Description: `Receive a file from the network without connecting over VPN`,
+		Usage:       "接收网络中提供的文件",
+		Description: `从网络接收文件，无需通过 VPN 连接`,
 		UsageText:   "edgevpn file-receive unique-id /dst/path",
 		Flags: append(CommonFlags,
 			&cli.StringFlag{
 				Name:  "name",
-				Usage: `Unique name of the file to be received over the network.`,
+				Usage: `要从网络接收的文件的唯一名称。`,
 			},
 			&cli.StringFlag{
 				Name:  "path",
-				Usage: `Destination where to save the file`,
+				Usage: `保存文件的目标位置`,
 			},
 		),
 		Action: func(c *cli.Context) error {
@@ -126,7 +126,7 @@ func FileReceive() *cli.Command {
 				return err
 			}
 			o, _, ll := cliToOpts(c)
-			// Needed to unblock connections with low activity
+			// 需要解除低活动连接的阻塞
 			o = append(o,
 				services.Alive(
 					time.Duration(c.Int("aliveness-healthcheck-interval"))*time.Second,
@@ -140,7 +140,7 @@ func FileReceive() *cli.Command {
 			displayStart(ll)
 			go handleStopSignals()
 
-			// Start the node to the network, using our ledger
+			// 启动节点到网络，使用我们的账本
 			if err := e.Start(context.Background()); err != nil {
 				return err
 			}

@@ -32,17 +32,19 @@ import (
 	"github.com/mudler/edgevpn/pkg/types"
 )
 
+// ExposeNetworkService 暴露服务的网络服务
+// 参数 announcetime 为公告时间间隔，serviceID 为服务ID
 func ExposeNetworkService(announcetime time.Duration, serviceID string) node.NetworkService {
 	return func(ctx context.Context, c node.Config, n *node.Node, b *blockchain.Ledger) error {
 		b.Announce(
 			ctx,
 			announcetime,
 			func() {
-				// Retrieve current ID for ip in the blockchain
+				// 从区块链中检索当前IP对应的ID
 				existingValue, found := b.GetKey(protocol.ServicesLedgerKey, serviceID)
 				service := &types.Service{}
 				existingValue.Unmarshal(service)
-				// If mismatch, update the blockchain
+				// 如果不匹配，则更新区块链
 				if !found || service.PeerID != n.Host().ID().String() {
 					updatedMap := map[string]interface{}{}
 					updatedMap[serviceID] = types.Service{PeerID: n.Host().ID().String(), Name: serviceID}
@@ -54,29 +56,30 @@ func ExposeNetworkService(announcetime time.Duration, serviceID string) node.Net
 	}
 }
 
-// ExposeService exposes a service to the p2p network.
-// meant to be called before a node is started with Start()
+// RegisterService 将服务暴露到P2P网络。
+// 应在节点使用Start()启动之前调用
+// 参数 ll 为日志记录器，announcetime 为公告时间间隔，serviceID 为服务ID，dstaddress 为目标地址
 func RegisterService(ll log.StandardLogger, announcetime time.Duration, serviceID, dstaddress string) []node.Option {
-	ll.Infof("Exposing service '%s' (%s)", serviceID, dstaddress)
+	ll.Infof("暴露服务 '%s' (%s)", serviceID, dstaddress)
 	return []node.Option{
 		node.WithStreamHandler(protocol.ServiceProtocol, func(n *node.Node, l *blockchain.Ledger) func(stream network.Stream) {
 			return func(stream network.Stream) {
 				go func() {
-					ll.Infof("(service %s) Received connection from %s", serviceID, stream.Conn().RemotePeer().String())
+					ll.Infof("(服务 %s) 收到来自 %s 的连接", serviceID, stream.Conn().RemotePeer().String())
 
-					// Retrieve current ID for ip in the blockchain
+					// 从区块链中检索当前IP对应的ID
 					_, found := l.GetKey(protocol.UsersLedgerKey, stream.Conn().RemotePeer().String())
-					// If mismatch, update the blockchain
+					// 如果不匹配，则更新区块链
 					if !found {
-						ll.Debugf("Reset '%s': not found in the ledger", stream.Conn().RemotePeer().String())
+						ll.Debugf("重置 '%s': 在账本中未找到", stream.Conn().RemotePeer().String())
 						stream.Reset()
 						return
 					}
 
-					ll.Infof("Connecting to '%s'", dstaddress)
+					ll.Infof("正在连接到 '%s'", dstaddress)
 					c, err := net.Dial("tcp", dstaddress)
 					if err != nil {
-						ll.Debugf("Reset %s: %s", stream.Conn().RemotePeer().String(), err.Error())
+						ll.Debugf("重置 %s: %s", stream.Conn().RemotePeer().String(), err.Error())
 						stream.Reset()
 						return
 					}
@@ -87,31 +90,32 @@ func RegisterService(ll log.StandardLogger, announcetime time.Duration, serviceI
 
 					stream.Close()
 					c.Close()
-					ll.Infof("(service %s) Handled correctly '%s'", serviceID, stream.Conn().RemotePeer().String())
+					ll.Infof("(服务 %s) 正确处理 '%s'", serviceID, stream.Conn().RemotePeer().String())
 				}()
 			}
 		}),
 		node.WithNetworkService(ExposeNetworkService(announcetime, serviceID))}
 }
 
-// ConnectNetworkService returns a network service that binds to a service
+// ConnectNetworkService 返回绑定到服务的网络服务
+// 参数 announcetime 为公告时间间隔，serviceID 为服务ID，srcaddr 为源地址
 func ConnectNetworkService(announcetime time.Duration, serviceID string, srcaddr string) node.NetworkService {
 	return func(ctx context.Context, c node.Config, node *node.Node, ledger *blockchain.Ledger) error {
-		// Open local port for listening
+		// 打开本地端口进行监听
 		l, err := net.Listen("tcp", srcaddr)
 		if err != nil {
 			return err
 		}
-		//	ll.Info("Binding local port on", srcaddr)
+		//	ll.Info("绑定本地端口到", srcaddr)
 
-		// Announce ourselves so nodes accepts our connection
+		// 公告我们自己，以便节点接受我们的连接
 		ledger.Announce(
 			ctx,
 			announcetime,
 			func() {
-				// Retrieve current ID for ip in the blockchain
+				// 从区块链中检索当前IP对应的ID
 				_, found := ledger.GetKey(protocol.UsersLedgerKey, node.Host().ID().String())
-				// If mismatch, update the blockchain
+				// 如果不匹配，则更新区块链
 				if !found {
 					updatedMap := map[string]interface{}{}
 					updatedMap[node.Host().ID().String()] = &types.User{
@@ -127,45 +131,45 @@ func ConnectNetworkService(announcetime time.Duration, serviceID string, srcaddr
 		for {
 			select {
 			case <-ctx.Done():
-				return errors.New("context canceled")
+				return errors.New("上下文已取消")
 			default:
-				// Listen for an incoming connection.
+				// 监听传入的连接
 				conn, err := l.Accept()
 				if err != nil {
-					//	ll.Error("Error accepting: ", err.Error())
+					//	ll.Error("接受连接错误: ", err.Error())
 					continue
 				}
 
-				//	ll.Info("New connection from", l.Addr().String())
-				// Handle connections in a new goroutine, forwarding to the p2p service
+				//	ll.Info("新连接来自", l.Addr().String())
+				// 在新的协程中处理连接，转发到P2P服务
 				go func() {
-					// Retrieve current ID for ip in the blockchain
+					// 从区块链中检索当前IP对应的ID
 					existingValue, found := ledger.GetKey(protocol.ServicesLedgerKey, serviceID)
 					service := &types.Service{}
 					existingValue.Unmarshal(service)
-					// If mismatch, update the blockchain
+					// 如果不匹配，则更新区块链
 					if !found {
 						conn.Close()
-						//	ll.Debugf("service '%s' not found on blockchain", serviceID)
+						//	ll.Debugf("服务 '%s' 在区块链中未找到", serviceID)
 						return
 					}
 
-					// Decode the Peer
+					// 解码对等节点
 					d, err := peer.Decode(service.PeerID)
 					if err != nil {
 						conn.Close()
-						//	ll.Debugf("could not decode peer '%s'", service.PeerID)
+						//	ll.Debugf("无法解码对等节点 '%s'", service.PeerID)
 						return
 					}
 
-					// Open a stream
+					// 打开流
 					stream, err := node.Host().NewStream(ctx, d, protocol.ServiceProtocol.ID())
 					if err != nil {
 						conn.Close()
-						//	ll.Debugf("could not open stream '%s'", err.Error())
+						//	ll.Debugf("无法打开流 '%s'", err.Error())
 						return
 					}
-					//	ll.Debugf("(service %s) Redirecting", serviceID, l.Addr().String())
+					//	ll.Debugf("(服务 %s) 正在重定向", serviceID, l.Addr().String())
 
 					closer := make(chan struct{}, 2)
 					go copyStream(closer, stream, conn)
@@ -174,7 +178,7 @@ func ConnectNetworkService(announcetime time.Duration, serviceID string, srcaddr
 
 					stream.Close()
 					conn.Close()
-					//	ll.Infof("(service %s) Done handling %s", serviceID, l.Addr().String())
+					//	ll.Infof("(服务 %s) 完成处理 %s", serviceID, l.Addr().String())
 				}()
 			}
 		}
@@ -182,7 +186,9 @@ func ConnectNetworkService(announcetime time.Duration, serviceID string, srcaddr
 	}
 }
 
+// copyStream 复制流数据
+// 参数 closer 为关闭通道，dst 为目标写入器，src 为源读取器
 func copyStream(closer chan struct{}, dst io.Writer, src io.Reader) {
-	defer func() { closer <- struct{}{} }() // connection is closed, send signal to stop proxy
+	defer func() { closer <- struct{}{} }() // 连接已关闭，发送信号停止代理
 	io.Copy(dst, src)
 }

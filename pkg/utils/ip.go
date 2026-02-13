@@ -20,20 +20,30 @@ import (
 	"github.com/c-robinson/iplib"
 )
 
+// NextIP 获取下一个可用的IP地址
+// 从已使用的IP列表中找到最后一个IP，然后返回其下一个IP地址
+// 参数 defaultIP 为默认IP地址（当IP列表为空时返回）
+// 参数 ips 为已使用的IP地址列表
+// 返回下一个可用的IP地址字符串
 func NextIP(defaultIP string, ips []string) string {
+	// 如果没有已使用的IP，返回默认IP
 	if len(ips) == 0 {
 		return defaultIP
 	}
 
+	// 将IP字符串转换为net.IP类型
 	r := []net.IP{}
 	for _, i := range ips {
 		ip := net.ParseIP(i)
 		r = append(r, ip)
 	}
 
+	// 按IP地址排序
 	sort.Sort(iplib.ByIP(r))
 
+	// 获取最后一个IP
 	last := r[len(r)-1]
 
+	// 返回下一个IP地址
 	return iplib.NextIP(last).String()
 }

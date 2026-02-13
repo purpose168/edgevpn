@@ -19,22 +19,22 @@ import (
 	hub "github.com/mudler/edgevpn/pkg/hub"
 )
 
-// messageWriter is a struct returned by the node that satisfies the io.Writer interface
-// on the underlying hub.
-// Everything Write into the message writer is enqueued to a message channel
-// which is sealed and processed by the node
+// messageWriter 是由节点返回的结构体，满足io.Writer接口
+// 在底层中心上实现
+// 写入消息写入器的所有内容都会排队到消息通道
+// 由节点进行密封和处理
 type messageWriter struct {
-	input chan<- *hub.Message
-	c     Config
-	mess  *hub.Message
+	input chan<- *hub.Message // 输入通道
+	c     Config              // 配置
+	mess  *hub.Message        // 消息
 }
 
-// Write writes a slice of bytes to the message channel
+// Write 将字节切片写入消息通道
 func (mw *messageWriter) Write(p []byte) (n int, err error) {
 	return mw.Send(mw.mess.WithMessage(string(p)))
 }
 
-// Send sends a message to the channel
+// Send 将消息发送到通道
 func (mw *messageWriter) Send(copy *hub.Message) (n int, err error) {
 	mw.input <- copy
 	return len(copy.Message), nil

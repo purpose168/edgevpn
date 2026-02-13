@@ -24,7 +24,7 @@ func Peergate() *cli.Command {
 	return &cli.Command{
 		Name:        "peergater",
 		Usage:       "peergater ecdsa-genkey",
-		Description: `Peergater auth utilities`,
+		Description: `Peergater 认证工具`,
 		Subcommands: cli.Commands{
 			{
 				Name: "ecdsa-genkey",
@@ -39,8 +39,8 @@ func Peergate() *cli.Command {
 				Action: func(c *cli.Context) error {
 					priv, pub, err := ecdsa.GenerateKeys()
 					if !c.Bool("privkey") && !c.Bool("pubkey") {
-						fmt.Printf("Private key: %s\n", string(priv))
-						fmt.Printf("Public key: %s\n", string(pub))
+						fmt.Printf("私钥: %s\n", string(priv))
+						fmt.Printf("公钥: %s\n", string(pub))
 					} else if c.Bool("privkey") {
 						fmt.Printf(string(priv))
 					} else if c.Bool("pubkey") {

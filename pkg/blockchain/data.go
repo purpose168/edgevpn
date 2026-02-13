@@ -15,10 +15,11 @@ package blockchain
 
 import "encoding/json"
 
+// Data 数据类型，表示存储在区块链中的数据
 type Data string
 
-// Unmarshal the result into the interface. Use it to retrieve data
-// set with SetValue
+// Unmarshal 将结果解析到接口。用于检索用SetValue设置的数据
+// 参数 i 为目标接口指针
 func (d Data) Unmarshal(i interface{}) error {
 	return json.Unmarshal([]byte(d), i)
 }

@@ -20,7 +20,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+// TestCrypto 加密测试入口函数
 func TestCrypto(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Crypto Suite")
+	RunSpecs(t, "加密测试套件")
 }

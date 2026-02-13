@@ -22,10 +22,10 @@ import (
 
 var _ = Describe("IP", func() {
 	Context("NextIP", func() {
-		It("gives a new IP", func() {
+		It("生成新的IP地址", func() {
 			Expect(NextIP("10.1.1.0", []string{"1.1.0.1"})).To(Equal("1.1.0.2"))
 		})
-		It("return default", func() {
+		It("返回默认值", func() {
 			Expect(NextIP("10.1.1.0", []string{})).To(Equal("10.1.1.0"))
 		})
 	})

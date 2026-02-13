@@ -21,14 +21,19 @@ import (
 	"github.com/peterbourgon/diskv"
 )
 
+// DiskStore 磁盘存储结构体
 type DiskStore struct {
 	chain *diskv.Diskv
 }
 
+// NewDiskStore 创建新的磁盘存储
+// 参数 d 为diskv实例
 func NewDiskStore(d *diskv.Diskv) *DiskStore {
 	return &DiskStore{chain: d}
 }
 
+// Add 添加区块到磁盘存储
+// 参数 b 为要添加的区块
 func (m *DiskStore) Add(b Block) {
 	bb, _ := json.Marshal(b)
 	m.chain.Write(fmt.Sprint(b.Index), bb)
@@ -36,6 +41,7 @@ func (m *DiskStore) Add(b Block) {
 
 }
 
+// Len 返回存储中的区块数量
 func (m *DiskStore) Len() int {
 	count, err := m.chain.Read("index")
 	if err != nil {
@@ -46,6 +52,7 @@ func (m *DiskStore) Len() int {
 
 }
 
+// Last 返回最后一个区块
 func (m *DiskStore) Last() Block {
 	b := &Block{}
 

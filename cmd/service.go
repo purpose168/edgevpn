@@ -27,11 +27,11 @@ func cliNameAddress(c *cli.Context) (name, address string, err error) {
 	name = c.Args().Get(0)
 	address = c.Args().Get(1)
 	if name == "" && c.String("name") == "" {
-		err = errors.New("Either a file UUID as first argument or with --name needs to be provided")
+		err = errors.New("需要提供文件 UUID 作为第一个参数或使用 --name 选项")
 		return
 	}
 	if address == "" && c.String("address") == "" {
-		err = errors.New("Either a file UUID as first argument or with --name needs to be provided")
+		err = errors.New("需要提供文件 UUID 作为第一个参数或使用 --name 选项")
 		return
 	}
 	if c.String("name") != "" {
@@ -47,19 +47,19 @@ func ServiceAdd() *cli.Command {
 	return &cli.Command{
 		Name:    "service-add",
 		Aliases: []string{"sa"},
-		Usage:   "Expose a service to the network without creating a VPN",
-		Description: `Expose a local or a remote endpoint connection as a service in the VPN. 
-		The host will act as a proxy between the service and the connection`,
+		Usage:   "向网络暴露服务而不创建 VPN",
+		Description: `将本地或远程端点连接作为 VPN 中的服务暴露。
+		主机将充当服务与连接之间的代理`,
 		UsageText: "edgevpn service-add unique-id ip:port",
 		Flags: append(CommonFlags,
 			&cli.StringFlag{
 				Name:  "name",
-				Usage: `Unique name of the service to be server over the network.`,
+				Usage: `在网络上提供服务的唯一名称。`,
 			},
 			&cli.StringFlag{
 				Name: "address",
-				Usage: `Remote address that the service is running to. That can be a remote webserver, a local SSH server, etc.
-For example, '192.168.1.1:80', or '127.0.0.1:22'.`,
+				Usage: `服务运行的远程地址。可以是远程 Web 服务器、本地 SSH 服务器等。
+例如，'192.168.1.1:80' 或 '127.0.0.1:22'。`,
 			},
 		),
 		Action: func(c *cli.Context) error {
@@ -69,7 +69,7 @@ For example, '192.168.1.1:80', or '127.0.0.1:22'.`,
 			}
 			o, _, ll := cliToOpts(c)
 
-			// Needed to unblock connections with low activity
+			// 需要解除低活动连接的阻塞
 			o = append(o,
 				services.Alive(
 					time.Duration(c.Int("aliveness-healthcheck-interval"))*time.Second,
@@ -86,7 +86,7 @@ For example, '192.168.1.1:80', or '127.0.0.1:22'.`,
 			displayStart(ll)
 			go handleStopSignals()
 
-			// Join the node to the network, using our ledger
+			// 将节点加入网络，使用我们的账本
 			if err := e.Start(context.Background()); err != nil {
 				return err
 			}
@@ -101,21 +101,21 @@ For example, '192.168.1.1:80', or '127.0.0.1:22'.`,
 func ServiceConnect() *cli.Command {
 	return &cli.Command{
 		Aliases: []string{"sc"},
-		Usage:   "Connects to a service in the network without creating a VPN",
+		Usage:   "连接到网络中的服务而不创建 VPN",
 		Name:    "service-connect",
-		Description: `Bind a local port to connect to a remote service in the network.
-Creates a local listener which connects over the service in the network without creating a VPN.
+		Description: `绑定本地端口以连接到网络中的远程服务。
+创建一个本地监听器，通过网络连接到服务而不创建 VPN。
 `,
 		UsageText: "edgevpn service-connect unique-id (ip):port",
 		Flags: append(CommonFlags,
 			&cli.StringFlag{
 				Name:  "name",
-				Usage: `Unique name of the service in the network.`,
+				Usage: `网络中服务的唯一名称。`,
 			},
 			&cli.StringFlag{
 				Name: "address",
-				Usage: `Address where to bind locally. E.g. ':8080'. A proxy will be created
-to the service over the network`,
+				Usage: `本地绑定的地址。例如 ':8080'。将创建一个代理
+连接到网络中的服务`,
 			},
 		),
 		Action: func(c *cli.Context) error {
@@ -125,7 +125,7 @@ to the service over the network`,
 			}
 			o, _, ll := cliToOpts(c)
 
-			// Needed to unblock connections with low activity
+			// 需要解除低活动连接的阻塞
 			o = append(o,
 				services.Alive(
 					time.Duration(c.Int("aliveness-healthcheck-interval"))*time.Second,
@@ -149,7 +149,7 @@ to the service over the network`,
 			displayStart(ll)
 			go handleStopSignals()
 
-			// starts the node
+			// 启动节点
 			return e.Start(context.Background())
 		},
 	}

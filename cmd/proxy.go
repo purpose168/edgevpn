@@ -28,14 +28,14 @@ import (
 func Proxy() *cli.Command {
 	return &cli.Command{
 		Name:        "proxy",
-		Usage:       "Starts a local http proxy server to egress nodes",
-		Description: `Start a proxy locally, providing an ingress point for the network.`,
+		Usage:       "启动本地 HTTP 代理服务器到出口节点",
+		Description: `在本地启动代理，为网络提供入口点。`,
 		UsageText:   "edgevpn proxy",
 		Flags: append(CommonFlags,
 			&cli.StringFlag{
 				Name:    "listen",
 				Value:   ":8080",
-				Usage:   "Listening address",
+				Usage:   "监听地址",
 				EnvVars: []string{"PROXYLISTEN"},
 			},
 			&cli.BoolFlag{
@@ -43,13 +43,13 @@ func Proxy() *cli.Command {
 			},
 			&cli.IntFlag{
 				Name:    "interval",
-				Usage:   "proxy announce time interval",
+				Usage:   "代理公告时间间隔",
 				EnvVars: []string{"PROXYINTERVAL"},
 				Value:   120,
 			},
 			&cli.IntFlag{
 				Name:    "dead-interval",
-				Usage:   "interval (in seconds) wether detect egress nodes offline",
+				Usage:   "检测出口节点离线的时间间隔（秒）",
 				EnvVars: []string{"PROXYDEADINTERVAL"},
 				Value:   600,
 			},
@@ -75,7 +75,7 @@ func Proxy() *cli.Command {
 			go handleStopSignals()
 
 			ctx := context.Background()
-			// Start the node to the network, using our ledger
+			// 启动节点到网络，使用我们的账本
 			if err := e.Start(ctx); err != nil {
 				return err
 			}

@@ -13,11 +13,13 @@ limitations under the License.
 
 package types
 
+// Machine 机器信息结构体
+// 用于表示网络中的机器节点信息
 type Machine struct {
-	PeerID   string
-	Hostname string
-	OS       string
-	Arch     string
-	Address  string
-	Version  string
+	PeerID   string // 对等节点ID
+	Hostname string // 主机名
+	OS       string // 操作系统类型
+	Arch     string // 系统架构
+	Address  string // IP地址
+	Version  string // 软件版本
 }

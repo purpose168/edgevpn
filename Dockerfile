@@ -1,30 +1,30 @@
-# Define argument for linker flags
+# 定义链接器标志参数
 ARG LDFLAGS=-s -w
 
-# Use a temporary build image based on Golang 1.20-alpine
+# 使用基于 Golang 1.20-alpine 的临时构建镜像
 FROM golang:1.25-alpine as builder
 
-# Set environment variables: linker flags and disable CGO
+# 设置环境变量：链接器标志并禁用 CGO
 ENV LDFLAGS=$LDFLAGS CGO_ENABLED=0
 
-# Add the current directory contents to the work directory in the container
+# 将当前目录内容添加到容器中的工作目录
 ADD . /work
 
-# Set the current work directory inside the container
+# 设置容器内的当前工作目录
 WORKDIR /work
 
-# Install git and build the edgevpn binary with the provided linker flags
-# --no-cache flag ensures the package cache isn't stored in the layer, reducing image size
+# 安装 git 并使用提供的链接器标志构建 edgevpn 二进制文件
+# --no-cache 标志确保包缓存不存储在层中，从而减小镜像大小
 RUN apk add --no-cache git && \
     go build -ldflags="$LDFLAGS" -o edgevpn
 
-# TODO: move to distroless
+# TODO: 移动到 distroless
 
-# Use a new, clean alpine image for the final stage
+# 使用新的、干净的 alpine 镜像作为最终阶段
 FROM alpine
 
-# Copy the edgevpn binary from the builder stage to the final image
+# 将 edgevpn 二进制文件从构建阶段复制到最终镜像
 COPY --from=builder /work/edgevpn /usr/bin/edgevpn
 
-# Define the command that will be run when the container is started
+# 定义容器启动时将运行的命令
 ENTRYPOINT ["/usr/bin/edgevpn"]

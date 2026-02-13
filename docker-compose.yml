@@ -7,19 +7,19 @@ services:
     volumes:
       - /home/CHANGEME/.edgevpn:/root/.edgevpn
 
-    # If you want to specify arguments on startup you can either use the `entrypoint` below or specify environment variables
+    # 如果您想在启动时指定参数，可以使用下面的 `entrypoint` 或指定环境变量
     # entrypoint: /usr/bin/edgevpn --address 10.5.0.10/24 --api --api-listen 127.0.0.1:57777 --low-profile --privkey-cache --privkey-cache-dir=/root/.edgevpn
     environment:
       - EDGEVPNTOKEN=CHANGEME
 
-    # This is needed to allow edgevpn to setup the `edgevpn0` network interface systemwide:
+    # 这是为了允许 edgevpn 在系统范围内设置 `edgevpn0` 网络接口所必需的：
     network_mode: host
     devices:
       - /dev/net/tun:/dev/net/tun
     cap_add:
       - NET_ADMIN
 
-    # basic healthcheck that checks wether "edgevpn0" is indeed present as a network interface
+    # 基本健康检查，检查 "edgevpn0" 是否确实作为网络接口存在
     healthcheck:
       test: ["CMD", "sh", "-c", "ifconfig | grep -q edgevpn0"]
       interval: 30s
@@ -29,4 +29,3 @@ services:
 
     # logging:
     #   driver: journald
-

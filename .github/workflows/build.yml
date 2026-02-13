@@ -1,4 +1,11 @@
-name: Build
+# ============================================================================
+# 构建工作流
+# 用途：编译项目并生成快照版本
+# 触发条件：推送代码
+# 作者：purpose168@outlook.com
+# ============================================================================
+
+name: 构建
 
 on:
   push:
@@ -7,16 +14,23 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      # 检出代码仓库
+      - name: 检出代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Set up Go
+          fetch-depth: 0  # 获取完整的 git 历史，用于版本计算
+
+      # 设置 Go 语言环境
+      - name: 设置 Go 环境
         uses: actions/setup-go@v5
         with:
           go-version: 1.25
-      - name: Run GoReleaser
+
+      # 运行 GoReleaser 构建快照版本
+      - name: 运行 GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           version: v2.0.1
+          # --clean 清理构建产物
+          # --snapshot 构建快照版本（不发布）
           args: build --clean --snapshot

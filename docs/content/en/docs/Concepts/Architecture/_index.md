@@ -1,44 +1,44 @@
 ---
-title: "Architecture"
-linkTitle: "Architecture"
+title: "架构"
+linkTitle: "架构"
 weight: 2
 description: >
-  EdgeVPN internal architecture
+  EdgeVPN 内部架构
 resources:
 - src: "**edgevpn_*.png"
 ---
  
-## Introduction
+## 简介
 
-EdgeVPN uses [libp2p](https://github.com/libp2p/go-libp2p) to establish a decentralized, asymmetrically encrypted gossip network which propagate a (symmetrically encrypted) blockchain states between nodes.
+EdgeVPN 使用 [libp2p](https://github.com/libp2p/go-libp2p) 建立一个去中心化的、非对称加密的 gossip 网络，该网络在节点之间传播（对称加密的）区块链状态。
 
-The blockchain is lightweight as:
-- There is no PoW mechanism
-- It is in memory only, no DAG, CARv2, or GraphSync protocol - the usage is restricted to hold metadata, and not real addressable content
+区块链是轻量级的，因为：
+- 没有 PoW 机制
+- 仅在内存中，没有 DAG、CARv2 或 GraphSync 协议 - 用途仅限于保存元数据，而不是真正的可寻址内容
 
-EdgeVPN uses the blockchain to store Services UUID, Files UUID, VPN and other metadata (such as DNS records, IP, etc.) and co-ordinate events between the nodes of the network. Besides, it is used as a mechanism of protection: if nodes are not part of the blockchain, they can't talk to each other.
+EdgeVPN 使用区块链存储服务 UUID、文件 UUID、VPN 和其他元数据（如 DNS 记录、IP 等），并协调网络节点之间的事件。此外，它还用作保护机制：如果节点不属于区块链，它们就无法相互通信。
 
-The blockchain is ephemeral and on-memory, optionally can be stored on disk. 
+区块链是临时的且在内存中，可以选择存储在磁盘上。
 
-Each node keeps broadcasting it's state until it is reconciled in the blockchain. If the blockchain would get start from scratch, the hosts would re-announce and try to fill the blockchain with their data.
+每个节点都会持续广播其状态，直到它在区块链中协调一致。如果区块链从头开始，主机将重新宣布并尝试用它们的数据填充区块链。
 
 
-- Simple (KISS) interface to display network data from the blockchain
-- asymmetric p2p encryption between peers with libp2p
-- randezvous points dynamically generated from OTP keys
-- extra AES symmetric encryption on top. In case rendezvous point is compromised
-- blockchain is used as a sealed encrypted store for the routing table
-- connections are created host to host and encrypted asymmetrically
+- 简单（KISS）接口，用于显示区块链中的网络数据
+- 使用 libp2p 在节点之间进行非对称 P2P 加密
+- 从 OTP 密钥动态生成的 rendezvous 点
+- 额外的 AES 对称加密。以防 rendezvous 点被泄露
+- 区块链用作路由表的密封加密存储
+- 连接是主机到主机创建的，并进行非对称加密
 
-### Connection bootstrap
+### 连接引导
 
-Network is bootstrapped with libp2p and is composed of 3 phases:
+网络使用 libp2p 引导，由 3 个阶段组成：
 
 {{< imgproc edevpn_bootstrap.png Fit "1200x550" >}}
 {{< /imgproc >}}
 
-In the first phase, nodes do discover each others via DHT and a rendezvous secret which is automatically generated via OTP.
+在第一阶段，节点通过 DHT 和自动通过 OTP 生成的 rendezvous 密钥相互发现。
 
-Once peers know about each other a gossip network is established, where the nodes exchange a blockchain over an p2p e2e encrypted channel. The blockchain is sealed with a symmetric key which is rotated via OTP that is shared between the nodes. 
+一旦节点相互了解，就会建立一个 gossip 网络，节点通过 P2P 端到端加密通道交换区块链。区块链使用通过 OTP 轮换的对称密钥进行密封，该密钥在节点之间共享。
 
-At that point a blockchain and an API is established between the nodes, and optionally start the VPN binding on the tun/tap device.
+此时，在节点之间建立了区块链和 API，并可选择在 tun/tap 设备上启动 VPN 绑定。

@@ -24,12 +24,14 @@ import (
 	"github.com/mudler/edgevpn/pkg/protocol"
 )
 
-// PeerGuardian provides auth for peers from blockchain data
+// PeerGuardian 为区块链数据中的对等节点提供认证功能
 type PeerGuardian struct {
-	authProviders []AuthProvider
-	logger        log.StandardLogger
+	authProviders []AuthProvider   // 认证提供者列表
+	logger        log.StandardLogger // 日志记录器
 }
 
+// NewPeerGuardian 创建新的对等节点守护者实例
+// 参数 logger 为日志记录器，authProviders 为认证提供者列表
 func NewPeerGuardian(logger log.StandardLogger, authProviders ...AuthProvider) *PeerGuardian {
 	return &PeerGuardian{
 		authProviders: authProviders,
@@ -37,23 +39,22 @@ func NewPeerGuardian(logger log.StandardLogger, authProviders ...AuthProvider) *
 	}
 }
 
-// ReceiveMessage is a GenericHandler for public channel to provide authentication.
-// We receive messages here and we select them based on 2 criterias:
-// - messages that are supposed to generate challenges for auth mechanisms.
-//   Auth mechanisms should get user auth data from a special TZ dedicated to hashes that are manually added
-// - messages that are answers to such challenges and then means that the sender.ID should be added to the trust zone
+// ReceiveMessage 是公共通道的通用处理器，用于提供认证功能。
+// 我们在这里接收消息，并根据两个标准进行选择：
+// - 用于生成认证机制挑战的消息。
+//   认证机制应从专门用于手动添加哈希值的TZ区域获取用户认证数据
+// - 对此类挑战的回答消息，意味着应该将sender.ID添加到信任区域
 func (pg *PeerGuardian) ReceiveMessage(l *blockchain.Ledger, m *hub.Message, c chan *hub.Message) error {
-	pg.logger.Debug("Peerguardian received message from", m.SenderID)
+	pg.logger.Debug("对等节点守护者收到来自", m.SenderID, "的消息")
 
 	for _, a := range pg.authProviders {
 
 		_, exists := l.GetKey(protocol.TrustZoneKey, m.SenderID)
 		trustAuth := l.CurrentData()[protocol.TrustZoneAuthKey]
 		if !exists && a.Authenticate(m, c, trustAuth) {
-			// try to authenticate it
-			// Note we can also not be in a TZ here as we are not able to check (we miss node information at hand)
-			// In any way nodes would ignore the messages, and that we hit Authenticate is useful for two (or more)
-			// steps authenticators.
+			// 尝试认证
+			// 注意，我们可能不在这里的TZ中，因为我们无法检查（手头缺少节点信息）
+			// 无论如何，节点会忽略消息，而我们触发Authenticate对于两步（或更多）认证器是有用的
 			l.Persist(context.Background(), 5*time.Second, 120*time.Second, protocol.TrustZoneKey, m.SenderID, "")
 			return nil
 		}
@@ -62,8 +63,8 @@ func (pg *PeerGuardian) ReceiveMessage(l *blockchain.Ledger, m *hub.Message, c c
 	return nil
 }
 
-// Challenger is a NetworkService that should send challenges with all enabled authenticators until we are in TZ
-// note that might never happen as node might not have a satisfying authentication mechanism
+// Challenger 是一个网络服务，应该使用所有启用的认证器发送挑战，直到我们进入TZ
+// 注意这可能永远不会发生，因为节点可能没有满足的认证机制
 func (pg *PeerGuardian) Challenger(duration time.Duration, autocleanup bool) node.NetworkService {
 	return func(ctx context.Context, c node.Config, n *node.Node, b *blockchain.Ledger) error {
 		b.Announce(ctx, duration, func() {
@@ -73,7 +74,7 @@ func (pg *PeerGuardian) Challenger(duration time.Duration, autocleanup bool) nod
 				a.Challenger(exists, c, n, b, trustAuth)
 			}
 
-			// Automatically cleanup TZ from peers not anymore in the hub
+			// 自动清理不在Hub中的对等节点的TZ
 			if autocleanup {
 				peers, err := n.MessageHub.ListPeers()
 				if err != nil {
@@ -96,10 +97,10 @@ func (pg *PeerGuardian) Challenger(duration time.Duration, autocleanup bool) nod
 	}
 }
 
-// AuthProvider is a generic Blockchain authentity provider
+// AuthProvider 是通用的区块链认证实体提供者接口
 type AuthProvider interface {
-	// Authenticate either generates challanges to pick up later or authenticates a node
-	// from a message with the available auth data in the blockchain
+	// Authenticate 要么生成稍后处理的挑战，要么根据区块链中可用的认证数据认证节点
 	Authenticate(*hub.Message, chan *hub.Message, map[string]blockchain.Data) bool
+	// Challenger 发送认证挑战
 	Challenger(inTrustZone bool, c node.Config, n *node.Node, b *blockchain.Ledger, trustData map[string]blockchain.Data)
 }

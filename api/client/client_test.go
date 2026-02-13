@@ -1,14 +1,13 @@
 /*
 Copyright © 2021-2022 Ettore Di Giacinto <mudler@mocaccino.org>
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+根据 Apache 许可证 2.0 版本（"许可证"）授权；
+除非遵守许可证，否则您不得使用此文件。
+您可以在以下位置获取许可证副本：
     http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+除非适用法律要求或书面同意，否则根据许可证分发的软件
+是按"原样"分发的，没有任何明示或暗示的担保或条件。
+请参阅许可证以了解管理权限和
+限制的具体语言。
 */
 
 package client_test
@@ -23,8 +22,10 @@ import (
 	. "github.com/mudler/edgevpn/api/client"
 )
 
+// letterBytes 用于生成随机字符串的字母表
 const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+// randStringBytes 生成指定长度的随机字符串
 func randStringBytes(n int) string {
 	b := make([]byte, n)
 	for i := range b {
@@ -36,27 +37,33 @@ func randStringBytes(n int) string {
 var _ = Describe("Client", func() {
 	c := NewClient(WithHost(testInstance))
 
-	Context("Operates blockchain", func() {
+	Context("操作区块链", func() {
 		var testBucket string
 
 		AfterEach(func() {
+			// 验证存储桶存在后删除
 			Eventually(c.GetBuckets, 100*time.Second, 1*time.Second).Should(ContainElement(testBucket))
 			err := c.DeleteBucket(testBucket)
 			Expect(err).ToNot(HaveOccurred())
+			// 验证存储桶已被删除
 			Eventually(c.GetBuckets, 100*time.Second, 1*time.Second).ShouldNot(ContainElement(testBucket))
 		})
 
 		BeforeEach(func() {
+			// 为每个测试生成随机存储桶名称
 			testBucket = randStringBytes(10)
 		})
 
-		It("Puts string data", func() {
+		It("写入字符串数据", func() {
 			err := c.Put(testBucket, "foo", "bar")
 			Expect(err).ToNot(HaveOccurred())
 
+			// 验证存储桶已创建
 			Eventually(c.GetBuckets, 100*time.Second, 1*time.Second).Should(ContainElement(testBucket))
+			// 验证键已创建
 			Eventually(func() ([]string, error) { return c.GetBucketKeys(testBucket) }, 100*time.Second, 1*time.Second).Should(ContainElement("foo"))
 
+			// 验证值可以正确读取
 			Eventually(func() (string, error) {
 				resp, err := c.GetBucketKey(testBucket, "foo")
 				if err == nil {
@@ -67,14 +74,16 @@ var _ = Describe("Client", func() {
 				return "", err
 			}, 100*time.Second, 1*time.Second).Should(Equal("bar"))
 
+			// 验证账本数据
 			m, err := c.Ledger()
 			Expect(err).ToNot(HaveOccurred())
 			Expect(len(m) > 0).To(BeTrue())
 		})
 
-		It("Puts random data", func() {
+		It("写入随机数据", func() {
 			err := c.Put(testBucket, "foo2", struct{ Foo string }{Foo: "bar"})
 			Expect(err).ToNot(HaveOccurred())
+			// 验证结构体数据可以正确读取
 			Eventually(func() (string, error) {
 				resp, err := c.GetBucketKey(testBucket, "foo2")
 				if err == nil {

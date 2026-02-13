@@ -19,9 +19,10 @@ import (
 	maddr "github.com/multiformats/go-multiaddr"
 )
 
-// A new type we need for writing a custom flag parser
+// AddrList 我们需要的新类型，用于编写自定义标志解析器
 type AddrList []maddr.Multiaddr
 
+// String 返回地址列表的字符串表示
 func (al *AddrList) String() string {
 	strs := make([]string, len(*al))
 	for i, addr := range *al {
@@ -30,6 +31,8 @@ func (al *AddrList) String() string {
 	return strings.Join(strs, ",")
 }
 
+// Set 设置地址值
+// 参数 value 为地址字符串
 func (al *AddrList) Set(value string) error {
 	addr, err := maddr.NewMultiaddr(value)
 	if err != nil {

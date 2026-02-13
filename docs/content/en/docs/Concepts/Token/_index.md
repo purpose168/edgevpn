@@ -1,46 +1,47 @@
 ---
-title: "Token"
-linkTitle: "Token"
+title: "令牌"
+linkTitle: "令牌"
 weight: 3
 description: >
-  The edgevpn network token
+  EdgeVPN 网络令牌
+math: false
 ---
 
-A network token represent the network which edgevpn attempts to establish a connection among peers.
+网络令牌代表 EdgeVPN 尝试在节点之间建立连接的网络。
 
-A token is created by encoding in base64 a network configuration.
+令牌是通过将网络配置编码为 base64 创建的。
 
-## Generating tokens
+## 生成令牌
 
-To generate a network token, run in the console:
+要生成网络令牌，在控制台中运行：
 
 ```
 edgevpn -b -g
 ```
 
-This will print out in screen a base64 token which is ready to be shared on nodes that you wish to join on the same network.
+这将在屏幕上打印出一个 base64 令牌，可以将其共享给你希望加入同一网络的节点。
 
-## Generating configuration files
+## 生成配置文件
 
-EdgeVPN can read both tokens and network configuration files. 
+EdgeVPN 可以读取令牌和网络配置文件。
 
-To generate a configuration file, run in the console:
+要生成配置文件，在控制台中运行：
 
 ```
 edgevpn -g
 ```
 
-To turn out a config to a token, you must encode in base64:
+要将配置转换为令牌，必须编码为 base64：
 
 ```
 TOKEN=$(edgevpn -g | base64 -w0)
 ```
 
-which is equivalent to run `edgevpn -g -b`.
+这相当于运行 `edgevpn -g -b`。
 
-## Anatomy of a configuration file
+## 配置文件剖析
 
-A typical configuration file looks like the following:
+典型的配置文件如下所示：
 
 ```yaml
 otp:
@@ -58,14 +59,14 @@ mdns: VoZfePlTchbSrdmivaqaOyQyEnTMlugi
 max_message_size: 20971520
 ```
 
-The values can be all tweaked to your needs.
+所有值都可以根据你的需求进行调整。
 
-EdgeVPN uses an otp mechanism to decrypt blockchain messages between the nodes and to discover nodes from DHT, this is in order to prevent bruteforce attacks and avoid bad actors listening on the protocol.
-See [the Architecture section]() for more information.
+EdgeVPN 使用 OTP 机制来解密节点之间的区块链消息并从 DHT 发现节点，这是为了防止暴力攻击并避免恶意行为者监听协议。
+有关更多信息，请参阅[架构部分]()。
 
-- The OTP keys (`otp.crypto.key`) rotates the cipher key used to encode/decode the blockchain messages. The interval of rotation can be set for both DHT and the Blockchain messages. The length is the cipher key length (AES-256 by default) used by the sealer to decrypt/encrypt messages.
-- The DHT OTP keys (`otp.dht.key`) rotates the discovery key used during DHT node discovery. A key is generated and used with OTP at defined intervals to scramble potential listeners.
-- The `room` is a unique ID which all the nodes will subscribe to. It is automatically generated
-- Optionally the OTP mechanism can be disabled by commenting the `otp` block. In this case the static DHT rendezvous will be `rendezvous`
-- The `mdns` discovery doesn't have any OTP rotation, so a unique identifier must be provided.
-- Here can be defined the max message size accepted for the blockchain messages with `max_message_size` (in bytes)
+- OTP 密钥（`otp.crypto.key`）轮换用于编码/解码区块链消息的密码密钥。可以为 DHT 和区块链消息设置轮换间隔。长度是密封器用于解密/加密消息的密码密钥长度（默认为 AES-256）。
+- DHT OTP 密钥（`otp.dht.key`）轮换在 DHT 节点发现期间使用的发现密钥。在定义的间隔使用 OTP 生成并使用密钥，以干扰潜在的监听者。
+- `room` 是所有节点将订阅的唯一 ID。它是自动生成的
+- 可以通过注释掉 `otp` 块来选择性地禁用 OTP 机制。在这种情况下，静态 DHT rendezvous 将是 `rendezvous`
+- `mdns` 发现没有任何 OTP 轮换，因此必须提供唯一标识符。
+- 这里可以使用 `max_message_size`（以字节为单位）定义区块链消息接受的最大消息大小

@@ -42,330 +42,330 @@ import (
 var CommonFlags []cli.Flag = []cli.Flag{
 	&cli.StringFlag{
 		Name:    "config",
-		Usage:   "Specify a path to a edgevpn config file",
+		Usage:   "指定 edgevpn 配置文件路径",
 		EnvVars: []string{"EDGEVPNCONFIG"},
 	},
 	&cli.StringSliceFlag{
 		Name:    "listen-maddrs",
-		Usage:   "Override default 0.0.0.0 listen multiaddresses",
+		Usage:   "覆盖默认的 0.0.0.0 监听多地址",
 		EnvVars: []string{"EDGEVPNLISTENMADDRS"},
 	},
 	&cli.StringSliceFlag{
 		Name:    "dht-announce-maddrs",
-		Usage:   "Override listen-maddrs on DHT announce",
+		Usage:   "在 DHT 公告时覆盖监听多地址",
 		EnvVars: []string{"EDGEVPNDHTANNOUNCEMADDRS"},
 	},
 	&cli.StringFlag{
 		Name:    "timeout",
-		Usage:   "Specify a default timeout for connection stream",
+		Usage:   "指定连接流的默认超时时间",
 		EnvVars: []string{"EDGEVPNTIMEOUT"},
 		Value:   "15s",
 	},
 	&cli.IntFlag{
 		Name:    "mtu",
-		Usage:   "Specify a mtu",
+		Usage:   "指定 MTU（最大传输单元）",
 		EnvVars: []string{"EDGEVPNMTU"},
 		Value:   1200,
 	},
 	&cli.BoolFlag{
 		Name:    "bootstrap-iface",
-		Usage:   "Setup interface on startup (need privileges)",
+		Usage:   "启动时设置接口（需要权限）",
 		EnvVars: []string{"EDGEVPNBOOTSTRAPIFACE"},
 		Value:   true,
 	},
 	&cli.IntFlag{
 		Name:    "packet-mtu",
-		Usage:   "Specify a mtu",
+		Usage:   "指定数据包 MTU",
 		EnvVars: []string{"EDGEVPNPACKETMTU"},
 		Value:   1420,
 	},
 	&cli.IntFlag{
 		Name:    "channel-buffer-size",
-		Usage:   "Specify a channel buffer size",
+		Usage:   "指定通道缓冲区大小",
 		EnvVars: []string{"EDGEVPNCHANNELBUFFERSIZE"},
 		Value:   0,
 	},
 	&cli.IntFlag{
 		Name:    "discovery-interval",
-		Usage:   "DHT discovery interval time",
+		Usage:   "DHT 发现间隔时间",
 		EnvVars: []string{"EDGEVPNDHTINTERVAL"},
 		Value:   720,
 	},
 	&cli.IntFlag{
 		Name:    "ledger-announce-interval",
-		Usage:   "Ledger announce interval time",
+		Usage:   "账本公告间隔时间",
 		EnvVars: []string{"EDGEVPNLEDGERINTERVAL"},
 		Value:   10,
 	},
 	&cli.StringFlag{
 		Name:    "autorelay-discovery-interval",
-		Usage:   "Autorelay discovery interval",
+		Usage:   "自动中继发现间隔",
 		EnvVars: []string{"EDGEVPNAUTORELAYDISCOVERYINTERVAL"},
 		Value:   "5m",
 	},
 	&cli.BoolFlag{
 		Name:    "autorelay-static-only",
-		Usage:   "Use only defined static relays",
+		Usage:   "仅使用定义的静态中继",
 		EnvVars: []string{"EDGEVPNAUTORELAYSTATICONLY"},
 	},
 	&cli.IntFlag{
 		Name:    "ledger-synchronization-interval",
-		Usage:   "Ledger synchronization interval time",
+		Usage:   "账本同步间隔时间",
 		EnvVars: []string{"EDGEVPNLEDGERSYNCINTERVAL"},
 		Value:   10,
 	},
 	&cli.IntFlag{
 		Name:    "nat-ratelimit-global",
-		Usage:   "Rate limit global requests",
+		Usage:   "全局请求速率限制",
 		EnvVars: []string{"EDGEVPNNATRATELIMITGLOBAL"},
 		Value:   10,
 	},
 	&cli.IntFlag{
 		Name:    "nat-ratelimit-peer",
-		Usage:   "Rate limit perr requests",
+		Usage:   "对等节点请求速率限制",
 		EnvVars: []string{"EDGEVPNNATRATELIMITPEER"},
 		Value:   10,
 	},
 	&cli.IntFlag{
 		Name:    "nat-ratelimit-interval",
-		Usage:   "Rate limit interval",
+		Usage:   "速率限制间隔",
 		EnvVars: []string{"EDGEVPNNATRATELIMITINTERVAL"},
 		Value:   60,
 	},
 	&cli.BoolFlag{
 		Name:    "nat-ratelimit",
-		Usage:   "Changes the default rate limiting configured in helping other peers determine their reachability status",
+		Usage:   "更改帮助其他对等节点确定其可达性状态的默认速率限制配置",
 		EnvVars: []string{"EDGEVPNNATRATELIMIT"},
 		Value:   true,
 	},
 	&cli.IntFlag{
 		Name:    "max-connections",
-		Usage:   "Max connections",
+		Usage:   "最大连接数",
 		EnvVars: []string{"EDGEVPNMAXCONNS"},
 		Value:   0,
 	},
 	&cli.StringFlag{
 		Name:    "ledger-state",
-		Usage:   "Specify a ledger state directory",
+		Usage:   "指定账本状态目录",
 		EnvVars: []string{"EDGEVPNLEDGERSTATE"},
 	},
 	&cli.BoolFlag{
 		Name:    "mdns",
-		Usage:   "Enable mDNS for peer discovery",
+		Usage:   "启用 mDNS 进行对等节点发现",
 		EnvVars: []string{"EDGEVPNMDNS"},
 		Value:   true,
 	},
 	&cli.BoolFlag{
 		Name:    "autorelay",
-		Usage:   "Automatically act as a relay if the node can accept inbound connections",
+		Usage:   "如果节点可以接受入站连接，则自动充当中继",
 		EnvVars: []string{"EDGEVPNAUTORELAY"},
 		Value:   true,
 	},
 	&cli.IntFlag{
 		Name:  "concurrency",
-		Usage: "Number of concurrent requests to serve",
+		Usage: "要服务的并发请求数",
 		Value: runtime.NumCPU(),
 	},
 	&cli.BoolFlag{
 		Name:    "holepunch",
-		Usage:   "Automatically try holepunching when possible",
+		Usage:   "在可能时自动尝试打洞",
 		EnvVars: []string{"EDGEVPNHOLEPUNCH"},
 		Value:   true,
 	},
 	&cli.BoolFlag{
 		Name:    "natservice",
-		Usage:   "Tries to determine reachability status of nodes",
+		Usage:   "尝试确定节点的可达性状态",
 		EnvVars: []string{"EDGEVPNNATSERVICE"},
 		Value:   true,
 	},
 	&cli.BoolFlag{
 		Name:    "natmap",
-		Usage:   "Tries to open a port in the firewall via upnp",
+		Usage:   "尝试通过 UPnP 在防火墙中打开端口",
 		EnvVars: []string{"EDGEVPNNATMAP"},
 		Value:   true,
 	},
 	&cli.BoolFlag{
 		Name:    "dht",
-		Usage:   "Enable DHT for peer discovery",
+		Usage:   "启用 DHT 进行对等节点发现",
 		EnvVars: []string{"EDGEVPNDHT"},
 		Value:   true,
 	},
 	&cli.BoolFlag{
 		Name:    "low-profile",
-		Usage:   "Enable low profile. Lowers connections usage",
+		Usage:   "启用低配置模式。降低连接使用量",
 		EnvVars: []string{"EDGEVPNLOWPROFILE"},
 		Value:   true,
 	},
 	&cli.IntFlag{
 		Name:    "aliveness-healthcheck-interval",
-		Usage:   "Healthcheck interval",
+		Usage:   "健康检查间隔",
 		EnvVars: []string{"HEALTHCHECKINTERVAL"},
 		Value:   120,
 	},
 	&cli.IntFlag{
 		Name:    "aliveness-healthcheck-scrub-interval",
-		Usage:   "Healthcheck scrub interval",
+		Usage:   "健康检查清理间隔",
 		EnvVars: []string{"HEALTHCHECKSCRUBINTERVAL"},
 		Value:   600,
 	},
 	&cli.IntFlag{
 		Name:    "aliveness-healthcheck-max-interval",
-		Usage:   "Healthcheck max interval. Threshold after a node is determined offline",
+		Usage:   "健康检查最大间隔。判定节点离线的阈值",
 		EnvVars: []string{"HEALTHCHECKMAXINTERVAL"},
 		Value:   900,
 	},
 	&cli.StringFlag{
 		Name:    "log-level",
-		Usage:   "Specify loglevel",
+		Usage:   "指定日志级别",
 		EnvVars: []string{"EDGEVPNLOGLEVEL"},
 		Value:   "info",
 	},
 	&cli.StringFlag{
 		Name:    "libp2p-log-level",
-		Usage:   "Specify libp2p loglevel",
+		Usage:   "指定 libp2p 日志级别",
 		EnvVars: []string{"EDGEVPNLIBP2PLOGLEVEL"},
 		Value:   "fatal",
 	},
 	&cli.StringSliceFlag{
 		Name:    "discovery-bootstrap-peers",
-		Usage:   "List of discovery peers to use",
+		Usage:   "要使用的发现对等节点列表",
 		EnvVars: []string{"EDGEVPNBOOTSTRAPPEERS"},
 	},
 	&cli.IntFlag{
 		Name:    "connection-high-water",
-		Usage:   "max number of connection allowed",
+		Usage:   "允许的最大连接数",
 		EnvVars: []string{"EDGEVPN_CONNECTION_HIGH_WATER"},
 		Value:   0,
 	},
 	&cli.IntFlag{
 		Name:    "connection-low-water",
-		Usage:   "low number of connection allowed",
+		Usage:   "允许的最小连接数",
 		EnvVars: []string{"EDGEVPN_CONNECTION_LOW_WATER"},
 		Value:   0,
 	},
 	&cli.StringSliceFlag{
 		Name:    "autorelay-static-peer",
-		Usage:   "List of autorelay static peers to use",
+		Usage:   "要使用的自动中继静态对等节点列表",
 		EnvVars: []string{"EDGEVPNAUTORELAYPEERS"},
 	},
 	&cli.StringSliceFlag{
 		Name:    "blacklist",
-		Usage:   "List of peers/cidr to gate",
+		Usage:   "要限制的对等节点/CIDR 列表",
 		EnvVars: []string{"EDGEVPNBLACKLIST"},
 	},
 	&cli.StringFlag{
 		Name:    "token",
-		Usage:   "Specify an edgevpn token in place of a config file",
+		Usage:   "指定 edgevpn 令牌以代替配置文件",
 		EnvVars: []string{"EDGEVPNTOKEN"},
 	},
 	&cli.BoolFlag{
 		Name:    "limit-enable",
-		Usage:   "Enable resource management",
+		Usage:   "启用资源管理",
 		EnvVars: []string{"LIMITENABLE"},
 	},
 	&cli.StringFlag{
 		Name:    "limit-file",
-		Usage:   "Specify a resource limit config (json)",
+		Usage:   "指定资源限制配置文件（JSON）",
 		EnvVars: []string{"LIMITFILE"},
 	},
 	&cli.StringFlag{
 		Name:    "limit-scope",
-		Usage:   "Specify a limit scope",
+		Usage:   "指定限制范围",
 		EnvVars: []string{"LIMITSCOPE"},
 		Value:   "system",
 	},
 	&cli.IntFlag{
 		Name:    "limit-config-streams",
-		Usage:   "Streams resource limit configuration",
+		Usage:   "流资源限制配置",
 		EnvVars: []string{"LIMITCONFIGSTREAMS"},
 		Value:   200,
 	},
 	&cli.IntFlag{
 		Name:    "limit-config-streams-inbound",
-		Usage:   "Inbound streams resource limit configuration",
+		Usage:   "入站流资源限制配置",
 		EnvVars: []string{"LIMITCONFIGSTREAMSINBOUND"},
 		Value:   30,
 	},
 	&cli.IntFlag{
 		Name:    "limit-config-streams-outbound",
-		Usage:   "Outbound streams resource limit configuration",
+		Usage:   "出站流资源限制配置",
 		EnvVars: []string{"LIMITCONFIGSTREAMSOUTBOUND"},
 		Value:   30,
 	},
 	&cli.IntFlag{
 		Name:    "limit-config-conn",
-		Usage:   "Connections resource limit configuration",
+		Usage:   "连接资源限制配置",
 		EnvVars: []string{"LIMITCONFIGCONNS"},
 		Value:   200,
 	},
 	&cli.IntFlag{
 		Name:    "limit-config-conn-inbound",
-		Usage:   "Inbound connections resource limit configuration",
+		Usage:   "入站连接资源限制配置",
 		EnvVars: []string{"LIMITCONFIGCONNSINBOUND"},
 		Value:   30,
 	},
 	&cli.IntFlag{
 		Name:    "limit-config-conn-outbound",
-		Usage:   "Outbound connections resource limit configuration",
+		Usage:   "出站连接资源限制配置",
 		EnvVars: []string{"LIMITCONFIGCONNSOUTBOUND"},
 		Value:   30,
 	},
 	&cli.IntFlag{
 		Name:    "limit-config-fd",
-		Usage:   "Max fd resource limit configuration",
+		Usage:   "最大文件描述符资源限制配置",
 		EnvVars: []string{"LIMITCONFIGFD"},
 		Value:   30,
 	},
 	&cli.BoolFlag{
 		Name:    "peerguard",
-		Usage:   "Enable peerguard. (Experimental)",
+		Usage:   "启用对等节点保护。（实验性）",
 		EnvVars: []string{"PEERGUARD"},
 	},
 	&cli.BoolFlag{
 		Name:    "privkey-cache",
-		Usage:   "Enable privkey caching. (Experimental)",
+		Usage:   "启用私钥缓存。（实验性）",
 		EnvVars: []string{"EDGEVPNPRIVKEYCACHE"},
 	},
 	&cli.StringFlag{
 		Name:    "privkey-cache-dir",
-		Usage:   "Specify a directory used to store the generated privkey",
+		Usage:   "指定用于存储生成的私钥的目录",
 		EnvVars: []string{"EDGEVPNPRIVKEYCACHEDIR"},
 		Value:   stateDir(),
 	},
 	&cli.StringSliceFlag{
 		Name:    "static-peertable",
-		Usage:   "List of static peers to use (in `ip:peerid` format)",
+		Usage:   "要使用的静态对等节点列表（格式为 `ip:peerid`）",
 		EnvVars: []string{"EDGEVPNSTATICPEERTABLE"},
 	},
 	&cli.StringSliceFlag{
 		Name:    "whitelist",
-		Usage:   "List of peers in the whitelist",
+		Usage:   "白名单中的对等节点列表",
 		EnvVars: []string{"EDGEVPNWHITELIST"},
 	},
 	&cli.BoolFlag{
 		Name:    "peergate",
-		Usage:   "Enable peergating. (Experimental)",
+		Usage:   "启用对等节点门控。（实验性）",
 		EnvVars: []string{"PEERGATE"},
 	},
 	&cli.BoolFlag{
 		Name:    "peergate-autoclean",
-		Usage:   "Enable peergating autoclean. (Experimental)",
+		Usage:   "启用对等节点门控自动清理。（实验性）",
 		EnvVars: []string{"PEERGATE_AUTOCLEAN"},
 	},
 	&cli.BoolFlag{
 		Name:    "peergate-relaxed",
-		Usage:   "Enable peergating relaxation. (Experimental)",
+		Usage:   "启用对等节点门控宽松模式。（实验性）",
 		EnvVars: []string{"PEERGATE_RELAXED"},
 	},
 	&cli.StringFlag{
 		Name:    "peergate-auth",
-		Usage:   "Peergate auth",
+		Usage:   "对等节点门控认证",
 		EnvVars: []string{"PEERGATE_AUTH"},
 		Value:   "",
 	},
 	&cli.IntFlag{
 		Name:    "peergate-interval",
-		Usage:   "Peergater interval time",
+		Usage:   "对等节点门控间隔时间",
 		EnvVars: []string{"EDGEVPNPEERGATEINTERVAL"},
 		Value:   120,
 	},
@@ -385,7 +385,7 @@ func stateDir() string {
 func displayStart(ll *logger.Logger) {
 	ll.Info(Copyright)
 
-	ll.Infof("Version: %s commit: %s", internal.Version, internal.Commit)
+	ll.Infof("版本: %s 提交: %s", internal.Version, internal.Commit)
 }
 
 func stringsToMultiAddr(peers []string) []multiaddr.Multiaddr {
@@ -400,7 +400,7 @@ func stringsToMultiAddr(peers []string) []multiaddr.Multiaddr {
 	return res
 }
 
-// ConfigFromContext returns a config object from a cli context
+// ConfigFromContext 从 CLI 上下文返回配置对象
 func ConfigFromContext(c *cli.Context) *config.Config {
 	var limitConfig *rcmgr.PartialLimitConfig
 
@@ -409,7 +409,7 @@ func ConfigFromContext(c *cli.Context) *config.Config {
 		autorelayInterval = 0
 	}
 
-	// Authproviders are supposed to be passed as a json object
+	// 认证提供者应该作为 JSON 对象传递
 	pa := c.String("peergate-auth")
 	d := map[string]map[string]interface{}{}
 	json.Unmarshal([]byte(pa), &d)
@@ -466,7 +466,7 @@ func ConfigFromContext(c *cli.Context) *config.Config {
 			Enable:      c.Bool("limit-enable"),
 			FileLimit:   c.String("limit-file"),
 			Scope:       c.String("limit-scope"),
-			MaxConns:    c.Int("max-connections"), // Turn to 0 to use other way of limiting. Files take precedence
+			MaxConns:    c.Int("max-connections"), // 设置为 0 以使用其他限制方式。文件优先
 			LimitConfig: limitConfig,
 		},
 		PeerGuard: config.PeerGuard{
@@ -495,17 +495,17 @@ func cliToOpts(c *cli.Context) ([]node.Option, []vpn.Option, *logger.Logger) {
 		}
 	}
 
-	// Check if we have any privkey identity cached already
+	// 检查我们是否已经缓存了任何私钥身份
 	if c.Bool("privkey-cache") {
 		keyFile := filepath.Join(c.String("privkey-cache-dir"), "privkey")
 		dat, err := os.ReadFile(keyFile)
 		if err == nil && len(dat) > 0 {
-			llger.Info("Reading key from", keyFile)
+			llger.Info("从", keyFile, "读取密钥")
 
 			nc.Privkey = dat
 		} else {
-			// generate, write
-			llger.Info("Generating private key and saving it locally for later use in", keyFile)
+			// 生成并写入
+			llger.Info("生成私钥并保存到", keyFile, "以供后续使用")
 
 			privkey, err := node.GenPrivKey(0)
 			checkErr(err)
@@ -526,7 +526,7 @@ func cliToOpts(c *cli.Context) ([]node.Option, []vpn.Option, *logger.Logger) {
 	for _, pt := range c.StringSlice("static-peertable") {
 		dat := strings.Split(pt, ":")
 		if len(dat) != 2 {
-			checkErr(fmt.Errorf("wrong format for peertable entries. Want a list of ip/peerid separated by `:`. e.g. 10.1.0.1:... "))
+			checkErr(fmt.Errorf("对等节点表条目格式错误。需要以 `:` 分隔的 ip/peerid 列表。例如 10.1.0.1:... "))
 		}
 		if nc.Connection.PeerTable == nil {
 			nc.Connection.PeerTable = make(map[string]peer.ID)

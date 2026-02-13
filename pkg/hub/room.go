@@ -24,29 +24,29 @@ import (
 	pubsub "github.com/libp2p/go-libp2p-pubsub"
 )
 
-// Room represents a subscription to a single PubSub topic. Messages
-// can be published to the topic with Room.Publish, and received
-// messages are pushed to the Messages channel.
+// room 表示对单个PubSub主题的订阅。
+// 可以使用Room.Publish向主题发布消息，
+// 接收到的消息被推送到Messages通道。
 type room struct {
 	ctx   context.Context
 	ps    *pubsub.PubSub
 	Topic *pubsub.Topic
 	sub   *pubsub.Subscription
 
-	roomName string
-	self     peer.ID
+	roomName string  // 房间名称
+	self     peer.ID // 自身对等节点ID
 }
 
-// connect tries to subscribe to the PubSub topic for the room name, returning
-// a Room on success.
+// connect 尝试订阅房间名称的PubSub主题，成功时返回Room
+// 参数 ctx 为上下文，ps 为PubSub服务，selfID 为自身ID，roomName 为房间名称，messageChan 为消息通道
 func connect(ctx context.Context, ps *pubsub.PubSub, selfID peer.ID, roomName string, messageChan chan *Message) (*room, error) {
-	// join the pubsub topic
+	// 加入pubsub主题
 	topic, err := ps.Join(roomName)
 	if err != nil {
 		return nil, err
 	}
 
-	// and subscribe to it
+	// 订阅主题
 	sub, err := topic.Subscribe()
 	if err != nil {
 		return nil, err
@@ -61,12 +61,13 @@ func connect(ctx context.Context, ps *pubsub.PubSub, selfID peer.ID, roomName st
 		roomName: roomName,
 	}
 
-	// start reading messages from the subscription in a loop
+	// 在循环中开始从订阅读取消息
 	go cr.readLoop(messageChan)
 	return cr, nil
 }
 
-// publishMessage sends a message to the pubsub topic.
+// publishMessage 向pubsub主题发送消息
+// 参数 m 为要发布的消息
 func (cr *room) publishMessage(m *Message) error {
 	msgBytes, err := json.Marshal(m)
 	if err != nil {
@@ -75,14 +76,15 @@ func (cr *room) publishMessage(m *Message) error {
 	return cr.Topic.Publish(cr.ctx, msgBytes)
 }
 
-// readLoop pulls messages from the pubsub topic and pushes them onto the Messages channel.
+// readLoop 从pubsub主题拉取消息并推送到Messages通道
+// 参数 messageChan 为消息通道
 func (cr *room) readLoop(messageChan chan *Message) {
 	for {
 		msg, err := cr.sub.Next(cr.ctx)
 		if err != nil {
 			return
 		}
-		// only forward messages delivered by others
+		// 只转发由其他人发送的消息
 		if msg.ReceivedFrom == cr.self {
 			continue
 		}
@@ -94,7 +96,7 @@ func (cr *room) readLoop(messageChan chan *Message) {
 
 		cm.SenderID = msg.ReceivedFrom.String()
 
-		// send valid messages onto the Messages channel
+		// 将有效消息发送到Messages通道
 		messageChan <- cm
 	}
 }

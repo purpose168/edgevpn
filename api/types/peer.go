@@ -1,19 +1,19 @@
 /*
 Copyright © 2021-2022 Ettore Di Giacinto <mudler@mocaccino.org>
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+根据 Apache 许可证 2.0 版本（"许可证"）授权；
+除非遵守许可证，否则您不得使用此文件。
+您可以在以下位置获取许可证副本：
     http://www.apache.org/licenses/LICENSE-2.0
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+除非适用法律要求或书面同意，否则根据许可证分发的软件
+是按"原样"分发的，没有任何明示或暗示的担保或条件。
+请参阅许可证以了解管理权限和
+限制的具体语言。
 */
 
 package types
 
+// Peer 表示一个对等节点
 type Peer struct {
-	ID     string
-	Online bool
+	ID     string  // 对等节点 ID
+	Online bool    // 是否在线
 }

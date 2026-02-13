@@ -13,7 +13,9 @@ limitations under the License.
 
 package types
 
+// Service 服务信息结构体
+// 用于表示网络中提供的服务信息
 type Service struct {
-	PeerID string
-	Name   string
+	PeerID string // 提供服务的对等节点ID
+	Name   string // 服务名称
 }

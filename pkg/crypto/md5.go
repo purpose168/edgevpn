@@ -20,7 +20,10 @@ import (
 	"encoding/hex"
 )
 
-// MD5 is just syntax sugar around crypto/md5
+// MD5 计算字符串的MD5哈希值
+// 这是crypto/md5的语法糖封装
+// 参数 text 为要计算哈希的字符串
+// 返回十六进制编码的MD5哈希字符串
 func MD5(text string) string {
 	hash := md5.Sum([]byte(text))
 	return hex.EncodeToString(hash[:])

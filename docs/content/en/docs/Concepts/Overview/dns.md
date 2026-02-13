@@ -4,45 +4,46 @@ linkTitle: "DNS"
 weight: 20
 date: 2017-01-05
 description: >
-  Embedded DNS server documentation
+  嵌入式 DNS 服务器文档
+math: false
 ---
 
 {{% pageinfo color="warning"%}}
-Experimental feature!
+实验性功能！
 {{% /pageinfo %}}
 
-## DNS Server
+## DNS 服务器
 
-A DNS Server is available but disabled by default. 
+DNS 服务器可用但默认禁用。
 
-The DNS server will resolve DNS queries using the blockchain as a record and will forward unknown domains by default.
+DNS 服务器将使用区块链作为记录来解析 DNS 查询，并默认转发未知域名。
 
-It can be enabled by specifying a listening address with `--dns`. For example, to bind to default `53` port locally, run in the console:
+可以通过使用 `--dns` 指定监听地址来启用。例如，要在本地绑定到默认的 `53` 端口，在控制台中运行：
 
 ```bash
 edgevpn --dns "127.0.0.1:53"
 ```
 
-To turn off dns forwarding, specify `--dns-forwarder=false`. Optionally a list of DNS servers can be specified multiple times with `--dns-forward-server`.
+要关闭 DNS 转发，指定 `--dns-forwarder=false`。可以选择使用 `--dns-forward-server` 多次指定 DNS 服务器列表。
 
-The dns subcommand has several options:
+dns 子命令有多个选项：
 
 ```
-   --dns value                             DNS listening address. Empty to disable dns server [$DNSADDRESS]
-   --dns-forwarder                         Enables dns forwarding [$DNSFORWARD]                 
-   --dns-cache-size value                  DNS LRU cache size (default: 200) [$DNSCACHESIZE]                  
-   --dns-forward-server value              List of DNS forward server (default: "8.8.8.8:53", "1.1.1.1:53") [$DNSFORWARDSERVER]
+   --dns value                             DNS 监听地址。留空以禁用 DNS 服务器 [$DNSADDRESS]
+   --dns-forwarder                         启用 DNS 转发 [$DNSFORWARD]                 
+   --dns-cache-size value                  DNS LRU 缓存大小（默认：200）[$DNSCACHESIZE]                  
+   --dns-forward-server value              DNS 转发服务器列表（默认："8.8.8.8:53", "1.1.1.1:53"）[$DNSFORWARDSERVER]
 ```
 
-Nodes of the VPN can start a local DNS server which will resolve the routes stored in the chain.
+VPN 的节点可以启动本地 DNS 服务器，该服务器将解析存储在链中的路由。
 
-For example, to add DNS records, use the API as such:
+例如，要添加 DNS 记录，使用 API：
 
 ```bash
 $ curl -X POST http://localhost:8080/api/dns --header "Content-Type: application/json" -d '{ "Regex": "foo.bar", "Records": { "A": "2.2.2.2" } }'
 ```
 
-The `/api/dns` routes accepts `POST` requests as `JSON` of the following form:
+`/api/dns` 路由接受以下形式的 `POST` 请求作为 `JSON`：
 
 ```json
 { "Regex": "<regex>", 
@@ -53,4 +54,4 @@ The `/api/dns` routes accepts `POST` requests as `JSON` of the following form:
 }
 ```
 
-Note, `Regex` accepts regexes which will match the DNS requests received and resolved to the specified entries.
+注意，`Regex` 接受正则表达式，将匹配接收到的 DNS 请求并解析为指定的条目。

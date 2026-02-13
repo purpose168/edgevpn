@@ -1,26 +1,38 @@
+# ============================================================================
+# GoReleaser 发布工作流
+# 用途：使用 GoReleaser 自动构建和发布项目
+# 触发条件：推送以 'v' 开头的标签（如 v1.0.0）
+# 作者：purpose168@outlook.com
+# ============================================================================
+
 name: goreleaser
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'  # 匹配所有以 'v' 开头的标签
 
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      # 检出代码仓库
+      - name: 检出代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Set up Go
+          fetch-depth: 0  # 获取完整的 git 历史，用于版本计算
+
+      # 设置 Go 语言环境
+      - name: 设置 Go 环境
         uses: actions/setup-go@v5
         with:
           go-version: 1.25
-      - name: Run GoReleaser
+
+      # 运行 GoReleaser 进行发布
+      - name: 运行 GoReleaser
         uses: goreleaser/goreleaser-action@v6
         with:
           version: v2.0.1
-          args: release --clean
+          args: release --clean  # --clean 参数会在发布前清理构建产物
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

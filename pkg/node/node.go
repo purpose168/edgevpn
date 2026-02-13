@@ -33,39 +33,44 @@ import (
 	"github.com/mudler/edgevpn/pkg/logger"
 )
 
+// Node 节点结构体，表示EdgeVPN网络中的一个节点
 type Node struct {
-	config     Config
-	MessageHub *hub.MessageHub
+	config     Config            // 节点配置
+	MessageHub *hub.MessageHub   // 消息中心
 
 	//HubRoom *hub.Room
-	inputCh      chan *hub.Message
-	genericHubCh chan *hub.Message
+	inputCh      chan *hub.Message // 输入消息通道
+	genericHubCh chan *hub.Message // 通用中心通道
 
-	seed   int64
-	host   host.Host
-	cg     *conngater.BasicConnectionGater
-	ledger *blockchain.Ledger
+	seed   int64                 // 随机种子
+	host   host.Host             // libp2p主机
+	cg     *conngater.BasicConnectionGater // 连接门控器
+	ledger *blockchain.Ledger    // 区块链账本
 	sync.Mutex
 }
 
+// defaultChanSize 默认通道大小
 const defaultChanSize = 3000
 
+// defaultLibp2pOptions 默认libp2p选项
 var defaultLibp2pOptions = []libp2p.Option{
-	libp2p.EnableNATService(),
-	libp2p.NATPortMap(),
+	libp2p.EnableNATService(), // 启用NAT服务
+	libp2p.NATPortMap(),       // 启用NAT端口映射
 }
 
+// New 创建新的节点实例
+// 参数 p 为可选的配置选项
 func New(p ...Option) (*Node, error) {
 	c := &Config{
-		DiscoveryInterval:        5 * time.Minute,
-		StreamHandlers:           make(map[protocol.Protocol]StreamHandler),
-		LedgerAnnounceTime:       5 * time.Second,
-		LedgerSyncronizationTime: 5 * time.Second,
-		SealKeyLength:            defaultKeyLength,
-		Options:                  defaultLibp2pOptions,
-		Logger:                   logger.New(log.LevelDebug),
-		Sealer:                   &crypto.AESSealer{},
-		Store:                    &blockchain.MemoryStore{},
+		DiscoveryInterval:        5 * time.Minute,          // 发现间隔时间
+		StreamHandlers:           make(map[protocol.Protocol]StreamHandler), // 流处理器映射
+		LedgerAnnounceTime:       5 * time.Second,          // 账本公告时间
+		LedgerSyncronizationTime: 5 * time.Second,          // 账本同步时间
+		SealKeyLength:            defaultKeyLength,         // 密钥长度
+		Options:                  defaultLibp2pOptions,     // libp2p选项
+		Logger:                   logger.New(log.LevelDebug), // 日志记录器
+		Sealer:                   &crypto.AESSealer{},      // 密封器
+		Store:                    &blockchain.MemoryStore{}, // 存储器
 	}
 
 	if err := c.Apply(p...); err != nil {
@@ -80,8 +85,8 @@ func New(p ...Option) (*Node, error) {
 	}, nil
 }
 
-// Ledger return the ledger which uses the node
-// connection to broadcast messages
+// Ledger 返回节点使用的账本
+// 使用节点连接来广播消息
 func (e *Node) Ledger() (*blockchain.Ledger, error) {
 	e.Lock()
 	defer e.Unlock()
@@ -98,12 +103,12 @@ func (e *Node) Ledger() (*blockchain.Ledger, error) {
 	return e.ledger, nil
 }
 
-// PeerGater returns the node peergater
+// PeerGater 返回节点的对等节点门控器
 func (e *Node) PeerGater() Gater {
 	return e.config.PeerGater
 }
 
-// Start joins the node over the p2p network
+// Start 加入P2P网络启动节点
 func (e *Node) Start(ctx context.Context) error {
 
 	ledger, err := e.Ledger()
@@ -111,34 +116,34 @@ func (e *Node) Start(ctx context.Context) error {
 		return err
 	}
 
-	// Set the handler when we receive messages
-	// The ledger needs to read them and update the internal blockchain
+	// 设置接收消息时的处理器
+	// 账本需要读取它们并更新内部区块链
 	e.config.Handlers = append(e.config.Handlers, ledger.Update)
 
-	e.config.Logger.Info("Starting EdgeVPN network")
+	e.config.Logger.Info("正在启动 EdgeVPN 网络")
 
-	// Startup libp2p network
+	// 启动 libp2p 网络
 	err = e.startNetwork(ctx)
 	if err != nil {
 		return err
 	}
 
-	// Send periodically messages to the channel with our blockchain content
+	// 定期向通道发送包含我们区块链内容的消息
 	ledger.Syncronizer(ctx, e.config.LedgerSyncronizationTime)
 
-	// Start eventual declared NetworkServices
+	// 启动声明的网络服务
 	for _, s := range e.config.NetworkServices {
 		err := s(ctx, e.config, e, ledger)
 		if err != nil {
-			return fmt.Errorf("error while starting network service: '%w'", err)
+			return fmt.Errorf("启动网络服务时出错: '%w'", err)
 		}
 	}
 
 	return nil
 }
 
-// messageWriter returns a new MessageWriter bound to the edgevpn instance
-// with the given options
+// messageWriter 返回绑定到edgevpn实例的新MessageWriter
+// 使用给定的选项
 func (e *Node) messageWriter(opts ...hub.MessageOption) (*messageWriter, error) {
 	mess := &hub.Message{}
 	mess.Apply(opts...)
@@ -150,8 +155,9 @@ func (e *Node) messageWriter(opts ...hub.MessageOption) (*messageWriter, error) 
 	}, nil
 }
 
+// startNetwork 启动网络
 func (e *Node) startNetwork(ctx context.Context) error {
-	e.config.Logger.Debug("Generating host data")
+	e.config.Logger.Debug("生成主机数据")
 
 	host, err := e.genHost(ctx)
 	if err != nil {
@@ -165,42 +171,44 @@ func (e *Node) startNetwork(ctx context.Context) error {
 		return err
 	}
 
+	// 设置流处理器
 	for pid, strh := range e.config.StreamHandlers {
 		host.SetStreamHandler(pid.ID(), network.StreamHandler(strh(e, ledger)))
 	}
 
-	e.config.Logger.Info("Node ID:", host.ID())
-	e.config.Logger.Info("Node Addresses:", host.Addrs())
+	e.config.Logger.Info("节点 ID:", host.ID())
+	e.config.Logger.Info("节点地址:", host.Addrs())
 
-	// Hub rotates within sealkey interval.
-	// this time length should be enough to make room for few block exchanges. This is ideally on minutes (10, 20, etc. )
-	// it makes sure that if a bruteforce is attempted over the encrypted messages, the real key is not exposed.
+	// 中心在sealkey间隔内轮换
+	// 这个时间长度应该足够进行几次区块交换。理想情况下是分钟级别（10、20等）
+	// 它确保如果对加密消息尝试暴力破解，真实密钥不会被暴露
 	e.MessageHub = hub.NewHub(e.config.RoomName, e.config.MaxMessageSize, e.config.SealKeyLength, e.config.SealKeyInterval, e.config.GenericHub)
 
+	// 启动服务发现
 	for _, sd := range e.config.ServiceDiscovery {
 		if err := sd.Run(e.config.Logger, ctx, host); err != nil {
-			e.config.Logger.Fatal(fmt.Errorf("while starting service discovery %+v: '%w", sd, err))
+			e.config.Logger.Fatal(fmt.Errorf("启动服务发现时出错 %+v: '%w", sd, err))
 		}
 	}
 
 	go e.handleEvents(ctx, e.inputCh, e.MessageHub.Messages, e.MessageHub.PublishMessage, e.config.Handlers, true)
 	go e.MessageHub.Start(ctx, host)
 
-	// If generic hub is enabled one is created separately with a set of generic channel handlers associated with.
-	// note peergating is disabled in order to freely exchange messages that can be used for authentication or for other public means.
+	// 如果启用了通用中心，则单独创建一个，并关联一组通用通道处理器
+	// 注意禁用对等节点门控，以便自由交换可用于认证或其他公共用途的消息
 	if e.config.GenericHub {
 		go e.handleEvents(ctx, e.genericHubCh, e.MessageHub.PublicMessages, e.MessageHub.PublishPublicMessage, e.config.GenericChannelHandler, false)
 	}
 
-	e.config.Logger.Debug("Network started")
+	e.config.Logger.Debug("网络已启动")
 	return nil
 }
 
-// PublishMessage publishes a message to the generic channel (if enabled)
-// See GenericChannelHandlers(..) to attach handlers to receive messages from this channel.
+// PublishMessage 将消息发布到通用通道（如果已启用）
+// 参见 GenericChannelHandlers(..) 来附加处理器以从此通道接收消息
 func (e *Node) PublishMessage(m *hub.Message) error {
 	if !e.config.GenericHub {
-		return fmt.Errorf("generic hub disabled")
+		return fmt.Errorf("通用中心已禁用")
 	}
 
 	e.genericHubCh <- m

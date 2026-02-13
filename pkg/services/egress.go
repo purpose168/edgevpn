@@ -33,25 +33,27 @@ import (
 	"github.com/mudler/edgevpn/pkg/types"
 )
 
+// egressHandler 出口处理器
+// 参数 n 为节点实例，b 为区块链账本
 func egressHandler(n *node.Node, b *blockchain.Ledger) func(stream network.Stream) {
 	return func(stream network.Stream) {
-		// Remember to close the stream when we are done.
+		// 记得在完成后关闭流
 		defer stream.Close()
 
-		// Retrieve current ID for ip in the blockchain
+		// 从区块链中检索IP对应的当前ID
 		_, found := b.GetKey(protocol.UsersLedgerKey, stream.Conn().RemotePeer().String())
-		// If mismatch, update the blockchain
+		// 如果不匹配，则更新区块链
 		if !found {
-			//		ll.Debugf("Reset '%s': not found in the ledger", stream.Conn().RemotePeer().String())
+			//		ll.Debugf("重置 '%s': 在账本中未找到", stream.Conn().RemotePeer().String())
 			stream.Reset()
 			return
 		}
 
-		// Create a new buffered reader, as ReadRequest needs one.
-		// The buffered reader reads from our stream, on which we
-		// have sent the HTTP request (see ServeHTTP())
+		// 创建新的缓冲读取器，因为ReadRequest需要一个
+		// 缓冲读取器从我们的流中读取，我们在流上
+		// 发送了HTTP请求（参见ServeHTTP()）
 		buf := bufio.NewReader(stream)
-		// Read the HTTP request from the buffer
+		// 从缓冲区读取HTTP请求
 		req, err := http.ReadRequest(buf)
 		if err != nil {
 			stream.Reset()
@@ -60,8 +62,8 @@ func egressHandler(n *node.Node, b *blockchain.Ledger) func(stream network.Strea
 		}
 		defer req.Body.Close()
 
-		// We need to reset these fields in the request
-		// URL as they are not maintained.
+		// 我们需要重置请求中的这些字段
+		// URL，因为它们没有被维护
 		req.URL.Scheme = "http"
 		hp := strings.Split(req.Host, ":")
 		if len(hp) > 1 && hp[1] == "443" {
@@ -74,8 +76,8 @@ func egressHandler(n *node.Node, b *blockchain.Ledger) func(stream network.Strea
 		outreq := new(http.Request)
 		*outreq = *req
 
-		// We now make the request
-		//fmt.Printf("Making request to %s\n", req.URL)
+		// 现在我们发起请求
+		//fmt.Printf("正在请求 %s\n", req.URL)
 		resp, err := http.DefaultTransport.RoundTrip(outreq)
 		if err != nil {
 			stream.Reset()
@@ -83,14 +85,15 @@ func egressHandler(n *node.Node, b *blockchain.Ledger) func(stream network.Strea
 			return
 		}
 
-		// resp.Write writes whatever response we obtained for our
-		// request back to the stream.
+		// resp.Write 将我们为请求获得的任何响应
+		// 写回流中
 		resp.Write(stream)
 	}
 }
 
-// ProxyService starts a local http proxy server which redirects requests to egresses into the network
-// It takes a deadtime to consider hosts which are alive within a time window
+// ProxyService 启动本地HTTP代理服务器，将请求重定向到网络中的出口
+// 参数 deadtime 用于考虑在时间窗口内存活的主机
+// 参数 announceTime 为公告时间间隔，listenAddr 为监听地址，deadtime 为失效时间
 func ProxyService(announceTime time.Duration, listenAddr string, deadtime time.Duration) node.NetworkService {
 	return func(ctx context.Context, c node.Config, n *node.Node, b *blockchain.Ledger) error {
 
@@ -100,14 +103,14 @@ func ProxyService(announceTime time.Duration, listenAddr string, deadtime time.D
 			deadTime:   deadtime,
 		}
 
-		// Announce ourselves so nodes accepts our connection
+		// 公告我们自己，以便节点接受我们的连接
 		b.Announce(
 			ctx,
 			announceTime,
 			func() {
-				// Retrieve current ID for ip in the blockchain
+				// 从区块链中检索IP对应的当前ID
 				_, found := b.GetKey(protocol.UsersLedgerKey, n.Host().ID().String())
-				// If mismatch, update the blockchain
+				// 如果不匹配，则更新区块链
 				if !found {
 					updatedMap := map[string]interface{}{}
 					updatedMap[n.Host().ID().String()] = &types.User{
@@ -124,21 +127,24 @@ func ProxyService(announceTime time.Duration, listenAddr string, deadtime time.D
 	}
 }
 
+// proxyService 代理服务结构体
 type proxyService struct {
 	host       *node.Node
 	listenAddr string
 	deadTime   time.Duration
 }
 
+// Serve 启动代理服务
 func (p *proxyService) Serve() error {
 	return http.ListenAndServe(p.listenAddr, p)
 }
 
+// ServeHTTP 处理HTTP请求
 func (p *proxyService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	l, err := p.host.Ledger()
 	if err != nil {
-		//fmt.Printf("no ledger")
+		//fmt.Printf("没有账本")
 		return
 	}
 
@@ -156,11 +162,11 @@ func (p *proxyService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	chosen := availableEgresses[rand.Intn(len(availableEgresses)-1)]
 
-	//fmt.Printf("proxying request for %s to peer %s\n", r.URL, chosen)
-	// We need to send the request to the remote libp2p peer, so
-	// we open a stream to it
+	//fmt.Printf("代理请求 %s 到对等节点 %s\n", r.URL, chosen)
+	// 我们需要将请求发送到远程libp2p对等节点，所以
+	// 我们打开一个流
 	stream, err := p.host.Host().NewStream(context.Background(), peer.ID(chosen), protocol.EgressProtocol.ID())
-	// If an error happens, we write an error for response.
+	// 如果发生错误，我们写入错误响应
 	if err != nil {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -168,7 +174,7 @@ func (p *proxyService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	defer stream.Close()
 
-	// r.Write() writes the HTTP request to the stream.
+	// r.Write() 将HTTP请求写入流
 	err = r.Write(stream)
 	if err != nil {
 		stream.Reset()
@@ -177,8 +183,7 @@ func (p *proxyService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Now we read the response that was sent from the dest
-	// peer
+	// 现在我们读取从目标对等节点发送的响应
 	buf := bufio.NewReader(stream)
 	resp, err := http.ReadResponse(buf, r)
 	if err != nil {
@@ -188,21 +193,23 @@ func (p *proxyService) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Copy any headers
+	// 复制所有头部
 	for k, v := range resp.Header {
 		for _, s := range v {
 			w.Header().Add(k, s)
 		}
 	}
 
-	// Write response status and headers
+	// 写入响应状态和头部
 	w.WriteHeader(resp.StatusCode)
 
-	// Finally copy the body
+	// 最后复制主体
 	io.Copy(w, resp.Body)
 	resp.Body.Close()
 }
 
+// EgressService 出口服务
+// 参数 announceTime 为公告时间间隔
 func EgressService(announceTime time.Duration) node.NetworkService {
 	return func(ctx context.Context, c node.Config, n *node.Node, b *blockchain.Ledger) error {
 		b.AnnounceUpdate(ctx, announceTime, protocol.EgressService, n.Host().ID().String(), "ok")
@@ -210,6 +217,8 @@ func EgressService(announceTime time.Duration) node.NetworkService {
 	}
 }
 
+// Egress 返回出口服务选项
+// 参数 announceTime 为公告时间间隔
 func Egress(announceTime time.Duration) []node.Option {
 	return []node.Option{
 		node.WithNetworkService(EgressService(announceTime)),
@@ -217,6 +226,8 @@ func Egress(announceTime time.Duration) []node.Option {
 	}
 }
 
+// Proxy 返回代理服务选项
+// 参数 announceTime 为公告时间间隔，deadtime 为失效时间，listenAddr 为监听地址
 func Proxy(announceTime, deadtime time.Duration, listenAddr string) []node.Option {
 	return []node.Option{
 		node.WithNetworkService(ProxyService(announceTime, listenAddr, deadtime)),

@@ -1,17 +1,16 @@
 // Copyright © 2021-2022 Ettore Di Giacinto <mudler@mocaccino.org>
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
+// 本程序是自由软件；您可以根据自由软件基金会发布的
+// GNU 通用公共许可证条款重新分发和/或修改它；
+// 许可证版本 2 或（根据您的选择）任何后续版本。
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+// 分发本程序是希望它有用，
+// 但没有任何保证；甚至没有适销性或特定用途适用性的
+// 默示保证。请参阅
+// GNU 通用公共许可证以获取更多详细信息。
 //
-// You should have received a copy of the GNU General Public License along
-// with this program; if not, see <http://www.gnu.org/licenses/>.
+// 您应该已经收到 GNU 通用公共许可证的副本
+// 以及本程序；如果没有，请参阅 <http://www.gnu.org/licenses/>。
 
 package service
 
@@ -24,19 +23,19 @@ import (
 	"github.com/mudler/edgevpn/pkg/protocol"
 )
 
-// Client is a wrapper of an edgeVPN client
-// with additional metadata and syntax sugar
+// Client 是 edgeVPN 客户端的封装
+// 包含额外的元数据和语法糖
 type Client struct {
 	serviceID string
 	*edgeVPNClient.Client
 }
 
-// NewClient returns a new client with an associated service ID
+// NewClient 返回一个与指定服务 ID 关联的新客户端
 func NewClient(serviceID string, c *edgeVPNClient.Client) *Client {
 	return &Client{serviceID: serviceID, Client: c}
 }
 
-// ListItems returns list of items associated with the serviceID and the given suffix
+// ListItems 返回与 serviceID 和给定后缀关联的项目列表
 func (c Client) ListItems(serviceID, suffix string) (strs []string, err error) {
 	buckets, err := c.Client.GetBucketKeys(serviceID)
 	if err != nil {
@@ -51,16 +50,17 @@ func (c Client) ListItems(serviceID, suffix string) (strs []string, err error) {
 	return
 }
 
+// advertizeMessage 广播消息结构体
 type advertizeMessage struct {
 	Time time.Time
 }
 
-// Advertize advertize the given uuid to the ledger
+// Advertize 将给定的 UUID 广播到账本
 func (c Client) Advertize(uuid string) error {
 	return c.Client.Put(c.serviceID, fmt.Sprintf("%s-uuid", uuid), advertizeMessage{Time: time.Now().UTC()})
 }
 
-// AdvertizingNodes returns a list of advertizing nodes
+// AdvertizingNodes 返回正在广播的节点列表
 func (c Client) AdvertizingNodes() (active []string, err error) {
 	uuids, err := c.ListItems(c.serviceID, "uuid")
 	if err != nil {
@@ -74,6 +74,7 @@ func (c Client) AdvertizingNodes() (active []string, err error) {
 		}
 		res.Unmarshal(&d)
 
+		// 检查是否在 15 分钟内活跃
 		if d.Time.Add(15 * time.Minute).After(time.Now().UTC()) {
 			active = append(active, u)
 		}
@@ -81,7 +82,7 @@ func (c Client) AdvertizingNodes() (active []string, err error) {
 	return
 }
 
-// ActiveNodes returns a list of active nodes
+// ActiveNodes 返回活跃节点列表
 func (c Client) ActiveNodes() (active []string, err error) {
 	res, err := c.Client.GetBucket(protocol.HealthCheckKey)
 	if err != nil {
@@ -92,6 +93,7 @@ func (c Client) ActiveNodes() (active []string, err error) {
 		var s string
 		r.Unmarshal(&s)
 		parsed, _ := time.Parse(time.RFC3339, s)
+		// 检查是否在 15 分钟内活跃
 		if parsed.Add(15 * time.Minute).After(time.Now().UTC()) {
 			active = append(active, u)
 		}
@@ -99,11 +101,12 @@ func (c Client) ActiveNodes() (active []string, err error) {
 	return
 }
 
-// Clean cleans up the serviceID associated data
+// Clean 清理与 serviceID 关联的数据
 func (c Client) Clean() error {
 	return c.Client.DeleteBucket(c.serviceID)
 }
 
+// reverse 反转字符串切片
 func reverse(ss []string) {
 	last := len(ss) - 1
 	for i := 0; i < len(ss)/2; i++ {
@@ -111,8 +114,8 @@ func reverse(ss []string) {
 	}
 }
 
-// Get returns generic data from the API
-// e.g. get("ip", uuid)
+// Get 从 API 获取通用数据
+// 例如：get("ip", uuid)
 func (c Client) Get(args ...string) (string, error) {
 	reverse(args)
 	key := strings.Join(args, "-")
@@ -124,8 +127,8 @@ func (c Client) Get(args ...string) (string, error) {
 	return role, err
 }
 
-// Set generic data to the API
-// e.g. set("ip", uuid, "value")
+// Set 向 API 设置通用数据
+// 例如：set("ip", uuid, "value")
 func (c Client) Set(thing, uuid, value string) error {
 	return c.Client.Put(c.serviceID, fmt.Sprintf("%s-%s", uuid, thing), value)
 }

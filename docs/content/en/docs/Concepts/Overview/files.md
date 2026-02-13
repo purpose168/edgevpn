@@ -1,25 +1,25 @@
 ---
-title: "Sending and receiving files"
-linkTitle: "File transfer"
+title: "发送和接收文件"
+linkTitle: "文件传输"
 weight: 20
 date: 2017-01-05
 description: >
-  Send and receive files between p2p nodes
+  在 P2P 节点之间发送和接收文件
 ---
 
-## Sending and receiving files
+## 发送和接收文件
 
-EdgeVPN can be used to send and receive files between hosts via p2p with the  `file-send` and `file-receive` subcommand.
+EdgeVPN 可以使用 `file-send` 和 `file-receive` 子命令在主机之间通过 P2P 发送和接收文件。
 
-Sending and receiving files, as services, don't establish a VPN connection.
+发送和接收文件与服务一样，不会建立 VPN 连接。
 
-### Sending
+### 发送
 
 ```bash
 $ edgevpn file-send --name unique-id --path /src/path
 ```
 
-### Receiving
+### 接收
 
 ```bash
 $ edgevpn file-receive --name unique-id --path /dst/path

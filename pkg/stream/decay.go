@@ -21,6 +21,7 @@
 // THE SOFTWARE.
 
 // This package is a port of go-libp2p-connmgr, but adapted for streams
+// 本包是go-libp2p-connmgr的移植版本，但针对流进行了适配
 
 package stream
 
@@ -36,40 +37,40 @@ import (
 	"github.com/benbjohnson/clock"
 )
 
-// DefaultResolution is the default resolution of the decay tracker.
+// DefaultResolution 是衰减跟踪器的默认分辨率
 var DefaultResolution = 1 * time.Minute
 
-// bumpCmd represents a bump command.
+// bumpCmd 表示一个增量命令
 type bumpCmd struct {
 	peer  peer.ID
 	tag   *decayingTag
 	delta int
 }
 
-// removeCmd represents a tag removal command.
+// removeCmd 表示一个标签移除命令
 type removeCmd struct {
 	peer peer.ID
 	tag  *decayingTag
 }
 
-// decayer tracks and manages all decaying tags and their values.
+// decayer 跟踪并管理所有衰减标签及其值
 type decayer struct {
 	cfg   *DecayerCfg
 	mgr   *Manager
-	clock clock.Clock // for testing.
+	clock clock.Clock // 用于测试
 
 	tagsMu    sync.Mutex
 	knownTags map[string]*decayingTag
 
-	// lastTick stores the last time the decayer ticked. Guarded by atomic.
+	// lastTick 存储衰减器上次滴答的时间。由原子操作保护。
 	lastTick atomic.Value
 
-	// bumpTagCh queues bump commands to be processed by the loop.
+	// bumpTagCh 将增量命令排队等待循环处理
 	bumpTagCh   chan bumpCmd
 	removeTagCh chan removeCmd
 	closeTagCh  chan *decayingTag
 
-	// closure thingies.
+	// 闭包相关
 	closeCh chan struct{}
 	doneCh  chan struct{}
 	err     error
@@ -77,14 +78,14 @@ type decayer struct {
 
 var _ connmgr.Decayer = (*decayer)(nil)
 
-// DecayerCfg is the configuration object for the Decayer.
+// DecayerCfg 是衰减器的配置对象
 type DecayerCfg struct {
-	Resolution time.Duration
-	Clock      clock.Clock
+	Resolution time.Duration // 分辨率
+	Clock      clock.Clock   // 时钟（用于测试）
 }
 
-// WithDefaults writes the default values on this DecayerConfig instance,
-// and returns itself for chainability.
+// WithDefaults 在此DecayerConfig实例上写入默认值，
+// 并返回自身以支持链式调用。
 //
 //  cfg := (&DecayerCfg{}).WithDefaults()
 //  cfg.Resolution = 30 * time.Second
@@ -94,9 +95,9 @@ func (cfg *DecayerCfg) WithDefaults() *DecayerCfg {
 	return cfg
 }
 
-// NewDecayer creates a new decaying tag registry.
+// NewDecayer 创建新的衰减标签注册表
 func NewDecayer(cfg *DecayerCfg, mgr *Manager) (*decayer, error) {
-	// use real time if the Clock in the config is nil.
+	// 如果配置中的Clock为nil，则使用真实时间
 	if cfg.Clock == nil {
 		cfg.Clock = clock.New()
 	}
@@ -115,29 +116,31 @@ func NewDecayer(cfg *DecayerCfg, mgr *Manager) (*decayer, error) {
 
 	d.lastTick.Store(d.clock.Now())
 
-	// kick things off.
+	// 启动处理
 	go d.process()
 
 	return d, nil
 }
 
+// RegisterDecayingTag 注册衰减标签
+// 参数 name 为标签名称，interval 为衰减间隔，decayFn 为衰减函数，bumpFn 为增量函数
 func (d *decayer) RegisterDecayingTag(name string, interval time.Duration, decayFn connmgr.DecayFn, bumpFn connmgr.BumpFn) (connmgr.DecayingTag, error) {
 	d.tagsMu.Lock()
 	defer d.tagsMu.Unlock()
 
 	if _, ok := d.knownTags[name]; ok {
-		return nil, fmt.Errorf("decaying tag with name %s already exists", name)
+		return nil, fmt.Errorf("名为 %s 的衰减标签已存在", name)
 	}
 
 	if interval < d.cfg.Resolution {
-		log.Warnf("decay interval for %s (%s) was lower than tracker's resolution (%s); overridden to resolution",
+		log.Warnf("标签 %s 的衰减间隔（%s）低于跟踪器的分辨率（%s）；已覆盖为分辨率",
 			name, interval, d.cfg.Resolution)
 		interval = d.cfg.Resolution
 	}
 
 	if interval%d.cfg.Resolution != 0 {
-		log.Warnf("decay interval for tag %s (%s) is not a multiple of tracker's resolution (%s); "+
-			"some precision may be lost", name, interval, d.cfg.Resolution)
+		log.Warnf("标签 %s 的衰减间隔（%s）不是跟踪器分辨率（%s）的倍数；可能会丢失一些精度",
+			name, interval, d.cfg.Resolution)
 	}
 
 	lastTick := d.lastTick.Load().(time.Time)
@@ -154,7 +157,7 @@ func (d *decayer) RegisterDecayingTag(name string, interval time.Duration, decay
 	return tag, nil
 }
 
-// Close closes the Decayer. It is idempotent.
+// Close 关闭衰减器。它是幂等的。
 func (d *decayer) Close() error {
 	select {
 	case <-d.doneCh:
@@ -167,11 +170,11 @@ func (d *decayer) Close() error {
 	return d.err
 }
 
-// process is the heart of the tracker. It performs the following duties:
+// process 是跟踪器的核心。它执行以下职责：
 //
-//  1. Manages decay.
-//  2. Applies score bumps.
-//  3. Yields when closed.
+//  1. 管理衰减。
+//  2. 应用分数增量。
+//  3. 关闭时退出。
 func (d *decayer) process() {
 	defer close(d.doneCh)
 
@@ -192,34 +195,34 @@ func (d *decayer) process() {
 			d.tagsMu.Lock()
 			for _, tag := range d.knownTags {
 				if tag.nextTick.After(now) {
-					// skip the tag.
+					// 跳过此标签
 					continue
 				}
-				// Mark the tag to be updated in this round.
+				// 标记此标签需要在本轮更新
 				visit[tag] = struct{}{}
 			}
 			d.tagsMu.Unlock()
 
-			// Visit each peer, and decay tags that need to be decayed.
+			// 访问每个对等节点，衰减需要衰减的标签
 			for _, s := range d.mgr.segments {
 				s.Lock()
 
-				// Entered a segment that contains peers. Process each peer.
+				// 进入包含对等节点的分段。处理每个对等节点
 				for _, p := range s.peers {
 					for tag, v := range p.decaying {
 						if _, ok := visit[tag]; !ok {
-							// skip this tag.
+							// 跳过此标签
 							continue
 						}
 
-						// ~ this value needs to be visited. ~
+						// ~ 此值需要被访问 ~
 						var delta int
 						if after, rm := tag.decayFn(*v); rm {
-							// delete the value and move on to the next tag.
+							// 删除该值并继续处理下一个标签
 							delta -= v.Value
 							delete(p.decaying, tag)
 						} else {
-							// accumulate the delta, and apply the changes.
+							// 累积增量并应用更改
 							delta += after - v.Value
 							v.Value, v.LastVisit = after, now
 						}
@@ -230,7 +233,7 @@ func (d *decayer) process() {
 				s.Unlock()
 			}
 
-			// Reset each tag's next visit round, and clear the visited set.
+			// 重置每个标签的下次访问轮次，并清空已访问集合
 			for tag := range visit {
 				tag.nextTick = tag.nextTick.Add(tag.interval)
 				delete(visit, tag)
@@ -279,18 +282,18 @@ func (d *decayer) process() {
 			s.Unlock()
 
 		case t := <-d.closeTagCh:
-			// Stop tracking the tag.
+			// 停止跟踪此标签
 			d.tagsMu.Lock()
 			delete(d.knownTags, t.name)
 			d.tagsMu.Unlock()
 
-			// Remove the tag from all peers that had it in the connmgr.
+			// 从connmgr中所有拥有此标签的对等节点移除该标签
 			for _, s := range d.mgr.segments {
-				// visit all segments, and attempt to remove the tag from all the peers it stores.
+				// 访问所有分段，尝试从中存储的所有对等节点移除该标签
 				s.Lock()
 				for _, p := range s.peers {
 					if dt, ok := p.decaying[t]; ok {
-						// decrease the value of the tagInfo, and delete the tag.
+						// 减少peerInfo的值，并删除该标签
 						p.value -= dt.Value
 						delete(p.decaying, t)
 					}
@@ -304,8 +307,7 @@ func (d *decayer) process() {
 	}
 }
 
-// decayingTag represents a decaying tag, with an associated decay interval, a
-// decay function, and a bump function.
+// decayingTag 表示一个衰减标签，具有关联的衰减间隔、衰减函数和增量函数
 type decayingTag struct {
 	trkr     *decayer
 	name     string
@@ -314,25 +316,28 @@ type decayingTag struct {
 	decayFn  connmgr.DecayFn
 	bumpFn   connmgr.BumpFn
 
-	// closed marks this tag as closed, so that if it's bumped after being
-	// closed, we can return an error. 0 = false; 1 = true; guarded by atomic.
+	// closed 将此标签标记为已关闭，以便在关闭后如果被增量，我们可以返回错误
+	// 0 = false; 1 = true; 由原子操作保护
 	closed int32
 }
 
 var _ connmgr.DecayingTag = (*decayingTag)(nil)
 
+// Name 返回标签名称
 func (t *decayingTag) Name() string {
 	return t.name
 }
 
+// Interval 返回衰减间隔
 func (t *decayingTag) Interval() time.Duration {
 	return t.interval
 }
 
-// Bump bumps a tag for this peer.
+// Bump 为此对等节点增加标签值
+// 参数 p 为对等节点ID，delta 为增量值
 func (t *decayingTag) Bump(p peer.ID, delta int) error {
 	if atomic.LoadInt32(&t.closed) == 1 {
-		return fmt.Errorf("decaying tag %s had been closed; no further bumps are accepted", t.name)
+		return fmt.Errorf("衰减标签 %s 已关闭；不再接受增量", t.name)
 	}
 
 	bmp := bumpCmd{peer: p, tag: t, delta: delta}
@@ -342,14 +347,16 @@ func (t *decayingTag) Bump(p peer.ID, delta int) error {
 		return nil
 	default:
 		return fmt.Errorf(
-			"unable to bump decaying tag for peer %s, tag %s, delta %d; queue full (len=%d)",
+			"无法为对等节点 %s 增加衰减标签，标签 %s，增量 %d；队列已满（长度=%d）",
 			p.String(), t.name, delta, len(t.trkr.bumpTagCh))
 	}
 }
 
+// Remove 移除此对等节点的标签
+// 参数 p 为对等节点ID
 func (t *decayingTag) Remove(p peer.ID) error {
 	if atomic.LoadInt32(&t.closed) == 1 {
-		return fmt.Errorf("decaying tag %s had been closed; no further removals are accepted", t.name)
+		return fmt.Errorf("衰减标签 %s 已关闭；不再接受移除操作", t.name)
 	}
 
 	rm := removeCmd{peer: p, tag: t}
@@ -359,14 +366,15 @@ func (t *decayingTag) Remove(p peer.ID) error {
 		return nil
 	default:
 		return fmt.Errorf(
-			"unable to remove decaying tag for peer %s, tag %s; queue full (len=%d)",
+			"无法为对等节点 %s 移除衰减标签，标签 %s；队列已满（长度=%d）",
 			p.String(), t.name, len(t.trkr.removeTagCh))
 	}
 }
 
+// Close 关闭衰减标签
 func (t *decayingTag) Close() error {
 	if !atomic.CompareAndSwapInt32(&t.closed, 0, 1) {
-		log.Warnf("duplicate decaying tag closure: %s; skipping", t.name)
+		log.Warnf("重复关闭衰减标签: %s；跳过", t.name)
 		return nil
 	}
 
@@ -374,6 +382,6 @@ func (t *decayingTag) Close() error {
 	case t.trkr.closeTagCh <- t:
 		return nil
 	default:
-		return fmt.Errorf("unable to close decaying tag %s; queue full (len=%d)", t.name, len(t.trkr.closeTagCh))
+		return fmt.Errorf("无法关闭衰减标签 %s；队列已满（长度=%d）", t.name, len(t.trkr.closeTagCh))
 	}
 }

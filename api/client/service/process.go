@@ -1,17 +1,16 @@
 // Copyright © 2021-2022 Ettore Di Giacinto <mudler@mocaccino.org>
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
+// 本程序是自由软件；您可以根据自由软件基金会发布的
+// GNU 通用公共许可证条款重新分发和/或修改它；
+// 许可证版本 2 或（根据您的选择）任何后续版本。
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+// 分发本程序是希望它有用，
+// 但没有任何保证；甚至没有适销性或特定用途适用性的
+// 默示保证。请参阅
+// GNU 通用公共许可证以获取更多详细信息。
 //
-// You should have received a copy of the GNU General Public License along
-// with this program; if not, see <http://www.gnu.org/licenses/>.
+// 您应该已经收到 GNU 通用公共许可证的副本
+// 以及本程序；如果没有，请参阅 <http://www.gnu.org/licenses/>。
 
 package service
 
@@ -22,17 +21,17 @@ import (
 	process "github.com/mudler/go-processmanager"
 )
 
-// NewProcessController returns a new process controller associated with the state directory
+// NewProcessController 返回一个与状态目录关联的新进程控制器
 func NewProcessController(statedir string) *ProcessController {
 	return &ProcessController{stateDir: statedir}
 }
 
-// ProcessController syntax sugar around go-processmanager
+// ProcessController go-processmanager 的语法糖封装
 type ProcessController struct {
 	stateDir string
 }
 
-// Process returns a process associated within binaries inside the state dir
+// Process 返回一个与状态目录中二进制文件关联的进程
 func (a *ProcessController) Process(state, p string, opts ...process.Option) *process.Process {
 	return process.New(
 		append(opts,
@@ -42,13 +41,13 @@ func (a *ProcessController) Process(state, p string, opts ...process.Option) *pr
 	)
 }
 
-// BinaryPath returns the binary path of the program requested as argument.
-// The binary path is relative to the process state directory
+// BinaryPath 返回请求的程序二进制路径。
+// 二进制路径相对于进程状态目录
 func (a *ProcessController) BinaryPath(b string) string {
 	return filepath.Join(a.stateDir, "bin", b)
 }
 
-// Run simply runs a command from a binary in the state directory
+// Run 从状态目录中的二进制文件运行命令
 func (a *ProcessController) Run(command string, args ...string) (string, error) {
 	cmd := exec.Command(a.BinaryPath(command), args...)
 	out, err := cmd.CombinedOutput()

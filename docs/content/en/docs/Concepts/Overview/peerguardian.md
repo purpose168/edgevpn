@@ -4,45 +4,46 @@ linkTitle: "Peerguardian"
 weight: 25
 date: 2022-01-05
 description: >
-  Prevent unauthorized access to the network if tokens are leaked
+  在令牌泄露时防止对网络的未授权访问
+math: false
 ---
 
 {{% pageinfo color="warning"%}}
-Experimental feature!
+实验性功能！
 {{% /pageinfo %}}
 
 ## Peerguardian
 
-PeerGuardian is a mechanism to prevent unauthorized access to the network if tokens are leaked or either revoke network access.
+PeerGuardian 是一种机制，用于在令牌泄露时防止对网络的未授权访问或撤销网络访问。
 
-In order to enable it, start edgevpn nodes adding the `--peerguradian` flag.
+要启用它，启动 edgevpn 节点时添加 `--peerguradian` 标志。
 
 ```bash
 edgevpn --peerguardian
 ```
 
-To turn on peer gating, specify also `--peergate`. 
+要启用 peer gating，还需要指定 `--peergate`。
 
-Peerguardian and peergating has several options:
+Peerguardian 和 peergating 有多个选项：
 
 ```
-   --peerguard                                   Enable peerguard. (Experimental) [$PEERGUARD]
-   --peergate                                    Enable peergating. (Experimental) [$PEERGATE]
-   --peergate-autoclean                          Enable peergating autoclean. (Experimental) [$PEERGATE_AUTOCLEAN]
-   --peergate-relaxed                            Enable peergating relaxation. (Experimental) [$PEERGATE_RELAXED]
-   --peergate-auth value                         Peergate auth [$PEERGATE_AUTH]
-   --peergate-interval value                     Peergater interval time (default: 120) [$EDGEVPNPEERGATEINTERVAL]
+   --peerguard                                   启用 peerguard。（实验性）[$PEERGUARD]
+   --peergate                                    启用 peergating。（实验性）[$PEERGATE]
+   --peergate-autoclean                          启用 peergating 自动清理。（实验性）[$PEERGATE_AUTOCLEAN]
+   --peergate-relaxed                            启用 peergating 宽松模式。（实验性）[$PEERGATE_RELAXED]
+   --peergate-auth value                         Peergate 认证 [$PEERGATE_AUTH]
+   --peergate-interval value                     Peergater 间隔时间（默认：120）[$EDGEVPNPEERGATEINTERVAL]
 ```
 
-When the PeerGuardian and Peergater are enabled, a VPN node will only accepts blocks from authorized nodes.
+当启用 PeerGuardian 和 Peergater 时，VPN 节点将只接受来自授权节点的区块。
 
-Peerguardian is extensible to support different mechanisms of authentication, we will see below specific implementations.
+Peerguardian 是可扩展的，支持不同的认证机制，我们将在下面介绍具体的实现。
 
-## ECDSA auth
+## ECDSA 认证
 
-The ECDSA authentication mechanism is used to verify peers in the blockchain using ECDSA keys.
+ECDSA 认证机制用于使用 ECDSA 密钥验证区块链中的节点。
 
-To generate a new ECDSA keypair use `edgevpn peergater ecdsa-genkey`:
+要生成新的 ECDSA 密钥对，使用 `edgevpn peergater ecdsa-genkey`：
 
 ```bash
 $ edgevpn peergater ecdsa-genkey
@@ -50,48 +51,48 @@ Private key: LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1JSGNBZ0VCQkVJQkhUZnRSTVZ
 Public key: LS0tLS1CRUdJTiBFQyBQVUJMSUMgS0VZLS0tLS0KTUlHYk1CQUdCeXFHU000OUFnRUdCU3VCQkFBakE0R0dBQVFCbEdQaStaa3UvMUhvU2ZPS0syOFkrMzMwOUtWNApEaXl0MkZ4U3RYcENQUTJiYzI3MWZScWRNcy9kTUlsYW8rNHROVkJjVkxTWmpIbUF4eHRFZ1FwMUl3b0FCVHFhCjBBNGpLUkJwVnpYOGY5djdSS3g5dDNkNlN2cElWaUpnZDVERC81RU9BWU5uMjh1cXE0bkZoc0tjVEtWdVpTWGwKVmo0bmNtMzlmdUtsempJRDUzWT0KLS0tLS1FTkQgRUMgUFVCTElDIEtFWS0tLS0tCg==
 ```
 
-For example, to add a ECDSA public key, use the API as such from a node which is already trusted by PeerGuardian:
+例如，要添加 ECDSA 公钥，从已被 PeerGuardian 信任的节点使用 API：
 
 ```bash
 $ curl -X PUT 'http://localhost:8080/api/ledger/trustzoneAuth/ecdsa_1/LS0tLS1CRUdJTiBFQyBQVUJMSUMgS0VZLS0tLS0KTUlHYk1CQUdCeXFHU000OUFnRUdCU3VCQkFBakE0R0dBQVFBL09TTjhsUU9Wa3FHOHNHbGJiellWamZkdVVvUAplMEpsWUVzOFAyU3o1TDlzVUtDYi9kQWkrVFVONXU0ZVk2REpGeU50dWZjK2p0THNVTTlPb0xXVnBXb0E0eEVDCk9VdDFmRVNaRzUxckc4MEdFVjBuQTlBRGFvOW1XK3p4dmkvQnd0ZFVvSTNjTDB0VTdlUGEvSGM4Z1FLMmVOdE0KeDdBSmNYcWpPNXZXWGxZZ2NkOD0KLS0tLS1FTkQgRUMgUFVCTElDIEtFWS0tLS0tCg=='
 ```
 
-Now the private key can be used while starting new nodes:
+现在可以在启动新节点时使用私钥：
 
 ```bash
 PEERGATE_AUTH="{ 'ecdsa' : { 'private_key': 'LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1JSGNBZ0VCQkVJQkhUZnRSTVZSRmlvaWZrdllhZEE2NXVRQXlSZTJSZHM0MW1UTGZlNlRIT3FBTTdkZW9sak0KZXVPbTk2V0hacEpzNlJiVU1tL3BCWnZZcElSZ0UwZDJjdUdnQndZRks0RUVBQ09oZ1lrRGdZWUFCQUdVWStMNQptUzcvVWVoSjg0b3JieGo3ZmZUMHBYZ09MSzNZWEZLMWVrSTlEWnR6YnZWOUdwMHl6OTB3aVZxajdpMDFVRnhVCnRKbU1lWURIRzBTQkNuVWpDZ0FGT3ByUURpTXBFR2xYTmZ4LzIvdEVySDIzZDNwSytraFdJbUIza01QL2tRNEIKZzJmYnk2cXJpY1dHd3B4TXBXNWxKZVZXUGlkeWJmMSs0cVhPTWdQbmRnPT0KLS0tLS1FTkQgRUMgUFJJVkFURSBLRVktLS0tLQo=' } }"
 $ edgevpn --peerguardian --peergate
 ```
 
-## Enabling/Disabling peergating in runtime
+## 在运行时启用/禁用 peergating
 
-Peergating can be disabled in runtime by leveraging the api:
+可以通过 API 在运行时禁用 peergating：
 
-### Query status
+### 查询状态
 
 ```bash
 $ curl -X GET 'http://localhost:8080/api/peergate'
 ```
 
-### Enable peergating
+### 启用 peergating
 ```bash
 $ curl -X PUT 'http://localhost:8080/api/peergate/enable'
 ```
 
-### Disable peergating
+### 禁用 peergating
 ```bash
 $ curl -X PUT 'http://localhost:8080/api/peergate/disable'
 ```
 
-## Starting a new network
+## 启动新网络
 
-To init a new Trusted network, start nodes with `--peergate-relaxed` and add the neccessary auth keys:
+要初始化新的可信网络，使用 `--peergate-relaxed` 启动节点并添加必要的认证密钥：
 
 ```bash
 $ edgevpn --peerguardian --peergate --peergate-relaxed
 $ curl -X PUT 'http://localhost:8080/api/ledger/trustzoneAuth/keytype_1/XXX'
 ```
 
-{{% alert title="Note" %}}
-It is strongly suggested to use a local store for the blockchain with PeerGuardian. In this way nodes persist locally auth keys and you can avoid starting nodes with `--peergate-relaxed'
+{{% alert title="注意" %}}
+强烈建议在使用 PeerGuardian 时使用区块链的本地存储。这样节点可以在本地持久化认证密钥，你可以避免使用 `--peergate-relaxed` 启动节点
 {{% /alert %}}

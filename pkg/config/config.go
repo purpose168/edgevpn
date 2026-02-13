@@ -42,108 +42,109 @@ import (
 	"github.com/peterbourgon/diskv"
 )
 
-// Config is the config struct for the node and the default EdgeVPN services
-// It is used to generate opts for the node and the services before start.
+// Config 是节点和默认EdgeVPN服务的配置结构体
+// 用于在启动前为节点和服务生成选项
 type Config struct {
-	NetworkConfig, NetworkToken                string
-	Address                                    string
-	ListenMaddrs                               []string
-	DHTAnnounceMaddrs                          []multiaddr.Multiaddr
-	Router                                     string
-	Interface                                  string
-	Libp2pLogLevel, LogLevel                   string
-	LowProfile, BootstrapIface                 bool
-	Blacklist                                  []string
-	Concurrency                                int
-	FrameTimeout                               string
-	ChannelBufferSize, InterfaceMTU, PacketMTU int
-	NAT                                        NAT
-	Connection                                 Connection
-	Discovery                                  Discovery
-	Ledger                                     Ledger
-	Limit                                      ResourceLimit
-	Privkey                                    []byte
-	// PeerGuard (experimental)
-	// enable peerguardian and add specific auth options
+	NetworkConfig, NetworkToken                string   // 网络配置和网络令牌
+	Address                                    string   // IP地址
+	ListenMaddrs                               []string // 监听多地址
+	DHTAnnounceMaddrs                          []multiaddr.Multiaddr // DHT公告多地址
+	Router                                     string   // 路由器地址
+	Interface                                  string   // 接口名称
+	Libp2pLogLevel, LogLevel                   string   // libp2p日志级别和日志级别
+	LowProfile, BootstrapIface                 bool     // 低配置模式和引导接口
+	Blacklist                                  []string // 黑名单
+	Concurrency                                int      // 并发数
+	FrameTimeout                               string   // 帧超时
+	ChannelBufferSize, InterfaceMTU, PacketMTU int      // 通道缓冲区大小、接口MTU、数据包MTU
+	NAT                                        NAT      // NAT配置
+	Connection                                 Connection // 连接配置
+	Discovery                                  Discovery // 发现配置
+	Ledger                                     Ledger    // 账本配置
+	Limit                                      ResourceLimit // 资源限制
+	Privkey                                    []byte   // 私钥
+	// PeerGuard (实验性)
+	// 启用peerguardian并添加特定的认证选项
 	PeerGuard PeerGuard
 
-	Whitelist []multiaddr.Multiaddr
+	Whitelist []multiaddr.Multiaddr // 白名单
 }
 
+// PeerGuard 对等节点保护配置
 type PeerGuard struct {
-	Enable      bool
-	Relaxed     bool
-	Autocleanup bool
-	PeerGate    bool
-	// AuthProviders in the freemap form:
+	Enable      bool   // 是否启用
+	Relaxed     bool   // 宽松模式
+	Autocleanup bool   // 自动清理
+	PeerGate    bool   // 对等节点门控
+	// AuthProviders 以自由映射形式提供认证提供者：
 	// ecdsa:
 	//   private_key: "foo_bar"
-	AuthProviders map[string]map[string]interface{}
-	SyncInterval  time.Duration
+	AuthProviders map[string]map[string]interface{} // 认证提供者配置
+	SyncInterval  time.Duration                      // 同步间隔
 }
 
+// ResourceLimit 资源限制配置
 type ResourceLimit struct {
-	FileLimit   string
-	LimitConfig *rcmgr.PartialLimitConfig
-	Scope       string
-	MaxConns    int
-	StaticMin   int64
-	StaticMax   int64
-	Enable      bool
+	FileLimit   string                   // 限制文件路径
+	LimitConfig *rcmgr.PartialLimitConfig // 限制配置
+	Scope       string                   // 作用域
+	MaxConns    int                      // 最大连接数
+	StaticMin   int64                    // 静态最小值
+	StaticMax   int64                    // 静态最大值
+	Enable      bool                     // 是否启用
 }
 
-// Ledger is the ledger configuration structure
+// Ledger 是账本配置结构
 type Ledger struct {
-	AnnounceInterval, SyncInterval time.Duration
-	StateDir                       string
+	AnnounceInterval, SyncInterval time.Duration // 公告间隔和同步间隔
+	StateDir                       string        // 状态目录
 }
 
-// Discovery allows to enable/disable discovery and
-// set bootstrap peers
+// Discovery 允许启用/禁用发现并设置引导节点
 type Discovery struct {
-	DHT, MDNS      bool
-	BootstrapPeers []string
-	Interval       time.Duration
+	DHT, MDNS      bool     // 是否启用DHT和mDNS发现
+	BootstrapPeers []string // 引导节点列表
+	Interval       time.Duration // 发现间隔
 }
 
-// Connection is the configuration section
-// relative to the connection services
+// Connection 是连接服务相关的配置部分
 type Connection struct {
-	HolePunch bool
-	AutoRelay bool
+	HolePunch bool // 是否启用打洞
+	AutoRelay bool // 是否启用自动中继
 
-	AutoRelayDiscoveryInterval time.Duration
-	StaticRelays               []string
-	OnlyStaticRelays           bool
+	AutoRelayDiscoveryInterval time.Duration // 自动中继发现间隔
+	StaticRelays               []string      // 静态中继列表
+	OnlyStaticRelays           bool          // 仅使用静态中继
 
-	PeerTable map[string]peer.ID
+	PeerTable map[string]peer.ID // 对等节点表
 
-	MaxConnections int
+	MaxConnections int // 最大连接数
 
-	LowWater  int
-	HighWater int
+	LowWater  int // 低水位线
+	HighWater int // 高水位线
 }
 
-// NAT is the structure relative to NAT configuration settings
-// It allows to enable/disable the service and NAT mapping, and rate limiting too.
+// NAT 是NAT配置设置相关的结构
+// 允许启用/禁用服务和NAT映射，以及速率限制
 type NAT struct {
-	Service   bool
-	Map       bool
-	RateLimit bool
+	Service   bool // 是否启用NAT服务
+	Map       bool // 是否启用NAT映射
+	RateLimit bool // 是否启用速率限制
 
-	RateLimitGlobal, RateLimitPeer int
-	RateLimitInterval              time.Duration
+	RateLimitGlobal, RateLimitPeer int           // 全局速率限制和对等节点速率限制
+	RateLimitInterval              time.Duration // 速率限制间隔
 }
 
-// Validate returns error if the configuration is not valid
+// Validate 验证配置是否有效，无效则返回错误
 func (c Config) Validate() error {
 	if c.NetworkConfig == "" &&
 		c.NetworkToken == "" {
-		return fmt.Errorf("EDGEVPNCONFIG or EDGEVPNTOKEN not supplied. At least a config file is required")
+		return fmt.Errorf("未提供EDGEVPNCONFIG或EDGEVPNTOKEN。至少需要一个配置文件")
 	}
 	return nil
 }
 
+// peers2List 将对等节点字符串列表转换为发现地址列表
 func peers2List(peers []string) discovery.AddrList {
 	addrsList := discovery.AddrList{}
 	for _, p := range peers {
@@ -152,6 +153,7 @@ func peers2List(peers []string) discovery.AddrList {
 	return addrsList
 }
 
+// peers2AddrInfo 将对等节点字符串列表转换为对等节点地址信息列表
 func peers2AddrInfo(peers []string) []peer.AddrInfo {
 	addrsList := []peer.AddrInfo{}
 	for _, p := range peers {
@@ -166,7 +168,8 @@ func peers2AddrInfo(peers []string) []peer.AddrInfo {
 
 var infiniteResourceLimits = rcmgr.InfiniteLimits.ToPartialLimitConfig().System
 
-// ToOpts returns node and vpn options from a configuration
+// ToOpts 从配置返回节点和VPN选项
+// 参数 l 为日志记录器
 func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 
 	if err := c.Validate(); err != nil {
@@ -185,6 +188,7 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 
 	peers := c.Discovery.BootstrapPeers
 
+	// 解析日志级别
 	lvl, err := log.LevelFromString(logLevel)
 	if err != nil {
 		lvl = log.LevelError
@@ -192,6 +196,7 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 
 	llger := logger.New(lvl)
 
+	// 解析libp2p日志级别
 	libp2plvl, err := log.LevelFromString(libp2plogLevel)
 	if err != nil {
 		libp2plvl = log.LevelFatal
@@ -233,10 +238,12 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 		node.FromYaml(mDNS, dhtE, config, d, m),
 	}
 
+	// 添加静态对等节点
 	for ip, peer := range c.Connection.PeerTable {
 		opts = append(opts, node.WithStaticPeer(ip, peer))
 	}
 
+	// 添加私钥
 	if len(c.Privkey) > 0 {
 		opts = append(opts, node.WithPrivKey(c.Privkey))
 	}
@@ -258,7 +265,7 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 
 	libp2pOpts := []libp2p.Option{libp2p.UserAgent("edgevpn")}
 
-	// AutoRelay section configuration
+	// AutoRelay部分配置
 	if c.Connection.AutoRelay {
 		relayOpts := []autorelay.Option{}
 
@@ -267,7 +274,7 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 		if c.Connection.AutoRelayDiscoveryInterval == 0 {
 			c.Connection.AutoRelayDiscoveryInterval = 5 * time.Minute
 		}
-		// If no relays are specified and no discovery interval, then just use default static relays (to be deprecated)
+		// 如果没有指定中继且没有发现间隔，则使用默认静态中继（将被弃用）
 
 		relayOpts = append(relayOpts, autorelay.WithPeerSource(d.FindClosePeers(llger, c.Connection.OnlyStaticRelays, staticRelays...)))
 
@@ -275,6 +282,7 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 			libp2p.EnableAutoRelay(relayOpts...))
 	}
 
+	// NAT速率限制配置
 	if c.NAT.RateLimit {
 		libp2pOpts = append(libp2pOpts, libp2p.AutoNATServiceRateLimit(
 			c.NAT.RateLimitGlobal,
@@ -283,8 +291,9 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 		))
 	}
 
+	// 连接管理器配置
 	if c.Connection.LowWater != 0 && c.Connection.HighWater != 0 {
-		llger.Infof("connmanager water limits low: %d high: %d", c.Connection.LowWater, c.Connection.HighWater)
+		llger.Infof("连接管理器水位线限制 低: %d 高: %d", c.Connection.LowWater, c.Connection.HighWater)
 
 		cm, err := connmanager.NewConnManager(
 			c.Connection.LowWater,
@@ -292,23 +301,25 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 			connmanager.WithGracePeriod(80*time.Second),
 		)
 		if err != nil {
-			llger.Fatal("could not create connection manager")
+			llger.Fatal("无法创建连接管理器")
 		}
 
 		libp2pOpts = append(libp2pOpts, libp2p.ConnectionManager(cm))
 	} else {
-		llger.Infof("connmanager disabled")
+		llger.Infof("连接管理器已禁用")
 	}
 
+	// 资源管理器配置
 	if !c.Limit.Enable || runtime.GOOS == "darwin" {
-		llger.Info("go-libp2p resource manager protection disabled")
+		llger.Info("go-libp2p资源管理器保护已禁用")
 		libp2pOpts = append(libp2pOpts, libp2p.ResourceManager(&network.NullResourceManager{}))
 	} else {
-		llger.Info("go-libp2p resource manager protection enabled")
+		llger.Info("go-libp2p资源管理器保护已启用")
 
 		var limiter rcmgr.Limiter
 
 		if c.Limit.FileLimit != "" {
+			// 从JSON文件加载限制配置
 			limitFile, err := os.Open(c.Limit.FileLimit)
 			if err != nil {
 				return opts, vpnOpts, err
@@ -322,18 +333,18 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 
 			limiter = l
 		} else if c.Limit.MaxConns == -1 {
-			llger.Infof("max connections: unlimited")
+			llger.Infof("最大连接数: 无限制")
 
 			scalingLimits := rcmgr.DefaultLimits
 
-			// Add limits around included libp2p protocols
+			// 为包含的libp2p协议添加限制
 			libp2p.SetDefaultServiceLimits(&scalingLimits)
 
-			// Turn the scaling limits into a concrete set of limits using `.AutoScale`. This
-			// scales the limits proportional to your system memory.
+			// 使用`.AutoScale`将缩放限制转换为具体的限制集
+			// 这会根据系统内存按比例缩放限制
 			scaledDefaultLimits := scalingLimits.AutoScale()
 
-			// Tweak certain settings
+			// 调整某些设置
 			cfg := rcmgr.PartialLimitConfig{
 				System: rcmgr.ResourceLimits{
 					Memory: rcmgr.Unlimited64,
@@ -348,10 +359,10 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 					StreamsInbound:  rcmgr.Unlimited,
 				},
 
-				// Transient connections won't cause any memory to be accounted for by the resource manager/accountant.
-				// Only established connections do.
-				// As a result, we can't rely on System.Memory to protect us from a bunch of transient connection being opened.
-				// We limit the same values as the System scope, but only allow the Transient scope to take 25% of what is allowed for the System scope.
+				// 瞬态连接不会导致资源管理器/会计记录任何内存
+				// 只有已建立的连接才会
+				// 因此，我们不能依赖System.Memory来保护我们免受大量瞬态连接的影响
+				// 我们限制与System作用域相同的值，但只允许Transient作用域占用System作用域允许的25%
 				Transient: rcmgr.ResourceLimits{
 					Memory:        rcmgr.Unlimited64,
 					FD:            rcmgr.Unlimited,
@@ -364,13 +375,13 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 					StreamsOutbound: rcmgr.Unlimited,
 				},
 
-				// Lets get out of the way of the allow list functionality.
-				// If someone specified "Swarm.ResourceMgr.Allowlist" we should let it go through.
+				// 让我们不要妨碍白名单功能
+				// 如果有人指定了"Swarm.ResourceMgr.Allowlist"，我们应该让它通过
 				AllowlistedSystem: infiniteResourceLimits,
 
 				AllowlistedTransient: infiniteResourceLimits,
 
-				// Keep it simple by not having Service, ServicePeer, Protocol, ProtocolPeer, Conn, or Stream limits.
+				// 保持简单，不设置Service、ServicePeer、Protocol、ProtocolPeer、Conn或Stream限制
 				ServiceDefault: infiniteResourceLimits,
 
 				ServicePeerDefault: infiniteResourceLimits,
@@ -383,11 +394,11 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 
 				Stream: infiniteResourceLimits,
 
-				// Limit the resources consumed by a peer.
-				// This doesn't protect us against intentional DoS attacks since an attacker can easily spin up multiple peers.
-				// We specify this limit against unintentional DoS attacks (e.g., a peer has a bug and is sending too much traffic intentionally).
-				// In that case we want to keep that peer's resource consumption contained.
-				// To keep this simple, we only constrain inbound connections and streams.
+				// 限制单个对等节点消耗的资源
+				// 这不能保护我们免受故意的DoS攻击，因为攻击者可以轻松启动多个对等节点
+				// 我们指定此限制是为了防止无意的DoS攻击（例如，对等节点有bug并故意发送过多流量）
+				// 在这种情况下，我们希望控制该对等节点的资源消耗
+				// 为保持简单，我们只限制入站连接和流
 				PeerDefault: rcmgr.ResourceLimits{
 					Memory:          rcmgr.Unlimited64,
 					FD:              rcmgr.Unlimited,
@@ -400,10 +411,10 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 				},
 			}
 
-			// Create our limits by using our cfg and replacing the default values with values from `scaledDefaultLimits`
+			// 使用我们的cfg创建限制，并用`scaledDefaultLimits`中的值替换默认值
 			limits := cfg.Build(scaledDefaultLimits)
 
-			// The resource manager expects a limiter, se we create one from our limits.
+			// 资源管理器需要一个限制器，所以我们从限制创建一个
 			limiter = rcmgr.NewFixedLimiter(limits)
 
 		} else if c.Limit.MaxConns != 0 {
@@ -418,11 +429,11 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 			maxconns := int(c.Limit.MaxConns)
 
 			defaultLimits := rcmgr.DefaultLimits.Scale(min+max/2, logScale(2*maxconns))
-			llger.Infof("max connections: %d", c.Limit.MaxConns)
+			llger.Infof("最大连接数: %d", c.Limit.MaxConns)
 
 			limiter = rcmgr.NewFixedLimiter(defaultLimits)
 		} else {
-			llger.Infof("max connections: defaults limits")
+			llger.Infof("最大连接数: 默认限制")
 
 			defaults := rcmgr.DefaultLimits
 			def := &defaults
@@ -433,26 +444,30 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 
 		rc, err := rcmgr.NewResourceManager(limiter, rcmgr.WithAllowlistedMultiaddrs(c.Whitelist))
 		if err != nil {
-			llger.Fatal("could not create resource manager")
+			llger.Fatal("无法创建资源管理器")
 		}
 
 		libp2pOpts = append(libp2pOpts, libp2p.ResourceManager(rc))
 	}
 
+	// 打洞配置
 	if c.Connection.HolePunch {
 		libp2pOpts = append(libp2pOpts, libp2p.EnableHolePunching())
 	}
 
+	// NAT服务配置
 	if c.NAT.Service {
 		libp2pOpts = append(libp2pOpts, libp2p.EnableNATService())
 	}
 
+	// NAT端口映射配置
 	if c.NAT.Map {
 		libp2pOpts = append(libp2pOpts, libp2p.NATPortMap())
 	}
 
 	opts = append(opts, node.WithLibp2pOptions(libp2pOpts...))
 
+	// 账本存储配置
 	if ledgerState != "" {
 		opts = append(opts, node.WithStore(blockchain.NewDiskStore(diskv.New(diskv.Options{
 			BasePath:     ledgerState,
@@ -462,16 +477,17 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 		opts = append(opts, node.WithStore(&blockchain.MemoryStore{}))
 	}
 
+	// 对等节点保护配置
 	if c.PeerGuard.Enable {
 		pg := trustzone.NewPeerGater(c.PeerGuard.Relaxed)
 		dur := c.PeerGuard.SyncInterval
 
-		// Build up the authproviders for the peerguardian
+		// 为peerguardian构建认证提供者
 		aps := []trustzone.AuthProvider{}
 		for ap, providerOpts := range c.PeerGuard.AuthProviders {
 			a, err := authProvider(llger, ap, providerOpts)
 			if err != nil {
-				return opts, vpnOpts, fmt.Errorf("invalid authprovider: %w", err)
+				return opts, vpnOpts, fmt.Errorf("无效的认证提供者: %w", err)
 			}
 			aps = append(aps, a)
 		}
@@ -486,9 +502,9 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 			node.EnableGenericHub,
 			node.GenericChannelHandlers(pguardian.ReceiveMessage),
 		)
-		// We always pass a PeerGater such will be registered to the API if necessary
+		// 我们总是传递一个PeerGater，以便在必要时注册到API
 		opts = append(opts, node.WithPeerGater(pg))
-		// IF it's not enabled, we just disable it right away.
+		// 如果未启用，我们立即禁用它
 		if !c.PeerGuard.PeerGate {
 			pg.Disable()
 		}
@@ -497,18 +513,21 @@ func (c Config) ToOpts(l *logger.Logger) ([]node.Option, []vpn.Option, error) {
 	return opts, vpnOpts, nil
 }
 
+// authProvider 创建认证提供者
+// 参数 ll 为日志记录器，s 为提供者类型，opts 为选项
 func authProvider(ll log.StandardLogger, s string, opts map[string]interface{}) (trustzone.AuthProvider, error) {
 	switch strings.ToLower(s) {
 	case "ecdsa":
 		pk, exists := opts["private_key"]
 		if !exists {
-			return nil, fmt.Errorf("No private key provided")
+			return nil, fmt.Errorf("未提供私钥")
 		}
 		return ecdsa.ECDSA521Provider(ll, fmt.Sprint(pk))
 	}
-	return nil, fmt.Errorf("not supported")
+	return nil, fmt.Errorf("不支持")
 }
 
+// logScale 计算对数缩放值
 func logScale(val int) int {
 	bitlen := bits.Len(uint(val))
 	return 1 << bitlen

@@ -33,10 +33,9 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-const Copyright string = `	edgevpn  Copyright (C) 2021-2022 Ettore Di Giacinto
-This program comes with ABSOLUTELY NO WARRANTY.
-This is free software, and you are welcome to redistribute it
-under certain conditions.`
+const Copyright string = `	edgevpn  版权所有 (C) 2021-2022 Ettore Di Giacinto
+本程序不提供任何担保。
+这是自由软件，欢迎您在特定条件下重新分发它。`
 
 func MainFlags() []cli.Flag {
 	basedir, _ := os.UserHomeDir()
@@ -47,97 +46,97 @@ func MainFlags() []cli.Flag {
 	return append([]cli.Flag{
 		&cli.IntFlag{
 			Name:  "key-otp-interval",
-			Usage: "Tweaks default otp interval (in seconds) when generating new tokens",
+			Usage: "调整生成新令牌时的默认 OTP 间隔（秒）",
 			Value: 360,
 		},
 		&cli.BoolFlag{
 			Name:  "g",
-			Usage: "Generates a new configuration and prints it on screen",
+			Usage: "生成新配置并在屏幕上打印",
 		},
 		&cli.BoolFlag{
 			Name:  "b",
-			Usage: "Encodes the new config in base64, so it can be used as a token",
+			Usage: "将新配置编码为 base64，以便用作令牌",
 		},
 		&cli.BoolFlag{
 			Name:  "debug",
-			Usage: "Starts API with pprof attached",
+			Usage: "启动 API 并附加 pprof 性能分析工具",
 		},
 		&cli.BoolFlag{
 			Name:    "api",
-			Usage:   "Starts also the API daemon locally for inspecting the network status",
+			Usage:   "同时启动本地 API 守护进程以检查网络状态",
 			EnvVars: []string{"API"},
 		},
 		&cli.StringFlag{
 			Name:    "api-listen",
 			Value:   "127.0.0.1:8080",
-			Usage:   "API listening port",
+			Usage:   "API 监听端口",
 			EnvVars: []string{"APILISTEN"},
 		},
 		&cli.BoolFlag{
 			Name:    "dhcp",
-			Usage:   "Enables p2p ip negotiation (experimental)",
+			Usage:   "启用 P2P IP 协商（实验性）",
 			EnvVars: []string{"DHCP"},
 		},
 		&cli.BoolFlag{
 			Name:    "transient-conn",
-			Usage:   "Allow transient connections",
+			Usage:   "允许临时连接",
 			EnvVars: []string{"TRANSIENTCONN"},
 		},
 		&cli.StringFlag{
 			Name:    "lease-dir",
 			Value:   filepath.Join(basedir, ".edgevpn", "leases"),
-			Usage:   "DHCP leases directory",
+			Usage:   "DHCP 租约目录",
 			EnvVars: []string{"DHCPLEASEDIR"},
 		},
 		&cli.StringFlag{
 			Name:    "address",
-			Usage:   "VPN virtual address",
+			Usage:   "VPN 虚拟地址",
 			EnvVars: []string{"ADDRESS"},
 			Value:   "10.1.0.1/24",
 		},
 		&cli.StringFlag{
 			Name:    "dns",
-			Usage:   "DNS listening address. Empty to disable dns server",
+			Usage:   "DNS 监听地址。留空则禁用 DNS 服务器",
 			EnvVars: []string{"DNSADDRESS"},
 			Value:   "",
 		},
 		&cli.BoolFlag{
 			Name:    "dns-forwarder",
-			Usage:   "Enables dns forwarding",
+			Usage:   "启用 DNS 转发",
 			EnvVars: []string{"DNSFORWARD"},
 			Value:   true,
 		},
 		&cli.BoolFlag{
 			Name:    "egress",
-			Usage:   "Enables nodes for egress",
+			Usage:   "启用节点的出口功能",
 			EnvVars: []string{"EGRESS"},
 		},
 		&cli.IntFlag{
 			Name:    "egress-announce-time",
-			Usage:   "Egress announce time (s)",
+			Usage:   "出口公告时间（秒）",
 			EnvVars: []string{"EGRESSANNOUNCE"},
 			Value:   200,
 		},
 		&cli.IntFlag{
 			Name:    "dns-cache-size",
-			Usage:   "DNS LRU cache size",
+			Usage:   "DNS LRU 缓存大小",
 			EnvVars: []string{"DNSCACHESIZE"},
 			Value:   200,
 		},
 		&cli.StringSliceFlag{
 			Name:    "dns-forward-server",
-			Usage:   "List of DNS forward server, e.g. 8.8.8.8:53, 192.168.1.1:53 ...",
+			Usage:   "DNS 转发服务器列表，例如：8.8.8.8:53, 192.168.1.1:53 ...",
 			EnvVars: []string{"DNSFORWARDSERVER"},
 			Value:   cli.NewStringSlice("8.8.8.8:53", "1.1.1.1:53"),
 		},
 		&cli.StringFlag{
 			Name:    "router",
-			Usage:   "Sends all packets to this node",
+			Usage:   "将所有数据包发送到此节点",
 			EnvVars: []string{"ROUTER"},
 		},
 		&cli.StringFlag{
 			Name:    "interface",
-			Usage:   "Interface name",
+			Usage:   "接口名称",
 			Value:   "edgevpn0",
 			EnvVars: []string{"IFACE"},
 		}}, CommonFlags...)
@@ -146,7 +145,7 @@ func MainFlags() []cli.Flag {
 func Main() func(c *cli.Context) error {
 	return func(c *cli.Context) error {
 		if c.Bool("g") {
-			// Generates a new config and exit
+			// 生成新配置并退出
 			newData := edgevpn.GenerateNewConnectionData(c.Int("key-otp-interval"))
 			if c.Bool("b") {
 				fmt.Print(newData.Base64())
@@ -158,8 +157,8 @@ func Main() func(c *cli.Context) error {
 		}
 		o, vpnOpts, ll := cliToOpts(c)
 
-		// Egress and DHCP needs the Alive service
-		// DHCP needs alive services enabled to all nodes, also those with a static IP.
+		// 出口和 DHCP 需要 Alive 服务
+		// DHCP 需要为所有节点启用存活服务，包括那些使用静态 IP 的节点
 		o = append(o,
 			services.Alive(
 				time.Duration(c.Int("aliveness-healthcheck-interval"))*time.Second,
@@ -167,7 +166,7 @@ func Main() func(c *cli.Context) error {
 				time.Duration(c.Int("aliveness-healthcheck-max-interval"))*time.Second)...)
 
 		if c.Bool("dhcp") {
-			// Adds DHCP server
+			// 添加 DHCP 服务器
 			address, _, err := net.ParseCIDR(c.String("address"))
 			if err != nil {
 				return err
@@ -183,7 +182,7 @@ func Main() func(c *cli.Context) error {
 
 		dns := c.String("dns")
 		if dns != "" {
-			// Adds DNS Server
+			// 添加 DNS 服务器
 			o = append(o,
 				services.DNS(ll, dns,
 					c.Bool("dns-forwarder"),

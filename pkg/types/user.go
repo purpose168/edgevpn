@@ -13,7 +13,9 @@ limitations under the License.
 
 package types
 
+// User 用户信息结构体
+// 用于表示网络中的用户信息
 type User struct {
-	PeerID    string
-	Timestamp string
+	PeerID    string // 对等节点ID
+	Timestamp string // 时间戳
 }

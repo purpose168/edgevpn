@@ -1,15 +1,26 @@
-# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# ============================================================================
+# Dependabot 配置文件
+# 用途：配置自动依赖更新
+# 文档：https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+# 作者：purpose168@outlook.com
+# ============================================================================
+
 version: 2
 updates:
+  # Git 子模块依赖更新配置
   - package-ecosystem: "gitsubmodule"
-    directory: "/"
+    directory: "/"  # 根目录
     schedule:
-      interval: "weekly"
+      interval: "weekly"  # 每周检查更新
+
+  # Go 模块依赖更新配置
   - package-ecosystem: "gomod"
-    directory: "/"
+    directory: "/"  # 根目录
     schedule:
-      interval: "weekly"
+      interval: "weekly"  # 每周检查更新
+
+  # GitHub Actions 依赖更新配置
   - package-ecosystem: "github-actions"
-    directory: "/"
+    directory: "/"  # 根目录
     schedule:
-      interval: "weekly"
+      interval: "weekly"  # 每周检查更新

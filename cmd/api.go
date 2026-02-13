@@ -28,9 +28,9 @@ import (
 func API() *cli.Command {
 	return &cli.Command{
 		Name:  "api",
-		Usage: "Starts an http server to display network informations",
-		Description: `Start listening locally, providing an API for the network.
-A simple UI interface is available to display network data.`,
+		Usage: "启动 HTTP 服务器以显示网络信息",
+		Description: `在本地启动监听，为网络提供 API。
+提供一个简单的 UI 界面来显示网络数据。`,
 		UsageText: "edgevpn api",
 		Flags: append(CommonFlags,
 			&cli.BoolFlag{
@@ -43,7 +43,7 @@ A simple UI interface is available to display network data.`,
 			&cli.StringFlag{
 				Name:  "listen",
 				Value: "127.0.0.1:8080",
-				Usage: "Listening address. To listen to a socket, prefix with unix://, e.g. unix:///socket.path",
+				Usage: "监听地址。要监听套接字，请使用 unix:// 前缀，例如 unix:///socket.path",
 			},
 		),
 		Action: func(c *cli.Context) error {
@@ -69,7 +69,7 @@ A simple UI interface is available to display network data.`,
 			ctx := context.Background()
 			go handleStopSignals()
 
-			// Start the node to the network, using our ledger
+			// 启动节点到网络，使用我们的账本
 			if err := e.Start(ctx); err != nil {
 				return err
 			}

@@ -20,10 +20,13 @@ import (
 	"github.com/creachadair/otp"
 )
 
+// TOTP 生成基于时间的一次性密码
+// 参数 f 为哈希函数，digits 为输出位数，t 为时间步长，key 为密钥
+// 返回TOTP字符串
 func TOTP(f func() hash.Hash, digits int, t int, key string) string {
 	cfg := otp.Config{
-		Hash:     f,      // default is sha1.New
-		Digits:   digits, // default is 6
+		Hash:     f,      // 默认为sha1.New
+		Digits:   digits, // 默认为6
 		TimeStep: otp.TimeWindow(t),
 		Key:      key,
 		Format: func(hash []byte, nb int) string {

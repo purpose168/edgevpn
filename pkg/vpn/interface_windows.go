@@ -24,8 +24,10 @@ import (
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 )
 
+// prepareInterface 准备Windows平台上的网络接口
+// 设置IP地址和MTU等网络参数
 func prepareInterface(c *Config) error {
-	// find interface created by water
+	// 查找由water创建的接口
 	guid, err := windows.GUIDFromString("{00000000-FFFF-FFFF-FFE9-76E58C74063E}")
 	if err != nil {
 		return err
@@ -35,19 +37,23 @@ func prepareInterface(c *Config) error {
 		return err
 	}
 
+	// 解析IP地址前缀
 	prefix, err := netip.ParsePrefix(c.InterfaceAddress)
 	if err != nil {
 		return err
 	}
 	addresses := append([]netip.Prefix{}, prefix)
+	// 设置接口IP地址
 	if err := luid.SetIPAddresses(addresses); err != nil {
 		return err
 	}
 
+	// 获取IPv4接口配置
 	iface, err := luid.IPInterface(windows.AF_INET)
 	if err != nil {
 		return err
 	}
+	// 设置MTU值
 	iface.NLMTU = uint32(c.InterfaceMTU)
 	if err := iface.Set(); err != nil {
 		return err
@@ -55,6 +61,8 @@ func prepareInterface(c *Config) error {
 	return nil
 }
 
+// createInterface 在Windows平台上创建网络接口
+// 参数 c 为VPN配置
 func createInterface(c *Config) (*water.Interface, error) {
 	config := water.Config{
 		DeviceType: c.DeviceType,

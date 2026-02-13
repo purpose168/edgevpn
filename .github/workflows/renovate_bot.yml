@@ -1,34 +1,49 @@
-name: Renovate auto-merge
+# ============================================================================
+# Renovate 自动合并工作流
+# 用途：自动批准并合并 Renovate 机器人创建的依赖更新 PR
+# 触发条件：由 Renovate 机器人创建的拉取请求
+# 作者：purpose168@outlook.com
+# ============================================================================
+
+name: Renovate 自动合并
 on:
-#- pull_request_target
+#- pull_request_target  # 当前已禁用，需要时取消注释
 
 permissions:
-  contents: write
-  pull-requests: write
-  packages: read
+  contents: write       # 写入仓库内容的权限
+  pull-requests: write  # 写入拉取请求的权限
+  packages: read        # 读取包的权限
 
 jobs:
   renovate:
     runs-on: ubuntu-latest
+    # 仅当 PR 作者为 renovate[bot] 时才执行
     if: ${{ github.actor == 'renovate[bot]' }}
     steps:
-      - name: Checkout repository
+      # 检出代码仓库
+      - name: 检出代码仓库
         uses: actions/checkout@v4
 
-      - name: Approve a PR if not already approved
+      # 批准 PR（如果尚未被批准）
+      - name: 批准 PR（如果尚未被批准）
         run: |
+          # 检出 PR 分支
           gh pr checkout "$PR_URL"
-            if [ "$(gh pr status --json reviewDecision -q .currentBranch.reviewDecision)" != "APPROVED" ];
+          # 检查 PR 是否已被批准
+          if [ "$(gh pr status --json reviewDecision -q .currentBranch.reviewDecision)" != "APPROVED" ];
           then
+            # 如果未被批准，则批准该 PR
             gh pr review --approve "$PR_URL"
           else
-            echo "PR already approved.";
+            # 如果已被批准，输出提示信息
+            echo "PR 已被批准。";
           fi
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
-      - name: Enable auto-merge for Renovate PRs
+      # 为 Renovate PR 启用自动合并
+      - name: 为 Renovate PR 启用自动合并
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}

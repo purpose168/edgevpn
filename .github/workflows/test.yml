@@ -1,171 +1,261 @@
-name: Test
+# ============================================================================
+# 测试工作流
+# 用途：运行项目的构建和测试流程
+# 触发条件：推送代码或创建拉取请求时
+# 作者：purpose168@outlook.com
+# ============================================================================
+
+name: 测试
 
 on:
   push:
   pull_request:
 
 jobs:
+  # ========================================
+  # 构建任务
+  # 用途：编译项目并生成配置文件
+  # ========================================
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      # 检出代码仓库
+      - name: 检出代码
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Set up Go
+          fetch-depth: 0  # 获取完整的 git 历史，用于版本计算
+
+      # 设置 Go 语言环境
+      - name: 设置 Go 环境
         uses: actions/setup-go@v5
         with:
           go-version: 1.25
-      
-      - name: Build
+
+      # 编译项目
+      - name: 构建
         run:
             go build
-      
-      - name: Generate edgevpnconfig
+
+      # 生成 edgevpn 配置文件
+      - name: 生成 edgevpn 配置文件
         run: |
               ./edgevpn -g > config.yaml
 
-
-      - name: Upload results
+      # 上传配置文件作为构建产物
+      - name: 上传构建结果
         uses: actions/upload-artifact@v4
         with:
-          name: connection
+          name: connection  # 产物名称：连接配置
           path: config.yaml
-          if-no-files-found: error
-      - name: Upload results
+          if-no-files-found: error  # 如果文件不存在则报错
+
+      # 上传编译后的二进制文件
+      - name: 上传构建结果
         uses: actions/upload-artifact@v4
         with:
-          name: edgevpn
+          name: edgevpn  # 产物名称：edgevpn 可执行文件
           path: edgevpn
-          if-no-files-found: error
-  
+          if-no-files-found: error  # 如果文件不存在则报错
+
+  # ========================================
+  # 测试套件任务
+  # 用途：运行单元测试和集成测试
+  # ========================================
   test-suite:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build  # 依赖构建任务完成
     steps:
-      - name: Checkout
+      # 检出代码仓库
+      - name: 检出代码
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Set up Go
+
+      # 设置 Go 语言环境
+      - name: 设置 Go 环境
         uses: actions/setup-go@v5
         with:
           go-version: 1.25
-      - name: Download result for build
+
+      # 下载构建产物：配置文件
+      - name: 下载构建结果
         uses: actions/download-artifact@v5
         with:
           name: connection
           path: ./
-      - name: Download result for build
+
+      # 下载构建产物：可执行文件
+      - name: 下载构建结果
         uses: actions/download-artifact@v5
         with:
           name: edgevpn
           path: ./
-      - name: Test suite
+
+      # 运行测试套件
+      - name: 测试套件
         run: |
+              # 设置网络缓冲区最大值，优化 VPN 性能
               sudo sysctl -w net.core.rmem_max=2500000
+              # 添加执行权限
               chmod +x edgevpn
+              # 执行测试脚本
               EDGEVPNCONFIG=config.yaml ./.github/tests.sh
-      - name: Codecov
+
+      # 上传代码覆盖率报告到 Codecov
+      - name: Codecov 代码覆盖率
         uses: codecov/codecov-action@v5.5.1
         with:
           file: coverage.txt
-          
+
+  # ========================================
+  # VPN 连接测试任务
+  # 用途：测试 VPN 节点间的连接功能
+  # 使用矩阵策略在两个节点间进行双向测试
+  # ========================================
   vpntest:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build  # 依赖构建任务完成
     strategy:
       matrix:
         include:
+          # 节点1：IP 10.1.0.13，作为下载端
           - ip: "10.1.0.13/24"
             target_ip: "10.1.0.11"
             role: "download"
+          # 节点2：IP 10.1.0.11，作为服务端
           - ip: "10.1.0.11/24"
             target_ip: "10.1.0.13"
             role: ""
     steps:
-      - name: Checkout
+      # 检出代码仓库
+      - name: 检出代码
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Download result for build
+
+      # 下载构建产物：配置文件
+      - name: 下载构建结果
         uses: actions/download-artifact@v5
         with:
           name: connection
           path: ./
-      - name: Download result for build
+
+      # 下载构建产物：可执行文件
+      - name: 下载构建结果
         uses: actions/download-artifact@v5
         with:
           name: edgevpn
           path: ./
-      - name: Ping test
+
+      # 执行 Ping 连接测试
+      - name: Ping 连接测试
         run: |
-              # Start caddy server to share file across nodes
+              # 启动 Caddy 服务器，用于在节点间共享文件
               docker run -d -p 80:80 \
                 -v $PWD/:/usr/share/caddy/ \
                 -v caddy_data:/data \
                 caddy
+              # 添加执行权限
               chmod +x edgevpn
+              # 设置网络缓冲区最大值
               sudo sysctl -w net.core.rmem_max=2500000
+              # 启动 EdgeVPN 服务（后台运行）
               sudo EDGEVPNCONFIG=config.yaml IFACE=edgevpn0 ADDRESS=${{ matrix.ip }} ./edgevpn --api --log-level debug &
+              # 执行 VPN 测试脚本
               bash ./.github/vpntest.sh ${{ matrix.target_ip }} ${{ matrix.ip }} ${{ matrix.role }}
 
+  # ========================================
+  # 服务功能测试任务
+  # 用途：测试 EdgeVPN 的服务暴露和连接功能
+  # 使用矩阵策略分别测试 expose 和 connect 模式
+  # ========================================
   servicestest:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build  # 依赖构建任务完成
     strategy:
       matrix:
         include:
+          # 测试角色1：暴露服务
           - role: "expose"
+          # 测试角色2：连接服务
           - role: "connect"
     steps:
-      - name: Checkout
+      # 检出代码仓库
+      - name: 检出代码
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Download result for build
+
+      # 下载构建产物：配置文件
+      - name: 下载构建结果
         uses: actions/download-artifact@v5
         with:
           name: connection
           path: ./
-      - name: Download result for build
+
+      # 下载构建产物：可执行文件
+      - name: 下载构建结果
         uses: actions/download-artifact@v5
         with:
           name: edgevpn
           path: ./
-      - name: Services test
+
+      # 执行服务功能测试
+      - name: 服务功能测试
         run: |
+              # 添加执行权限
               chmod +x edgevpn
+              # 设置环境变量
               export EDGEVPNCONFIG=config.yaml
+              # 设置网络缓冲区最大值
               sudo sysctl -w net.core.rmem_max=2500000
+              # 执行服务测试脚本
               bash ./.github/servicestest.sh ${{ matrix.role }}
 
+  # ========================================
+  # 文件传输测试任务
+  # 用途：测试 EdgeVPN 的文件发送和接收功能
+  # 使用矩阵策略分别测试 sender 和 receiver 模式
+  # ========================================
   filestest:
     runs-on: ubuntu-latest
-    needs: build
+    needs: build  # 依赖构建任务完成
     strategy:
       matrix:
         include:
+          # 测试角色1：发送端
           - role: "sender"
+          # 测试角色2：接收端
           - role: "receiver"
     steps:
-      - name: Checkout
+      # 检出代码仓库
+      - name: 检出代码
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Download result for build
+
+      # 下载构建产物：配置文件
+      - name: 下载构建结果
         uses: actions/download-artifact@v5
         with:
           name: connection
           path: ./
-      - name: Download result for build
+
+      # 下载构建产物：可执行文件
+      - name: 下载构建结果
         uses: actions/download-artifact@v5
         with:
           name: edgevpn
           path: ./
-      - name: File test
+
+      # 执行文件传输测试
+      - name: 文件传输测试
         run: |
+              # 添加执行权限
               chmod +x edgevpn
+              # 设置环境变量
               export EDGEVPNCONFIG=config.yaml
+              # 设置网络缓冲区最大值
               sudo sysctl -w net.core.rmem_max=2500000
+              # 执行文件测试脚本
               bash ./.github/filetest.sh ${{ matrix.role }}

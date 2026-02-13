@@ -24,6 +24,8 @@ import (
 	"github.com/mudler/water"
 )
 
+// createInterface 在macOS平台上创建网络接口
+// 参数 c 为VPN配置
 func createInterface(c *Config) (*water.Interface, error) {
 	config := water.Config{
 		DeviceType: water.TUN,
@@ -33,18 +35,22 @@ func createInterface(c *Config) (*water.Interface, error) {
 	return water.New(config)
 }
 
+// prepareInterface 准备macOS平台上的网络接口
+// 使用ifconfig命令配置接口、MTU、IP地址和路由
 func prepareInterface(c *Config) error {
+	// 根据名称获取网络接口
 	iface, err := net.InterfaceByName(c.InterfaceName)
 	if err != nil {
 		return err
 	}
 
+	// 解析CIDR格式的IP地址
 	ip, ipNet, err := net.ParseCIDR(c.InterfaceAddress)
 	if err != nil {
 		return err
 	}
 
-	// Set the MTU using the `ifconfig` command, since the `net` package does not provide a way to set the MTU.
+	// 使用ifconfig命令设置MTU，因为net包不提供设置MTU的方法
 	mtu := strconv.Itoa(c.InterfaceMTU)
 	cmd := exec.Command("ifconfig", iface.Name, "mtu", mtu)
 	err = cmd.Run()
@@ -52,13 +58,13 @@ func prepareInterface(c *Config) error {
 		return err
 	}
 
-	// Add the address to the interface. This is not directly possible with the `net` package,
-	// so we use the `ifconfig` command.
+	// 将地址添加到接口。net包无法直接实现此功能，
+	// 因此我们使用ifconfig命令。
 	if ip.To4() == nil {
-		// IPV6
+		// IPv6地址配置
 		cmd = exec.Command("ifconfig", iface.Name, "inet6", ip.String())
 	} else {
-		// IPv4
+		// IPv4地址配置
 		cmd = exec.Command("ifconfig", iface.Name, "inet", ip.String(), ip.String())
 	}
 	err = cmd.Run()
@@ -66,15 +72,15 @@ func prepareInterface(c *Config) error {
 		return err
 	}
 
-	// Bring up the interface. This is not directly possible with the `net` package,
-	// so we use the `ifconfig` command.
+	// 启用接口。net包无法直接实现此功能，
+	// 因此我们使用ifconfig命令。
 	cmd = exec.Command("ifconfig", iface.Name, "up")
 	err = cmd.Run()
 	if err != nil {
 		return err
 	}
 
-	// Add route
+	// 添加路由
 	cmd = exec.Command("route", "-n", "add", "-net", ipNet.String(), ip.String())
 	err = cmd.Run()
 	if err != nil {

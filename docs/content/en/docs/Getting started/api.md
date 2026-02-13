@@ -1,95 +1,95 @@
 ---
-title: "WebUI and API"
-linkTitle: "WebUI and API"
+title: "WebUI 和 API"
+linkTitle: "WebUI 和 API"
 weight: 1
 description: >
-  Query the network status and operate the ledger with the built-in API
+  使用内置 API 查询网络状态并操作账本
 ---
 
-The API has a simple webUI embedded to display network informations.
+API 内置了一个简单的 WebUI，用于显示网络信息。
 
 
-To access the web interface, run in the console:
+要访问 Web 界面，在控制台中运行：
 
 ```bash
 $ edgevpn api
 ```
 
-with either a `EDGEVPNCONFIG` or `EDGEVPNTOKEN`. 
+使用 `EDGEVPNCONFIG` 或 `EDGEVPNTOKEN`。
 
-Dashboard (Dark mode)            |  Dashboard (Light mode)
+仪表盘（深色模式）            |  仪表盘（浅色模式）
 :-------------------------:|:-------------------------:
 ![Screenshot 2021-10-31 at 00-12-16 EdgeVPN - Machines index](https://user-images.githubusercontent.com/2420543/163020448-8e9238c1-3b6d-435d-9b25-7729d8779ebd.png) | ![Screenshot 2021-10-31 at 23-03-26 EdgeVPN - Machines index](https://user-images.githubusercontent.com/2420543/163020460-e18c07d7-8426-4992-aab3-0b2fd90279ae.png)
 
-DNS            |  Machine index
+DNS            |  机器索引
 :-------------------------:|:-------------------------:
 ![Screenshot 2021-10-31 at 23-03-44 EdgeVPN - Services index](https://user-images.githubusercontent.com/2420543/163020465-3d481da4-4912-445e-afc0-2614966dcadf.png) | ![Screenshot 2021-10-31 at 23-03-59 EdgeVPN - Files index](https://user-images.githubusercontent.com/2420543/163020462-7821a622-8c13-4971-8abe-9c5b6b491ae8.png)
 
-Services            |  Blockchain index
+服务            |  区块链索引
 :-------------------------:|:-------------------------:
 ![Screenshot 2021-10-31 at 23-04-12 EdgeVPN - Users connected](https://user-images.githubusercontent.com/2420543/163021285-3c5a980d-2562-4c10-b266-7e99f19d8a87.png) | ![Screenshot 2021-10-31 at 23-04-20 EdgeVPN - Blockchain index](https://user-images.githubusercontent.com/2420543/163020457-77ef6e50-40a6-4e3b-83c4-a81db729bd7d.png)
 
 
-In API mode, EdgeVPN will connect to the network without routing any packet, and without setting up a VPN interface. 
+在 API 模式下，EdgeVPN 将连接到网络，但不会路由任何数据包，也不会设置 VPN 接口。
 
-By default edgevpn will listen on the `8080` port. See `edgevpn api --help` for the available options
+默认情况下，edgevpn 将监听 `8080` 端口。有关可用选项，请参阅 `edgevpn api --help`
 
-API can also be started together with the vpn with `--api`.
+API 也可以与 VPN 一起启动，使用 `--api`。
 
-## API endpoints
+## API 端点
 
 ### GET
 
 #### `/api/users`
 
-Returns the users connected to services in the blockchain
+返回连接到区块链中服务的用户
 
 #### `/api/services`
 
-Returns the services running in the blockchain
+返回在区块链中运行的服务
 
 #### `/api/dns`
 
-Returns the domains registered in the blockchain
+返回在区块链中注册的域名
 
 #### `/api/machines`
 
-Returns the machines connected to the VPN
+返回连接到 VPN 的机器
 
 #### `/api/blockchain`
 
-Returns the latest available blockchain
+返回最新的可用区块链
 
 #### `/api/ledger`
 
-Returns the current data in the ledger
+返回账本中的当前数据
 
 #### `/api/ledger/:bucket`
 
-Returns the current data in the ledger inside the `:bucket`
+返回 `:bucket` 内账本中的当前数据
 
 #### `/api/ledger/:bucket/:key`
 
-Returns the current data in the ledger inside the `:bucket` at given `:key`
+返回 `:bucket` 内指定 `:key` 处账本中的当前数据
 
 #### `/api/peergate`
 
-Returns peergater status
+返回 peergater 状态
 
 ### PUT
 
 #### `/api/ledger/:bucket/:key/:value`
 
-Puts `:value` in the ledger inside the `:bucket` at given `:key`
+将 `:value` 放入 `:bucket` 内指定 `:key` 处的账本中
 
 #### `/api/peergate/:state`
 
-Enables/disables peergating:
+启用/禁用 peergating：
 
 ```bash
-# enable
+# 启用
 $ curl -X PUT 'http://localhost:8080/api/peergate/enable'
-# disable
+# 禁用
 $ curl -X PUT 'http://localhost:8080/api/peergate/disable'
 ```
 
@@ -97,7 +97,7 @@ $ curl -X PUT 'http://localhost:8080/api/peergate/disable'
 
 #### `/api/dns`
 
-The endpoint accept a JSON payload of the following form:
+该端点接受以下形式的 JSON 载荷：
 
 ```json
 { "Regex": "<regex>", 
@@ -108,11 +108,11 @@ The endpoint accept a JSON payload of the following form:
 }
 ```
 
-Takes a regex and a set of records and registers them to the blockchain.
+接受一个正则表达式和一组记录，并将它们注册到区块链。
 
-The DNS table in the ledger will be used by the embedded DNS server to handle requests locally.
+账本中的 DNS 表将被嵌入式 DNS 服务器用于在本地处理请求。
 
-To create a new entry, for example:
+例如，要创建新条目：
 
 ```bash
 $ curl -X POST http://localhost:8080/api/dns --header "Content-Type: application/json" -d '{ "Regex": "foo.bar", "Records": { "A": "2.2.2.2" } }'
@@ -122,21 +122,21 @@ $ curl -X POST http://localhost:8080/api/dns --header "Content-Type: application
 
 #### `/api/ledger/:bucket/:key`
 
-Deletes the `:key` into `:bucket` inside the ledger
+删除账本内 `:bucket` 中的 `:key`
 
 #### `/api/ledger/:bucket`
 
-Deletes the `:bucket` from the ledger
+从账本中删除 `:bucket`
 
-## Binding to a socket
+## 绑定到套接字
 
-The API can also be bound to a socket, for instance:
+API 也可以绑定到套接字，例如：
 
 ```bash
 $ edgevpn api --listen "unix://<path/to/socket>"
 ```
 
-or as well while running the vpn:
+或者在运行 VPN 时：
 
 ```bash
 $ edgevpn api --api-listen "unix://<path/to/socket>"

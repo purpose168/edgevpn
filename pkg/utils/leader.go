@@ -15,19 +15,26 @@ package utils
 
 import "hash/fnv"
 
+// hash 计算字符串的32位哈希值
+// 参数 s 为要计算哈希的字符串
+// 返回32位无符号整数哈希值
 func hash(s string) uint32 {
 	h := fnv.New32a()
 	h.Write([]byte(s))
 	return h.Sum32()
 }
 
+// Leader 从活跃节点列表中选出领导者
+// 使用一致性哈希算法，选择哈希值最大的节点作为领导者
+// 参数 actives 为活跃节点ID列表
+// 返回被选中的领导者节点ID
 func Leader(actives []string) string {
-	// first get available nodes
+	// 首先获取可用节点
 	leaderboard := map[string]uint32{}
 
 	leader := actives[0]
 
-	// Compute who is leader at the moment
+	// 计算当前谁是领导者
 	for _, a := range actives {
 		leaderboard[a] = hash(a)
 		if leaderboard[leader] < leaderboard[a] {

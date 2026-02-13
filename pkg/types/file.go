@@ -13,7 +13,9 @@ limitations under the License.
 
 package types
 
+// File 文件信息结构体
+// 用于表示网络中共享的文件信息
 type File struct {
-	PeerID string
-	Name   string
+	PeerID string // 提供文件的对等节点ID
+	Name   string // 文件名称
 }

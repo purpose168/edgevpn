@@ -29,6 +29,7 @@ import (
 	. "github.com/mudler/edgevpn/pkg/services"
 )
 
+// get 发送HTTP GET请求
 func get(url string) string {
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -51,15 +52,15 @@ func get(url string) string {
 	return string(body)
 }
 
-var _ = Describe("Expose services", func() {
+var _ = Describe("暴露服务", func() {
 	token := node.GenerateNewConnectionData().Base64()
 
 	logg := logger.New(log.LevelFatal)
 	l := node.Logger(logg)
 	serviceUUID := "test"
 
-	Context("Service sharing", func() {
-		PIt("expose services and can connect to them", func() {
+	Context("服务共享", func() {
+		PIt("暴露服务并可以连接到它们", func() {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
@@ -67,8 +68,8 @@ var _ = Describe("Expose services", func() {
 			opts = append(opts, node.FromBase64(true, true, token, nil, nil), node.WithDiscoveryInterval(10*time.Second), node.WithStore(&blockchain.MemoryStore{}), l)
 			e, _ := node.New(opts...)
 
-			// First node expose a service
-			// redirects to google:80
+			// 第一个节点暴露一个服务
+			// 重定向到 google:80
 
 			e.Start(ctx)
 

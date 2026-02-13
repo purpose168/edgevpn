@@ -24,33 +24,36 @@ import (
 	"github.com/libp2p/go-libp2p/p2p/discovery/mdns"
 )
 
+// MDNS mDNS发现服务结构体
 type MDNS struct {
-	DiscoveryServiceTag string
+	DiscoveryServiceTag string // 发现服务标签
 }
 
-// discoveryNotifee gets notified when we find a new peer via mDNS discovery
+// discoveryNotifee 当通过mDNS发现发现新对等节点时收到通知
 type discoveryNotifee struct {
-	h host.Host
-	c log.StandardLogger
+	h host.Host          // libp2p主机
+	c log.StandardLogger // 日志记录器
 }
 
-// HandlePeerFound connects to peers discovered via mDNS. Once they're connected,
-// the PubSub system will automatically start interacting with them if they also
-// support PubSub.
+// HandlePeerFound 连接到通过mDNS发现的对等节点。一旦连接，
+// PubSub系统将自动开始与它们交互（如果它们也支持PubSub）
 func (n *discoveryNotifee) HandlePeerFound(pi peer.AddrInfo) {
-	//n.c.Infof("mDNS: discovered new peer %s\n", pi.ID.String())
+	//n.c.Infof("mDNS: 发现新对等节点 %s\n", pi.ID.String())
 	err := n.h.Connect(context.Background(), pi)
 	if err != nil {
-		n.c.Debugf("mDNS: error connecting to peer %s: %s\n", pi.ID.String(), err)
+		n.c.Debugf("mDNS: 连接对等节点 %s 错误: %s\n", pi.ID.String(), err)
 	}
 }
 
+// Option 返回libp2p选项
 func (d *MDNS) Option(ctx context.Context) func(c *libp2p.Config) error {
 	return func(*libp2p.Config) error { return nil }
 }
 
+// Run 运行mDNS发现服务
+// 参数 l 为日志记录器，ctx 为上下文，host 为libp2p主机
 func (d *MDNS) Run(l log.StandardLogger, ctx context.Context, host host.Host) error {
-	// setup mDNS discovery to find local peers
+	// 设置mDNS发现以查找本地对等节点
 
 	disc := mdns.NewMdnsService(host, d.DiscoveryServiceTag, &discoveryNotifee{h: host, c: l})
 	return disc.Start()

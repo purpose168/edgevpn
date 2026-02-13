@@ -1,4 +1,11 @@
-name: Github Pages
+# ============================================================================
+# GitHub Pages 部署工作流
+# 用途：构建文档站点并部署到 GitHub Pages
+# 触发条件：推送到 master 分支
+# 作者：purpose168@outlook.com
+# ============================================================================
+
+name: GitHub Pages
 on:
   push:
     branches: [ master ]
@@ -7,17 +14,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+    # 检出代码仓库（包含子模块）
     - uses: actions/checkout@v4
       with:
-        submodules: 'recursive'
-    - name: Build 🔧
+        submodules: 'recursive'  # 递归检出所有子模块
+
+    # 构建文档站点
+    - name: 构建 🔧
       run: |
+           # 进入文档目录并构建
            cd docs && make build
+           # 将生成的静态文件移动到根目录
            mv public ../
-    - name: Deploy 🚀
+
+    # 部署到 GitHub Pages
+    - name: 部署 🚀
+      # 仅在 master 分支的推送事件时执行部署
       if: github.ref == 'refs/heads/master' && github.event_name == 'push'
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
-        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-        BRANCH: gh-pages
-        FOLDER: public
+        ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}  # 用于推送的访问令牌
+        BRANCH: gh-pages                           # 部署目标分支
+        FOLDER: public                             # 要部署的文件夹

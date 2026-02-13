@@ -15,8 +15,12 @@ package utils
 
 import "math/rand"
 
+// letterRunes 用于生成随机字符串的字符集
 var letterRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 
+// RandStringRunes 生成指定长度的随机字符串
+// 参数 n 为要生成的字符串长度
+// 返回由字母和数字组成的随机字符串
 func RandStringRunes(n int) string {
 	b := make([]rune, n)
 	for i := range b {

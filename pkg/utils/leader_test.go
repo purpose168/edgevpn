@@ -20,9 +20,9 @@ import (
 	. "github.com/mudler/edgevpn/pkg/utils"
 )
 
-var _ = Describe("Leader utilities", func() {
+var _ = Describe("领导者工具", func() {
 	Context("Leader", func() {
-		It("returns the correct leader", func() {
+		It("返回正确的领导者", func() {
 			Expect(Leader([]string{"a", "b", "c", "d"})).To(Equal("b"))
 			Expect(Leader([]string{"a", "b", "c", "d", "e", "f", "G", "bb"})).To(Equal("b"))
 			Expect(Leader([]string{"a", "b", "c", "d", "e", "f", "G", "bb", "z", "b1", "b2"})).To(Equal("z"))

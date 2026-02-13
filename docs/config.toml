@@ -1,44 +1,47 @@
+# 网站基础配置
 baseURL = "https://mudler.github.io/edgevpn/docs/"
 title = "EdgeVPN"
 
+# 启用 robots.txt 生成
 enableRobotsTXT = true
 
-# Hugo allows theme composition (and inheritance). The precedence is from left to right.
+# Hugo 支持主题组合（和继承）。优先级从左到右。
 theme = ["docsy"]
 
-# Will give values to .Lastmod etc.
+# 将为 .Lastmod 等提供值
 enableGitInfo = true
 
-# Language settings
+# 语言设置
 contentDir = "content/en"
 defaultContentLanguage = "en"
 defaultContentLanguageInSubdir = false
-# Useful when translating.
+# 翻译时很有用
 enableMissingTranslationPlaceholders = true
 
+# 禁用的类型
 disableKinds = ["taxonomy", "taxonomyTerm"]
 
-# Highlighting config
+# 语法高亮配置
 pygmentsCodeFences = true
 pygmentsUseClasses = false
-# Use the new Chroma Go highlighter in Hugo.
+# 使用 Hugo 中新的 Chroma Go 高亮器
 pygmentsUseClassic = false
 #pygmentsOptions = "linenos=table"
-# See https://help.farbox.com/pygments.html
+# 参见 https://help.farbox.com/pygments.html
 pygmentsStyle = "tango"
 
-# Configure how URLs look like per section.
+# 配置各部分的 URL 外观
 [permalinks]
 blog = "/:section/:year/:month/:day/:slug/"
 
-## Configuration for BlackFriday markdown parser: https://github.com/russross/blackfriday
+## BlackFriday markdown 解析器配置: https://github.com/russross/blackfriday
 [blackfriday]
 plainIDAnchors = true
 hrefTargetBlank = true
 angledQuotes = false
 latexDashes = true
 
-# Image processing configuration.
+# 图像处理配置
 [imaging]
 resampleFilter = "CatmullRom"
 quality = 75
@@ -46,16 +49,16 @@ anchor = "smart"
 
 [services]
 [services.googleAnalytics]
-# Comment out the next line to disable GA tracking. Also disables the feature described in [params.ui.feedback].
+# 注释掉下一行以禁用 GA 跟踪。同时禁用 [params.ui.feedback] 中描述的功能。
 id = "UA-00000000-0"
 
-# Language configuration
+# 语言配置
 
 [languages]
 [languages.en]
 title = "EdgeVPN"
 languageName ="English"
-# Weight used for sorting.
+# 用于排序的权重
 weight = 1
 #[languages.it]
 #title = "EdgeVPN"
@@ -64,7 +67,7 @@ weight = 1
 #time_format_default = "02.01.2006"
 #time_format_blog = "02.01.2006"
 [[menu.main]]
-    name = "Contribution guidelines"
+    name = "贡献指南"
     weight = 50
     url = "https://github.com/mudler/edgevpn/contribute"
     pre = "<i class='fab fa-github'></i>"
@@ -74,95 +77,101 @@ weight = 1
     [markup.goldmark.renderer]
       unsafe = true
 
-# Everything below this are Site Params
+# 以下内容为站点参数
 
 [params]
 copyright = "Ettore Di Giacinto"
 privacy_policy = "https://policies.google.com/privacy"
 
-# First one is picked as the Twitter card image if not set on page.
+# 禁用 KaTeX 数学渲染（避免代码块中的 $ 符号被误解析）
+[params.katex]
+enable = false
+
+[params.math]
+enable = false
+
+# 如果页面上未设置，则选择第一个作为 Twitter 卡片图像。
 # images = ["images/project-illustration.png"]
 
-# Menu title if your navbar has a versions selector to access old versions of your site.
-# This menu appears only if you have at least one [params.versions] set.
-version_menu = "Releases"
+# 如果导航栏有版本选择器来访问旧版本站点，则显示菜单标题。
+# 仅当至少设置了一个 [params.versions] 时才会显示此菜单。
+version_menu = "版本"
 
-# Repository configuration (URLs for in-page links to opening issues and suggesting changes)
+# 仓库配置（用于页面内链接以打开问题和建议更改的 URL）
 github_repo = "https://github.com/mudler/edgevpn"
-# An optional link to a related project repo. For example, the sibling repository where your product code lives.
+# 可选的相关项目仓库链接。例如，产品代码所在的同级仓库。
 github_project_repo = "https://github.com/mudler/edgevpn"
 
-# Specify a value here if your content directory is not in your repo's root directory
+# 如果内容目录不在仓库根目录中，请在此处指定值
 github_subdir = "docs"
 
-# Google Custom Search Engine ID. Remove or comment out to disable search.
+# Google 自定义搜索引擎 ID。删除或注释以禁用搜索。
 #gcs_engine_id = "011737558837375720776:fsdu1nryfng"
 
-# Enable Algolia DocSearch
+# 启用 Algolia DocSearch
 algolia_docsearch = false
 
-# Enable Lunr.js offline search
+# 启用 Lunr.js 离线搜索
 offlineSearch = true
 
-# User interface configuration
+# 用户界面配置
 [params.ui]
-# Enable to show the side bar menu in its compact state.
+# 启用以紧凑状态显示侧边栏菜单
 sidebar_menu_compact = false
-#  Set to true to disable breadcrumb navigation.
+#  设置为 true 以禁用面包屑导航
 breadcrumb_disable = true
-#  Set to true to hide the sidebar search box (the top nav search box will still be displayed if search is enabled)
+#  设置为 true 以隐藏侧边栏搜索框（如果启用搜索，顶部导航搜索框仍会显示）
 sidebar_search_disable = false
-#  Set to false if you don't want to display a logo (/assets/icons/logo.svg) in the top nav bar
+#  如果不想在顶部导航栏显示 logo（/assets/icons/logo.svg），设置为 false
 navbar_logo = true
-# Set to true to disable the About link in the site footer
+# 设置为 true 以禁用站点页脚中的"关于"链接
 footer_about_disable = false
 
-# Adds a H2 section titled "Feedback" to the bottom of each doc. The responses are sent to Google Analytics as events.
-# This feature depends on [services.googleAnalytics] and will be disabled if "services.googleAnalytics.id" is not set.
-# If you want this feature, but occasionally need to remove the "Feedback" section from a single page,
-# add "hide_feedback: true" to the page's front matter.
+# 在每个文档底部添加标题为"反馈"的 H2 部分。响应将作为事件发送到 Google Analytics。
+# 此功能依赖于 [services.googleAnalytics]，如果未设置 "services.googleAnalytics.id" 则会被禁用。
+# 如果您需要此功能，但偶尔需要从单个页面中删除"反馈"部分，
+# 请在页面的 front matter 中添加 "hide_feedback: true"。
 [params.ui.feedback]
 enable = true
-# The responses that the user sees after clicking "yes" (the page was helpful) or "no" (the page was not helpful).
-yes = 'Glad to hear it! Please <a href="https://github.com/mudler/edgevpn/issues/new">tell us how we can improve</a>.'
-no = 'Sorry to hear that. Please <a href="https://github.com/mudler/edgevpn/issues/new">tell us how we can improve</a>.'
+# 用户点击"是"（页面有帮助）或"否"（页面没有帮助）后看到的响应。
+yes = '很高兴听到这个！请<a href="https://github.com/mudler/edgevpn/issues/new">告诉我们如何改进</a>。'
+no = '很抱歉听到这个。请<a href="https://github.com/mudler/edgevpn/issues/new">告诉我们如何改进</a>。'
 
 [params.links]
-# End user relevant links. These will show up on left side of footer and in the community page if you have one.
+# 最终用户相关链接。这些将显示在页脚左侧，如果您有社区页面也会显示在那里。
 # [[params.links.user]]
-# 	name = "User mailing list"
+# 	name = "用户邮件列表"
 # 	url = "https://example.org/mail"
 # 	icon = "fa fa-envelope"
-#         desc = "Discussion and help from your fellow users"
+#         desc = "与您的用户同伴讨论和获取帮助"
 # [[params.links.user]]
 # 	name ="Twitter"
 # 	url = "https://example.org/twitter"
 # 	icon = "fab fa-twitter"
-#         desc = "Follow us on Twitter to get the latest news!"
+#         desc = "在 Twitter 上关注我们以获取最新消息！"
 # [[params.links.user]]
 # 	name = "Stack Overflow"
 # 	url = "https://example.org/stack"
 # 	icon = "fab fa-stack-overflow"
-#         desc = "Practical questions and curated answers"
-# Developer relevant links. These will show up on right side of footer and in the community page if you have one.
+#         desc = "实用问题和精选答案"
+# 开发者相关链接。这些将显示在页脚右侧，如果您有社区页面也会显示在那里。
 [[params.links.developer]]
 	name = "GitHub"
 	url = "https://github.com/mudler/edgevpn"
 	icon = "fab fa-github"
-        desc = "Development takes place here!"
+        desc = "开发在这里进行！"
 [[params.links.user]]
-	name = "GitHub Discussions"
+	name = "GitHub 讨论区"
 	url = "https://github.com/mudler/edgevpn/discussions"
 	icon = "fab fa-github"
-        desc = "Discussion and help from your fellow users"
+        desc = "与您的用户同伴讨论和获取帮助"
 [[params.links.user]]
-	name = "Matrix chat"
+	name = "Matrix 聊天"
 	url = "https://matrix.to/#/#edgevpn:matrix.org"
 	icon = "fas fa-comments"
-        desc = "Join us on Matrix!"
+        desc = "加入我们的 Matrix！"
 # [[params.links.developer]]
-# 	name = "Developer mailing list"
+# 	name = "开发者邮件列表"
 # 	url = "https://example.org/mail"
 # 	icon = "fa fa-envelope"
-#         desc = "Discuss development issues around the project"
-
+#         desc = "讨论项目周围的开发问题"

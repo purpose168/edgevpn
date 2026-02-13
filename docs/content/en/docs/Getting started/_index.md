@@ -1,33 +1,33 @@
 ---
-title: "Getting Started"
-linkTitle: "Getting Started"
+title: "入门指南"
+linkTitle: "入门指南"
 weight: 1
 description: >
-  First steps with EdgeVPN
+  EdgeVPN 的第一步
 ---
 
-## Get EdgeVPN  
+## 获取 EdgeVPN  
 
-Prerequisites: No dependencies. EdgeVPN releases are statically compiled.
+先决条件：无依赖。EdgeVPN 发布版本是静态编译的。
 
-### From release
+### 从发布版本获取
 
-Just grab a release from [the release page on GitHub](https://github.com/mudler/edgevpn/releases). The binaries are statically compiled.
+只需从 [GitHub 发布页面](https://github.com/mudler/edgevpn/releases)获取发布版本。二进制文件是静态编译的。
 
-### Via Homebrew on Macos
+### 通过 Homebrew 在 MacOS 上安装
 
-If you're using homebrew in MacOS, you can use the [edgevpn formula](https://formulae.brew.sh/formula/edgevpn)
+如果你在 MacOS 上使用 homebrew，可以使用 [edgevpn formula](https://formulae.brew.sh/formula/edgevpn)
 
 ```
 brew install edgevpn
 ```
 
 
-### Building EdgeVPN from source
+### 从源代码构建 EdgeVPN
 
-Requirements:
+要求：
 
-- [Golang](https://golang.org/) installed in your system.
+- 系统中安装了 [Golang](https://golang.org/)。
 - make
 
 ```bash
@@ -36,10 +36,10 @@ $> cd edgevpn
 $> go build
 ```
 
-### Using Docker Compose
+### 使用 Docker Compose
 
-Using docker is still experimental as setups can vary wildly.
-An example [docker-compose.yml](https://github.com/mudler/edgevpn/blob/master/docker-compose.yml) file is provided for convenience but you'll likely need to edit it.
+使用 docker 仍然是实验性的，因为设置可能会有很大差异。
+为了方便起见，提供了一个示例 [docker-compose.yml](https://github.com/mudler/edgevpn/blob/master/docker-compose.yml) 文件，但你可能需要编辑它。
 
 ```bash
 $> git clone https://github.com/mudler/edgevpn
@@ -47,21 +47,21 @@ $> cd edgevpn
 $> sudo docker compose up --detach
 ```
 
-## Creating Your First VPN
+## 创建你的第一个 VPN
 
-Let's create our first vpn now and start it:
+现在让我们创建第一个 VPN 并启动它：
 
 ```bash
 $> EDGEVPNTOKEN=$(edgevpn -b -g)
 $> edgevpn --dhcp --api
 ```
 
-That's it!
+就是这样！
 
-You can now access the web interface on [http://localhost:8080](http://localhost:8080).
+你现在可以在 [http://localhost:8080](http://localhost:8080) 访问 Web 界面。
 
-To join new nodes in the network, simply copy the `EDGEVPNTOKEN` and use it to start edgevpn in other nodes:
+要将新节点加入网络，只需复制 `EDGEVPNTOKEN` 并在其他节点上使用它来启动 edgevpn：
 
 ```bash
-$> EDGEVPNTOKEN=<token_generated_before> edgevpn --dhcp
+$> EDGEVPNTOKEN=<之前生成的令牌> edgevpn --dhcp
 ```

@@ -1,17 +1,16 @@
 // Copyright © 2021-2022 Ettore Di Giacinto <mudler@mocaccino.org>
 //
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
+// 本程序是自由软件；您可以根据自由软件基金会发布的
+// GNU 通用公共许可证条款重新分发和/或修改它；
+// 许可证版本 2 或（根据您的选择）任何后续版本。
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
+// 分发本程序是希望它有用，
+// 但没有任何保证；甚至没有适销性或特定用途适用性的
+// 默示保证。请参阅
+// GNU 通用公共许可证以获取更多详细信息。
 //
-// You should have received a copy of the GNU General Public License along
-// with this program; if not, see <http://www.gnu.org/licenses/>.
+// 您应该已经收到 GNU 通用公共许可证的副本
+// 以及本程序；如果没有，请参阅 <http://www.gnu.org/licenses/>。
 
 package api
 
@@ -45,6 +44,7 @@ import (
 //go:embed public
 var embededFiles embed.FS
 
+// getFileSystem 获取嵌入的文件系统
 func getFileSystem() http.FileSystem {
 	fsys, err := fs.Sub(embededFiles, "public")
 	if err != nil {
@@ -54,27 +54,37 @@ func getFileSystem() http.FileSystem {
 	return http.FS(fsys)
 }
 
+// API 端点常量定义
 const (
-	MachineURL    = "/api/machines"
-	UsersURL      = "/api/users"
-	ServiceURL    = "/api/services"
-	BlockchainURL = "/api/blockchain"
-	LedgerURL     = "/api/ledger"
-	SummaryURL    = "/api/summary"
-	FileURL       = "/api/files"
-	NodesURL      = "/api/nodes"
-	DNSURL        = "/api/dns"
-	MetricsURL    = "/api/metrics"
-	PeerstoreURL  = "/api/peerstore"
-	PeerGateURL   = "/api/peergate"
+	MachineURL    = "/api/machines"   // 机器列表端点
+	UsersURL      = "/api/users"      // 用户列表端点
+	ServiceURL    = "/api/services"   // 服务列表端点
+	BlockchainURL = "/api/blockchain" // 区块链端点
+	LedgerURL     = "/api/ledger"     // 账本端点
+	SummaryURL    = "/api/summary"    // 摘要端点
+	FileURL       = "/api/files"      // 文件列表端点
+	NodesURL      = "/api/nodes"      // 节点列表端点
+	DNSURL        = "/api/dns"        // DNS 端点
+	MetricsURL    = "/api/metrics"    // 指标端点
+	PeerstoreURL  = "/api/peerstore"  // 对等存储端点
+	PeerGateURL   = "/api/peergate"   // 对等网关端点
 )
 
+// API 启动 EdgeVPN API 服务器
+// ctx: 上下文
+// l: 监听地址（支持 unix:// 前缀的 Unix 套接字）
+// defaultInterval: 默认间隔时间
+// timeout: 超时时间
+// e: EdgeVPN 节点实例
+// bwc: 带宽报告器
+// debugMode: 是否启用调试模式
 func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, e *node.Node, bwc metrics.Reporter, debugMode bool) error {
 
 	ledger, _ := e.Ledger()
 
 	ec := echo.New()
 
+	// 支持 Unix 套接字监听
 	if strings.HasPrefix(l, "unix://") {
 		unixListener, err := net.Listen("unix", strings.ReplaceAll(l, "unix://", ""))
 		if err != nil {
@@ -84,10 +94,12 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 	}
 
 	assetHandler := http.FileServer(getFileSystem())
+	// 调试模式下启用 pprof
 	if debugMode {
 		ec.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
 	}
 
+	// 带宽指标端点
 	if bwc != nil {
 		ec.GET(MetricsURL, func(c echo.Context) error {
 			return c.JSON(http.StatusOK, bwc.GetBandwidthTotals())
@@ -105,7 +117,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 			return c.JSON(http.StatusOK, bwc.GetBandwidthForProtocol(p2pprotocol.ID(c.Param("protocol"))))
 		})
 	}
-	// Get data from ledger
+	// 从账本获取文件数据
 	ec.GET(FileURL, func(c echo.Context) error {
 		list := []*types.File{}
 		for _, v := range ledger.CurrentData()[protocol.FilesLedgerKey] {
@@ -116,6 +128,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		return c.JSON(http.StatusOK, list)
 	})
 
+	// 对等网关控制端点
 	if e.PeerGater() != nil {
 		ec.PUT(fmt.Sprintf("%s/:state", PeerGateURL), func(c echo.Context) error {
 			state := c.Param("state")
@@ -134,6 +147,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		})
 	}
 
+	// 系统摘要端点
 	ec.GET(SummaryURL, func(c echo.Context) error {
 		files := len(ledger.CurrentData()[protocol.FilesLedgerKey])
 		machines := len(ledger.CurrentData()[protocol.MachinesLedgerKey])
@@ -161,6 +175,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		})
 	})
 
+	// 机器列表端点
 	ec.GET(MachineURL, func(c echo.Context) error {
 		list := []*apiTypes.Machine{}
 
@@ -170,6 +185,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 			machine := &types.Machine{}
 			v.Unmarshal(machine)
 			m := &apiTypes.Machine{Machine: *machine}
+			// 检查连接状态
 			if e.Host().Network().Connectedness(peer.ID(machine.PeerID)) == network.Connected {
 				m.Connected = true
 			}
@@ -177,11 +193,13 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 			if err != nil {
 				return err
 			}
+			// 检查是否在链上
 			for _, p := range peers {
 				if p.String() == machine.PeerID {
 					m.OnChain = true
 				}
 			}
+			// 检查是否在线
 			for _, a := range online {
 				if a == machine.PeerID {
 					m.Online = true
@@ -194,6 +212,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		return c.JSON(http.StatusOK, list)
 	})
 
+	// 节点列表端点
 	ec.GET(NodesURL, func(c echo.Context) error {
 		list := []apiTypes.Peer{}
 		peers, err := e.MessageHub.ListPeers()
@@ -201,7 +220,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 			return err
 		}
 
-		// Sum up state also from services
+		// 从服务中汇总状态
 		online := services.AvailableNodes(ledger, 10*time.Minute)
 		p := map[string]interface{}{}
 
@@ -223,6 +242,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		return c.JSON(http.StatusOK, list)
 	})
 
+	// 对等存储端点
 	ec.GET(PeerstoreURL, func(c echo.Context) error {
 		list := []apiTypes.Peer{}
 		for _, v := range e.Host().Network().Peerstore().Peers() {
@@ -231,6 +251,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		return c.JSON(http.StatusOK, list)
 	})
 
+	// 用户列表端点
 	ec.GET(UsersURL, func(c echo.Context) error {
 		user := []*types.User{}
 		for _, v := range ledger.CurrentData()[protocol.UsersLedgerKey] {
@@ -241,6 +262,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		return c.JSON(http.StatusOK, user)
 	})
 
+	// 服务列表端点
 	ec.GET(ServiceURL, func(c echo.Context) error {
 		list := []*types.Service{}
 		for _, v := range ledger.CurrentData()[protocol.ServicesLedgerKey] {
@@ -251,22 +273,27 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		return c.JSON(http.StatusOK, list)
 	})
 
+	// 静态资源处理
 	ec.GET("/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 
+	// 区块链端点
 	ec.GET(BlockchainURL, func(c echo.Context) error {
 		return c.JSON(http.StatusOK, ledger.LastBlock())
 	})
 
+	// 账本端点
 	ec.GET(LedgerURL, func(c echo.Context) error {
 		return c.JSON(http.StatusOK, ledger.CurrentData())
 	})
 
+	// 获取指定存储桶和键的数据
 	ec.GET(fmt.Sprintf("%s/:bucket/:key", LedgerURL), func(c echo.Context) error {
 		bucket := c.Param("bucket")
 		key := c.Param("key")
 		return c.JSON(http.StatusOK, ledger.CurrentData()[bucket][key])
 	})
 
+	// 获取指定存储桶的数据
 	ec.GET(fmt.Sprintf("%s/:bucket", LedgerURL), func(c echo.Context) error {
 		bucket := c.Param("bucket")
 		return c.JSON(http.StatusOK, ledger.CurrentData()[bucket])
@@ -274,7 +301,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 
 	announcing := struct{ State string }{"Announcing"}
 
-	// Store arbitrary data
+	// 存储任意数据
 	ec.PUT(fmt.Sprintf("%s/:bucket/:key/:value", LedgerURL), func(c echo.Context) error {
 		bucket := c.Param("bucket")
 		key := c.Param("key")
@@ -284,6 +311,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		return c.JSON(http.StatusOK, announcing)
 	})
 
+	// DNS 记录列表端点
 	ec.GET(DNSURL, func(c echo.Context) error {
 		res := []apiTypes.DNS{}
 		for r, e := range ledger.CurrentData()[protocol.DNSKey] {
@@ -304,7 +332,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		return c.JSON(http.StatusOK, res)
 	})
 
-	// Announce dns
+	// 发布 DNS 记录
 	ec.POST(DNSURL, func(c echo.Context) error {
 		d := new(apiTypes.DNS)
 		if err := c.Bind(d); err != nil {
@@ -319,7 +347,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		return c.JSON(http.StatusOK, announcing)
 	})
 
-	// Delete data from ledger
+	// 从账本删除数据
 	ec.DELETE(fmt.Sprintf("%s/:bucket", LedgerURL), func(c echo.Context) error {
 		bucket := c.Param("bucket")
 
@@ -327,6 +355,7 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 		return c.JSON(http.StatusOK, announcing)
 	})
 
+	// 删除指定存储桶和键的数据
 	ec.DELETE(fmt.Sprintf("%s/:bucket/:key", LedgerURL), func(c echo.Context) error {
 		bucket := c.Param("bucket")
 		key := c.Param("key")
@@ -337,10 +366,12 @@ func API(ctx context.Context, l string, defaultInterval, timeout time.Duration, 
 
 	ec.HideBanner = true
 
+	// 启动服务器
 	if err := ec.Start(l); err != nil && err != http.ErrServerClosed {
 		return err
 	}
 
+	// 优雅关闭
 	go func() {
 		<-ctx.Done()
 		ct, cancel := context.WithTimeout(context.Background(), 10*time.Second)

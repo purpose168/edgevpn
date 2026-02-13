@@ -20,7 +20,8 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+// TestTrustzone 信任区域测试入口函数
 func TestTrustzone(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Trustzone Suite")
+	RunSpecs(t, "信任区域测试套件")
 }

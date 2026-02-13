@@ -25,31 +25,31 @@ import (
 func DNS() *cli.Command {
 	return &cli.Command{
 		Name:        "dns",
-		Usage:       "Starts a local dns server",
-		Description: `Start a local dns server which uses the blockchain to resolve addresses`,
+		Usage:       "启动本地 DNS 服务器",
+		Description: `启动一个本地 DNS 服务器，使用区块链来解析地址`,
 		UsageText:   "edgevpn dns",
 		Flags: append(CommonFlags,
 			&cli.StringFlag{
 				Name:    "listen",
-				Usage:   "DNS listening address. Empty to disable dns server",
+				Usage:   "DNS 监听地址。留空则禁用 DNS 服务器",
 				EnvVars: []string{"DNSADDRESS"},
 				Value:   "",
 			},
 			&cli.BoolFlag{
 				Name:    "dns-forwarder",
-				Usage:   "Enables dns forwarding",
+				Usage:   "启用 DNS 转发",
 				EnvVars: []string{"DNSFORWARD"},
 				Value:   true,
 			},
 			&cli.IntFlag{
 				Name:    "dns-cache-size",
-				Usage:   "DNS LRU cache size",
+				Usage:   "DNS LRU 缓存大小",
 				EnvVars: []string{"DNSCACHESIZE"},
 				Value:   200,
 			},
 			&cli.StringSliceFlag{
 				Name:    "dns-forward-server",
-				Usage:   "List of DNS forward server, e.g. 8.8.8.8:53, 192.168.1.1:53 ...",
+				Usage:   "DNS 转发服务器列表，例如：8.8.8.8:53, 192.168.1.1:53 ...",
 				EnvVars: []string{"DNSFORWARDSERVER"},
 				Value:   cli.NewStringSlice("8.8.8.8:53", "1.1.1.1:53"),
 			},
@@ -58,7 +58,7 @@ func DNS() *cli.Command {
 			o, _, ll := cliToOpts(c)
 
 			dns := c.String("listen")
-			// Adds DNS Server
+			// 添加 DNS 服务器
 			o = append(o,
 				services.DNS(ll, dns,
 					c.Bool("dns-forwarder"),
@@ -75,7 +75,7 @@ func DNS() *cli.Command {
 			go handleStopSignals()
 
 			ctx := context.Background()
-			// Start the node to the network, using our ledger
+			// 启动节点到网络，使用我们的账本
 			if err := e.Start(ctx); err != nil {
 				return err
 			}
